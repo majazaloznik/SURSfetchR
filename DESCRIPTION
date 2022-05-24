@@ -1,11 +1,11 @@
 Package: SURSfetchR
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Fetching data from the SURS API
+Version: 0.0.0.9000
+Authors@R: person("Maja", "Zaloznik", email = "maja.zaloznik@gmail.com", 
+  role = c("aut", "cre"))
+Maintainer: majazaloznik <maja.zaloznik@gmail.com>
+Description: Checking for tables on the SURS API that have been updated (or created or delete), downloading the data, and preparing it for the UMAR data model. 
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
