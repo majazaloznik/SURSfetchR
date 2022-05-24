@@ -56,3 +56,42 @@ subset_parsed_df <- function(df, date = Sys.Date()){
   }
 }
 
+
+#' Get daily table changes from SURS' OPSI API
+#'
+#' SURS set up a convenience mini API for OPSI so they could get info on the
+#' daily changes. It returns New, Updated and Deleted tables. This function
+#' gets the response from the API for a particular date and desired table and
+#' cleans it up to keep just the date, clean table id code and title (the latter
+#' is just for kicks).
+#'
+#' @param date required, defaults to today.
+#' @param table One of "New", "Update" or "Delete", defaulting to "Update"
+#'
+#' @return a dataframe with three columns, or an error message if there was no data.
+#' @export
+#'
+surs_opsi_api <- function(date = Sys.Date(), table = "Update") {
+  tryCatch(
+    { url <- paste0("https://pxweb.stat.si/SiStat/sl/Api/", table)
+    date <- date
+
+    body <- paste0("{'Date': '", date, "'}")
+
+    r <- httr::POST(url= url,
+              body = body,
+              httr::content_type("application/json"))
+
+    df <- data.frame(matrix(unlist(httr::content(r)), nrow=length(httr::content(r)), byrow=TRUE)) %>%
+      dplyr::select(1:3)
+
+    return(df)
+    },
+    error = function(error_message) {
+      message("Looks like there is no data to return. Here's the original error:")
+      message(error_message, "\n")
+      return(NA)
+    }
+  )
+}
+

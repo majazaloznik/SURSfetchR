@@ -3,4 +3,5 @@
 export("%>%")
 export(parse_surs_updates)
 export(subset_parsed_df)
+export(surs_opsi_api)
 importFrom(magrittr,"%>%")
