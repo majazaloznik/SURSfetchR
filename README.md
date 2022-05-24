@@ -1,7 +1,13 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 
 # SURSfetchR
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/majazaloznik/SURSfetchR/workflows/R-CMD-check/badge.svg)](https://github.com/majazaloznik/SURSfetchR/actions)
 <!-- badges: end -->
 
