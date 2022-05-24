@@ -5,7 +5,7 @@ Version: 0.0.0.9000
 Authors@R: person("Maja", "Zaloznik", email = "maja.zaloznik@gmail.com", 
   role = c("aut", "cre"))
 Maintainer: majazaloznik <maja.zaloznik@gmail.com>
-Description: Checking for tables on the SURS API that have been updated (or created or delete), downloading the data, and preparing it for the UMAR data model. 
+Description: Checking for tables on the SURS API that have been updated (or created or deleted), downloading the data, and preparing it for the UMAR data model. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
