@@ -95,3 +95,72 @@ surs_opsi_api <- function(date = Sys.Date(), table = "Update") {
   )
 }
 
+
+#' Get complete list of published changes
+#'
+#' SURS set up another convenience API with the data used for
+#' [this list](https://pxweb.stat.si/SiStat/en/Notifications) where they publish
+#' all the anticipated changes to the database structure. This funciton pulls the
+#' data and parses it into a neat dataframe with only relevant (slovenian) columns.
+#'
+#' @return a data frame with 7 columns
+#' @export
+#'
+surs_change_api <- function() {
+  tryCatch(
+    {url <- paste0("https://pxweb.stat.si/SiStat/sl/Api/GetNotifications")
+    podrocja <- NULL
+
+    request <- httr::GET(url= url,
+                         httr::content_type("application/json"))
+
+    parsed_request <- jsonlite::fromJSON(httr::content(request, as = "text"))
+
+    parsed_request[[3]] %>%
+      tidyr::unnest(podrocja) %>%
+      dplyr::left_join(parsed_request[[2]]) %>%
+      dplyr::select(-dplyr::ends_with("Ang")) -> x
+
+    return(x)
+    },
+    error = function(error_message) {
+      message("Looks like there is no data to return. Here's the original error:")
+      message(error_message, "\n")
+      return(NA)
+    }
+  )
+}
+
+
+
+#' Compare newly parsed table with old table to see changes
+#'
+#' @param new_df dataframe output from \link[SURSfetchR]{surs_change_api}
+#' @param old_df dataframe output from \link[SURSfetchR]{update_change_table}
+#'
+#' @return dataframe with 7 columns
+#' @export
+#'
+extract_new_changes <- function(new_df, old_df) {
+new_df %>%
+    dplyr::anti_join(old_df) -> changes
+  return(changes)
+}
+
+
+#' Append new changes to change table
+#'
+#' Take the new changes extracted from the API by comparing with the change table
+#' add today's date and append to previous change table
+#'
+#' @param old_df dataframe output from \link[SURSfetchR]{update_change_table}
+#' @param changes dataframe output from \link[SURSfetchR]{extract_new_changes}
+#'
+#' @return dataframe with 8 columns
+#' @export
+#'
+update_change_table <- function(old_df, changes) {
+ changes %>%
+    dplyr::mutate(verjetniDatumObjave = Sys.Date()) %>%
+    dplyr::bind_rows(old_df)
+}

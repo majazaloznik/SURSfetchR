@@ -3,10 +3,8 @@
 test_that("html parsing is returning a relevant table", {
   df <- parse_surs_updates()
   expect_equal(ncol(df), 2)
-  expect_lte(nrow(df), 3709)
+  expect_gte(nrow(df), 3709)
   expect_true(lubridate::is.Date(df$date_updated))
-  df <- subset_parsed_df(df, "2022-05-23")
-  expect_equal(nrow(df), 16)
 })
 
 test_that("we're getting the correct data from the OPSI API", {
@@ -15,5 +13,30 @@ test_that("we're getting the correct data from the OPSI API", {
   expect_equal(ncol(df), 3)
   df <- surs_opsi_api(date = "2022-05-23", table = "New")
   expect_equal(df, NA)
+})
+
+test_that("API requests are parsed correctly", {
+  df <- surs_change_api()
+  expect_equal(ncol(df), 7)
+})
+
+test_that("New changes are correctly found", {
+  new_df <- readRDS(test_path("testdata", "test_request.rds"))
+  old_df <- readRDS(test_path("testdata", "original.rds"))
+  df <- extract_new_changes(new_df,
+                            old_df)
+  expect_equal(nrow(df), 3)
+  expect_equal(ncol(df), 7)
+  expect_true(any(grepl("1817607S", df$sporociloSlo, 7)))
+})
+
+test_that("New changes are correctly mreged with old", {
+  new_df <- readRDS(test_path("testdata", "test_request.rds"))
+  old_df <- readRDS(test_path("testdata", "original.rds"))
+  df <- extract_new_changes(new_df,
+                            old_df)
+  df <- update_change_table(old_df, df)
+  expect_equal(nrow(df), 13)
+  expect_equal(ncol(df), 8)
 })
 
