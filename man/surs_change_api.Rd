@@ -6,6 +6,10 @@
 \usage{
 surs_change_api(body = NULL)
 }
+\arguments{
+\item{body}{body to pass to the GET request, but really only required for
+testing, because there is no parameters required on this request.}
+}
 \value{
 a data frame with 7 columns
 }

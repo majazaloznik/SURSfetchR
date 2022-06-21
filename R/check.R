@@ -102,6 +102,8 @@ surs_opsi_api <- function(date = Sys.Date(), table = "Update") {
 #' all the anticipated changes to the database structure. This funciton pulls the
 #' data and parses it into a neat dataframe with only relevant (slovenian) columns.
 #'
+#' @param body body to pass to the GET request, but really only required for
+#' testing, because there is no parameters required on this request.
 #' @return a data frame with 7 columns
 #' @export
 #'
