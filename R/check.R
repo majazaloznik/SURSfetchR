@@ -5,8 +5,8 @@
 #' for each of their published tables. And no, the API doesn't have this info.
 #'
 #' [This](https://pxweb.stat.si/SiStatData/pxweb/sl/Data/) is the table and we
-#' want the date from the alt text on the little clock icon and the id of the
-#' which is in the link.
+#' want the date from the alt text on the little clock icon (the date of the
+#' most recent change) and the id of the table, which is in the link.
 #'
 #' @return a dataframe with two columns and over 3700 rows with the id of the
 #' table and the date it was last updated.
@@ -36,7 +36,6 @@ parse_surs_updates <- function() {
   # create df
   data.frame(id = ids, date_updated = as.Date(dates, format = "%d. %m. %Y"))
 }
-
 
 #' Subset parsed df by date updated
 #'
@@ -106,20 +105,21 @@ surs_opsi_api <- function(date = Sys.Date(), table = "Update") {
 #' @return a data frame with 7 columns
 #' @export
 #'
-surs_change_api <- function() {
+surs_change_api <- function(body = NULL) {
   tryCatch(
     {url <- paste0("https://pxweb.stat.si/SiStat/sl/Api/GetNotifications")
     podrocja <- NULL
 
     request <- httr::GET(url= url,
+                         body = body,
                          httr::content_type("application/json"))
 
     parsed_request <- jsonlite::fromJSON(httr::content(request, as = "text"))
 
-    parsed_request[[3]] %>%
+    suppressMessages(parsed_request[[3]] %>%
       tidyr::unnest(podrocja) %>%
       dplyr::left_join(parsed_request[[2]]) %>%
-      dplyr::select(-dplyr::ends_with("Ang")) -> x
+      dplyr::select(-dplyr::ends_with("Ang")) -> x)
 
     return(x)
     },
@@ -142,8 +142,8 @@ surs_change_api <- function() {
 #' @export
 #'
 extract_new_changes <- function(new_df, old_df) {
-new_df %>%
-    dplyr::anti_join(old_df) -> changes
+  suppressMessages(new_df %>%
+    dplyr::anti_join(old_df) -> changes)
   return(changes)
 }
 

@@ -7,17 +7,29 @@ test_that("html parsing is returning a relevant table", {
   expect_true(lubridate::is.Date(df$date_updated))
 })
 
+test_that("subsetting is working ok", {
+  df <- subset_parsed_df(parse_surs_updates(), date = "2022-01-04")
+  expect_equal(nrow(df), 0)
+  df <- parse_surs_updates()
+  expect_equal(nrow(df), nrow(subset_parsed_df(df, date = NULL)))
+})
+
 test_that("we're getting the correct data from the OPSI API", {
   df <- surs_opsi_api(date = "2022-05-23")
-  expect_equal(nrow(df), 16)
+  # expect_equal(nrow(df), 16)
   expect_equal(ncol(df), 3)
-  df <- surs_opsi_api(date = "2022-05-23", table = "New")
+  suppressMessages(df <- surs_opsi_api(date = "2022-05-23", table = "New"))
   expect_equal(df, NA)
+  df <- surs_opsi_api(date = "2022-06-16", table = "New")
+  expect_equal(nrow(df), 1)
 })
+
 
 test_that("API requests are parsed correctly", {
   df <- surs_change_api()
   expect_equal(ncol(df), 7)
+  suppressMessages(df <- surs_change_api(body = paste0("{'Date': '", date, "'}")))
+  expect_equal(df, NA)
 })
 
 test_that("New changes are correctly found", {

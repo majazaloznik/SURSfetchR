@@ -17,6 +17,6 @@ for each of their published tables. And no, the API doesn't have this info.
 }
 \details{
 [This](https://pxweb.stat.si/SiStatData/pxweb/sl/Data/) is the table and we
-want the date from the alt text on the little clock icon and the id of the
-which is in the link.
+want the date from the alt text on the little clock icon (the date of the
+most recent change) and the id of the table, which is in the link.
 }

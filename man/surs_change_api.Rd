@@ -4,7 +4,7 @@
 \alias{surs_change_api}
 \title{Get complete list of published changes}
 \usage{
-surs_change_api()
+surs_change_api(body = NULL)
 }
 \value{
 a data frame with 7 columns
