@@ -22,3 +22,5 @@ Imports:
     tidyr (>= 1.2.0),
     jsonlite (>= 1.8.0)
 RoxygenNote: 7.2.0
+Depends: 
+    R (>= 2.10)

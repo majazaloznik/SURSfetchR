@@ -20,3 +20,19 @@
 # saveRDS(original, "M:/analysis/SURSfetchR/tests/testdata/original.rds")
 # saveRDS(test_request, "M:/analysis/SURSfetchR/tests/testdata/test_request.rds")
 
+# codelist of different types of changes reported by the SURS change API
+url <- paste0("https://pxweb.stat.si/SiStat/sl/Api/GetNotifications")
+
+request <- httr::GET(url= url,
+                     httr::content_type("application/json"))
+
+parsed_request <- jsonlite::fromJSON(httr::content(request, as = "text"))
+change_types <- parsed_request[[2]]
+
+
+
+################################################################################
+# rerun this after you make any changes here!!!
+################################################################################
+usethis::use_data(change_types,
+                  internal = TRUE, overwrite = TRUE)
