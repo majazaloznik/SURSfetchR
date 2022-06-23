@@ -30,7 +30,7 @@ parse_row <- function(row) {
 print_for_type <- function(daily, type = 2) {
   idNotificationType <- NULL
   ifelse(any(daily$idNotificationType==type),
-         paste0("<b><i>", change_types$opisSlo[type], "</i></b>:<br><ul>",
+         paste0("<i>", change_types$opisSlo[type], "</i>:<br><ul>",
                paste(apply(subset(daily, idNotificationType == type) , 1,
                            function(row) parse_row(row)), collapse = ' '), "</ul><br>"), ""
   )
@@ -51,10 +51,10 @@ print_for_type <- function(daily, type = 2) {
 #' @export
 email_surs_changes_body <- function(changes, today) {
   if(nrow(changes) > 0 | nrow(today) > 0){
-    body <- "To je avtomatsko generirano sporo\u010dilo. <br>"
+    body <- "To je avtomatsko generirano sporo\u010dilo o napovedanih strukturnih spremembah v podatkovni bazi SiStat, ki jih SURS objavlja <a href='https://pxweb.stat.si/SiStat/sl/Notifications'>tukaj</a>.<br><br>"
     if(nrow(changes) > 0) {
       body <- paste0(body,
-                     "<b>SURS je na svoji <a href='https://pxweb.stat.si/SiStat/sl/Notifications'>strani</a> objavil naslednje napovedane spremembe:</b><br><br>",
+                     "<b>SURS je na novo objavil naslednje napovedane spremembe:</b><br><br>",
                      paste(unlist(lapply(1:6, function(x) print_for_type(changes, x))), collapse = ' '), "<br><br>")
     }
     if(nrow(today) > 0) {
@@ -83,8 +83,7 @@ email_surs_changes <- function(body, recipient = "maja.zaloznik@gmail.com") {
 
   text_msg <- gmailr::gm_mime() %>%
     gmailr::gm_to(recipient) %>%
-    gmailr::gm_subject("Novo-napovedane spremembe na SiStat bazi") %>%
-    gmailr::gm_from("umar.data.bot@gmail.com") %>%
+    gmailr::gm_subject("Spremembe na SiStat bazi") %>%
     gmailr::gm_html_body(body)
 
     gmailr::gm_send_message(text_msg)
