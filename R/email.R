@@ -50,7 +50,7 @@ print_for_type <- function(daily, type = 2) {
 #' @return chr.string or empty string
 #' @export
 email_surs_changes_body <- function(changes, today) {
-  if(nrow(changes) > 0 & nrow(today) > 0){
+  if(nrow(changes) > 0 | nrow(today) > 0){
     body <- "To je avtomatsko generirano sporo\\u010dilo. <br>"
     if(nrow(changes) > 0) {
       body <- paste0(body,
