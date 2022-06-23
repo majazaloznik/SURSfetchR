@@ -166,3 +166,23 @@ update_change_table <- function(old_df, changes) {
     dplyr::mutate(verjetniDatumObjave = Sys.Date()) %>%
     dplyr::bind_rows(old_df)
 }
+
+#' Extract changes that are due today
+#'
+#' Get dataframe of changes that are coming into effect on today's date - or
+#' another specified date
+#'
+#' @param new_df dataframe output from \link[SURSfetchR]{surs_change_api}
+#' @param date desired single date, defaults to today.
+#'
+#' @return dataframe with 7 columns (no publication date, because we don't need here)
+#' @export
+#'
+extract_todays_changes <- function(new_df, date = Sys.Date()) {
+  veljavnoOd <- NULL
+ new_df %>%
+    dplyr::mutate(veljavnoOd = format(substr(veljavnoOd, 1, 10), format= "%Y-%m-%d")) %>%
+    dplyr::filter(veljavnoOd == date)
+}
+
+

@@ -4,10 +4,10 @@
 \alias{email_surs_changes}
 \title{Email nicely parsed SURS reported changes}
 \usage{
-email_surs_changes(daily, recipient = "maja.zaloznik@gmail.com")
+email_surs_changes(body, recipient = "maja.zaloznik@gmail.com")
 }
 \arguments{
-\item{daily}{table output of \link[SURSfetchR]{extract_new_changes}}
+\item{body}{html character string output of  \link[SURSfetchR]{email_surs_changes_body}}
 
 \item{recipient}{single email of recipient}
 }
@@ -15,8 +15,8 @@ email_surs_changes(daily, recipient = "maja.zaloznik@gmail.com")
 null - side effect is sending an email.
 }
 \description{
-This email takes the outputs of \link[SURSfetchR]{extract_new_changes} that have
-been formatted with the helper function \link[SURSfetchR]{print_for_type} and
-emails it from a hardcoded gmail account - currently mine, but I'll change
-it to an Umar one. Not included in testing suite.
+This function takes a html text as the body from  \link[SURSfetchR]{email_surs_changes_body}
+and emails it from a hardcoded gmail account - the Umar Data Bot one one.
+Not included in testing suite. This will only work with the OAuth secrets in
+the gm_autn() setup from wherever this function is run.
 }

@@ -2,10 +2,10 @@
 
 export("%>%")
 export(email_surs_changes)
+export(email_surs_changes_body)
 export(extract_new_changes)
-export(parse_row)
+export(extract_todays_changes)
 export(parse_surs_updates)
-export(print_for_type)
 export(subset_parsed_df)
 export(surs_change_api)
 export(surs_opsi_api)
