@@ -51,7 +51,7 @@ print_for_type <- function(daily, type = 2) {
 #' @export
 email_surs_changes_body <- function(changes, today) {
   if(nrow(changes) > 0 | nrow(today) > 0){
-    body <- "To je avtomatsko generirano sporo\\u010dilo. <br>"
+    body <- "To je avtomatsko generirano sporo\u010dilo. <br>"
     if(nrow(changes) > 0) {
       body <- paste0(body,
                      "<b>SURS je na svoji <a href='https://pxweb.stat.si/SiStat/sl/Notifications'>strani</a> objavil naslednje napovedane spremembe:</b><br><br>",
@@ -59,7 +59,7 @@ email_surs_changes_body <- function(changes, today) {
     }
     if(nrow(today) > 0) {
       body <- paste0(body,
-                     "<b>Danes za\\u010dnejo veljati naslednje spremembe:</b><br><br>",
+                     "<b>Danes za\u010dnejo veljati naslednje spremembe:</b><br><br>",
                      paste(unlist(lapply(1:6, function(x) print_for_type(today, x))), collapse = ' '))
     }
   }
