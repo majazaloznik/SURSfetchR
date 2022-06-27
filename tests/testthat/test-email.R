@@ -15,8 +15,8 @@ test_that("Email body is rendered correctly", {
   changes <- extract_new_changes(readRDS(test_path("testdata", "test_request.rds")),
                                readRDS(test_path("testdata", "original.rds")))
   new_df <- readRDS(test_path("testdata", "test_request.rds"))
-  today <- extract_todays_changes(new_df, date = "2022-06-23")
-  df <- email_surs_changes_body(changes, today)
+  tomorrow <- extract_tomorrows_changes(new_df, date = "2022-06-23")
+  df <- email_surs_changes_body(changes, tomorrow)
   expect_equal(nchar(df), 2080)
 })
 

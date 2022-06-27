@@ -178,7 +178,7 @@ update_change_table <- function(old_df, changes) {
 #' @return dataframe with 7 columns (no publication date, because we don't need here)
 #' @export
 #'
-extract_todays_changes <- function(new_df, date = Sys.Date()) {
+extract_tomorrows_changes <- function(new_df, date = Sys.Date() + 1) {
   veljavnoOd <- NULL
  new_df %>%
     dplyr::mutate(veljavnoOd = format(substr(veljavnoOd, 1, 10), format= "%Y-%m-%d")) %>%

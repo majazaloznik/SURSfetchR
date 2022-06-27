@@ -9,14 +9,14 @@ email_surs_changes_body(changes, today)
 \arguments{
 \item{changes}{table output of \link[SURSfetchR]{extract_new_changes}}
 
-\item{today}{table output of \link[SURSfetchR]{extract_todays_changes}}
+\item{today}{table output of \link[SURSfetchR]{extract_tomorrows_changes}}
 }
 \value{
 chr.string or empty string
 }
 \description{
 This function takes the outputs of \link[SURSfetchR]{extract_new_changes} and
-\link[SURSfetchR]{extract_todays_changes} that have
+\link[SURSfetchR]{extract_tomorrows_changes} that have
 been formatted with the helper function \link[SURSfetchR]{print_for_type} and
 prepares the html body for emailing
 }

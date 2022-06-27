@@ -54,6 +54,6 @@ test_that("New changes are correctly mreged with old", {
 
 test_that("Changes for today's date are correctly extracted", {
   new_df <- readRDS(test_path("testdata", "test_request.rds"))
-  df <- extract_todays_changes(new_df, date = "2022-06-23")
+  df <- extract_tomorrows_changes(new_df, date = "2022-06-23")
   expect_equal(nrow(df), 4)
 })

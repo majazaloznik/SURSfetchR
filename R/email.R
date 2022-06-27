@@ -40,30 +40,30 @@ print_for_type <- function(daily, type = 2) {
 #' Prepare html body to email SURS changes
 #'
 #' This function takes the outputs of \link[SURSfetchR]{extract_new_changes} and
-#' \link[SURSfetchR]{extract_todays_changes} that have
+#' \link[SURSfetchR]{extract_tomorrows_changes} that have
 #' been formatted with the helper function \link[SURSfetchR]{print_for_type} and
 #' prepares the html body for emailing
 #'
 #' @param changes table output of \link[SURSfetchR]{extract_new_changes}
-#' @param today table output of \link[SURSfetchR]{extract_todays_changes}
+#' @param today table output of \link[SURSfetchR]{extract_tomorrows_changes}
 #'
 #' @return chr.string or empty string
 #' @export
 email_surs_changes_body <- function(changes, today) {
   if(nrow(changes) > 0 | nrow(today) > 0){
-    body <- "To je avtomatsko generirano sporo\u010dilo o napovedanih strukturnih spremembah v podatkovni bazi SiStat, ki jih SURS objavlja <a href='https://pxweb.stat.si/SiStat/sl/Notifications'>tukaj</a>.<br><br>"
+    email_body <- "To je avtomatsko generirano sporo\u010dilo o napovedanih strukturnih spremembah v podatkovni bazi SiStat, ki jih SURS objavlja <a href='https://pxweb.stat.si/SiStat/sl/Notifications'>tukaj</a>.<br><br>"
     if(nrow(changes) > 0) {
-      body <- paste0(body,
+      email_body <- paste0(email_body,
                      "<b>SURS je na novo objavil naslednje napovedane spremembe:</b><br><br>",
                      paste(unlist(lapply(1:6, function(x) print_for_type(changes, x))), collapse = ' '), "<br><br>")
     }
     if(nrow(today) > 0) {
-      body <- paste0(body,
-                     "<b>Danes za\u010dnejo veljati naslednje spremembe:</b><br><br>",
+      email_body <- paste0(email_body,
+                     "<b>Jutri za\u010dnejo veljati naslednje spremembe:</b><br><br>",
                      paste(unlist(lapply(1:6, function(x) print_for_type(today, x))), collapse = ' '))
     }
+    email_body
   }
-  body
 }
 
 
@@ -80,12 +80,12 @@ email_surs_changes_body <- function(changes, today) {
 #' @return null - side effect is sending an email.
 #' @export
 email_surs_changes <- function(body, recipient = "maja.zaloznik@gmail.com") {
-
-  text_msg <- gmailr::gm_mime() %>%
-    gmailr::gm_to(recipient) %>%
-    gmailr::gm_subject("Spremembe na SiStat bazi") %>%
-    gmailr::gm_html_body(body)
+  if(!is.null(body)){
+    text_msg <- gmailr::gm_mime() %>%
+      gmailr::gm_to(recipient) %>%
+      gmailr::gm_subject("Spremembe na SiStat bazi") %>%
+      gmailr::gm_html_body(body)
 
     gmailr::gm_send_message(text_msg)
-
+  }
 }
