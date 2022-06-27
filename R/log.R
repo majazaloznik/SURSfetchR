@@ -34,7 +34,7 @@ log_script_run <- function(path = here::here("logs"),
   )
 
   tryCatch(
-    {fname <- paste0(path, "/log_", gsub(".R", "", script),".rds")
+    {fname <- paste0(path, "/log_", sub("(.*)\\..*$", "\\1", basename(script)),".rds")
       if(file.exists(fname)) {
         log <- readRDS(fname)
         log[nrow(log) + 1, "timestamp"] <- last_run
