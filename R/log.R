@@ -14,7 +14,7 @@
 #'
 log_script_run <- function(path = here::here("logs"),
                            script = envDocument::getScriptPath() ){
-
+  script <- sub("O:/","\\\\192.168.38.7\\public$/", script)
   last_run <- Sys.time()
   tryCatch(
     {fname <- paste0(path,"/log.rds")
