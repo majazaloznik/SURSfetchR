@@ -1,7 +1,7 @@
 Package: SURSfetchR
 Type: Package
 Title: Fetching data from the SURS API
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: person("Maja", "Zaloznik", email = "maja.zaloznik@gmail.com", 
   role = c("aut", "cre"))
 Maintainer: majazaloznik <maja.zaloznik@gmail.com>
@@ -21,7 +21,8 @@ Imports:
     httr (>= 1.4.2),
     tidyr (>= 1.2.0),
     jsonlite (>= 1.8.0),
-    gmailr (>= 1.0.1)
+    gmailr (>= 1.0.1),
+    data.tree
 RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10)
