@@ -5,6 +5,7 @@ test_that("html parsing is returning a relevant table", {
   expect_equal(ncol(df), 2)
   expect_gte(nrow(df), 3709)
   expect_true(lubridate::is.Date(df$date_updated))
+  expect_true(sum(grepl("s", df$id)) == 0)
 })
 
 test_that("subsetting is working ok", {

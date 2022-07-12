@@ -25,6 +25,8 @@ parse_surs_updates <- function() {
   links <- rvest::html_attr(anchors_hrefs, 'href')
   # regex this baby
   ids <- gsub("/", "",gsub("/SiStatData/pxweb/sl/Data/-/", "", links))
+  # re-capitalise the small S-s
+  ids <-gsub("s", "S", ids)
 
   #identify the anchor tags in the first page URL
   xpath_icons <- '//*[contains(concat( " ", @class, " " ), concat( " ", "tableofcontent_metaicon", " " ))]'
