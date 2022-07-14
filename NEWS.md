@@ -1,3 +1,6 @@
+# SURSfetchR 0.0.4
+
+* Clean up emailng and fix bcc issue.
 
 # SURSfetchR 0.0.3
 

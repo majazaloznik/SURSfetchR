@@ -4,7 +4,7 @@
 \alias{email_surs_changes}
 \title{Email nicely parsed SURS reported Notifications changes}
 \usage{
-email_surs_changes(body, recipient = "maja.zaloznik@gmail.com")
+email_surs_changes(body, recipient)
 }
 \arguments{
 \item{body}{html character string output of  \link[SURSfetchR]{email_surs_changes_body}}

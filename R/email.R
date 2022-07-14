@@ -63,6 +63,8 @@ email_surs_changes_body <- function(changes, today) {
                      "<b>Jutri za\u010dnejo veljati naslednje spremembe:</b><br><br>",
                      paste(unlist(lapply(1:6, function(x) print_for_type(today, x))), collapse = ' '))
     }
+    email_body <- paste0(email_body,
+                     "<br>Tvoj Umar Data Bot &#129302;")
     email_body
   }
 }
@@ -80,10 +82,10 @@ email_surs_changes_body <- function(changes, today) {
 #'
 #' @return null - side effect is sending an email.
 #' @export
-email_surs_changes <- function(body, recipient = "maja.zaloznik@gmail.com") {
+email_surs_changes <- function(body, recipient) {
   if(!is.null(body)){
     text_msg <- gmailr::gm_mime() %>%
-      gmailr::gm_to(recipient) %>%
+      gmailr::gm_bcc(recipient) %>%
       gmailr::gm_subject("Spremembe na SiStat bazi") %>%
       gmailr::gm_html_body(body)
 
