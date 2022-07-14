@@ -2,7 +2,7 @@
 % Please edit documentation in R/email.R
 \name{email_surs_changes}
 \alias{email_surs_changes}
-\title{Email nicely parsed SURS reported changes}
+\title{Email nicely parsed SURS reported Notifications changes}
 \usage{
 email_surs_changes(body, recipient = "maja.zaloznik@gmail.com")
 }

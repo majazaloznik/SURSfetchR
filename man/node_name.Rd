@@ -17,3 +17,4 @@ Getting data from the depths of the API response. Helper function used
 to reshape and extract the data structure. Gets the name of the "podrocje"
 or the px matrix code
 }
+\keyword{internal}

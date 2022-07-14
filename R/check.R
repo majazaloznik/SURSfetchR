@@ -1,4 +1,4 @@
-#' Get the codes of updated tables
+#' Get the codes of updated tables from SURS html
 #'
 #' This function parses the html list on the SURS website which seems to be the
 #' only outside facing endpoint where you can get access to the update date
@@ -39,10 +39,12 @@ parse_surs_updates <- function() {
   data.frame(id = ids, date_updated = as.Date(dates, format = "%d. %m. %Y"))
 }
 
-#' Subset parsed df by date updated
+#' Subset parsed df from SURS html by date updated
+#'
+#' Function to get a subset of the dataframe parsed from the SURS website using
+#' \link[SURSfetchR]{parse_surs_updates}.
 #'
 #' @param df output of \link[SURSfetchR]{parse_surs_updates}
-#'
 #' @param date date to subset the table by, if empty defaults to today's date,
 #' if NULL returns whole table.
 #'
@@ -97,7 +99,7 @@ surs_opsi_api <- function(date = Sys.Date(), table = "Update") {
 }
 
 
-#' Get complete list of published changes
+#' Get complete list of published changes from Notificaitons API
 #'
 #' SURS set up another convenience API with the data used for
 #' [this list](https://pxweb.stat.si/SiStat/en/Notifications) where they publish
@@ -137,7 +139,10 @@ surs_change_api <- function(body = NULL) {
 
 
 
-#' Compare newly parsed table with old table to see changes
+#' Compare newly parsed table with old table to see changes in Notifications API
+#'
+#' A function to extract the newly published changes on the Notificaitons API since
+#' the script was previously run.
 #'
 #' @param new_df dataframe output from \link[SURSfetchR]{surs_change_api}
 #' @param old_df dataframe output from \link[SURSfetchR]{update_change_table}
@@ -154,8 +159,8 @@ extract_new_changes <- function(new_df, old_df) {
 
 #' Append new changes to change table
 #'
-#' Take the new changes extracted from the API by comparing with the change table
-#' add today's date and append to previous change table
+#' Take the new changes extracted from the Notifications API by comparing with
+#' the change table, add today's date and append to previous change table.
 #'
 #' @param old_df dataframe output from \link[SURSfetchR]{update_change_table}
 #' @param changes dataframe output from \link[SURSfetchR]{extract_new_changes}
@@ -169,17 +174,16 @@ update_change_table <- function(old_df, changes) {
     dplyr::bind_rows(old_df)
 }
 
-#' Extract changes that are due today
+#' Extract changes that are due tomorrow
 #'
-#' Get dataframe of changes that are coming into effect on today's date - or
-#' another specified date
+#' Get dataframe of changes that are coming into effect on tomorrow's date - or
+#' another specified date.
 #'
 #' @param new_df dataframe output from \link[SURSfetchR]{surs_change_api}
-#' @param date desired single date, defaults to today.
+#' @param date desired single date, defaults to tomorrow.
 #'
 #' @return dataframe with 7 columns (no publication date, because we don't need here)
 #' @export
-#'
 extract_tomorrows_changes <- function(new_df, date = Sys.Date() + 1) {
   veljavnoOd <- NULL
  new_df %>%

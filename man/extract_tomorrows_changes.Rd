@@ -2,19 +2,19 @@
 % Please edit documentation in R/check.R
 \name{extract_tomorrows_changes}
 \alias{extract_tomorrows_changes}
-\title{Extract changes that are due today}
+\title{Extract changes that are due tomorrow}
 \usage{
 extract_tomorrows_changes(new_df, date = Sys.Date() + 1)
 }
 \arguments{
 \item{new_df}{dataframe output from \link[SURSfetchR]{surs_change_api}}
 
-\item{date}{desired single date, defaults to today.}
+\item{date}{desired single date, defaults to tomorrow.}
 }
 \value{
 dataframe with 7 columns (no publication date, because we don't need here)
 }
 \description{
-Get dataframe of changes that are coming into effect on today's date - or
-another specified date
+Get dataframe of changes that are coming into effect on tomorrow's date - or
+another specified date.
 }

@@ -17,3 +17,4 @@ Getting data from the depths of the API response. Helper function used
 to reshape and extract the data structure. Gets the node's parent node name.
 Of course if the parent name is (archive)matrixList, it get's the next parent.
 }
+\keyword{internal}

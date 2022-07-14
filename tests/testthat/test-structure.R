@@ -1,5 +1,5 @@
 test_that("check API response is appropriate and the parsing works", {
-  rsp <- get_structAPI_response()
+  rsp <- get_API_response()
   expect_true(is.character(rsp))
   expect_gte(nchar(rsp), 2000000)
   out <- parse_structAPI_response(rsp)

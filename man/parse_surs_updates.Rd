@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{parse_surs_updates}
 \alias{parse_surs_updates}
-\title{Get the codes of updated tables}
+\title{Get the codes of updated tables from SURS html}
 \usage{
 parse_surs_updates()
 }

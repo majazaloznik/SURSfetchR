@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{surs_change_api}
 \alias{surs_change_api}
-\title{Get complete list of published changes}
+\title{Get complete list of published changes from Notificaitons API}
 \usage{
 surs_change_api(body = NULL)
 }

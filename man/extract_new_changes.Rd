@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{extract_new_changes}
 \alias{extract_new_changes}
-\title{Compare newly parsed table with old table to see changes}
+\title{Compare newly parsed table with old table to see changes in Notifications API}
 \usage{
 extract_new_changes(new_df, old_df)
 }
@@ -15,5 +15,6 @@ extract_new_changes(new_df, old_df)
 dataframe with 7 columns
 }
 \description{
-Compare newly parsed table with old table to see changes
+A function to extract the newly published changes on the Notificaitons API since
+the script was previously run.
 }

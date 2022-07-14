@@ -17,3 +17,4 @@ Getting data from the depths of the API response. Helper function used
 to reshape and extract the data structure. Gets the ID of the matrix file
 (which is different from the matrix ID, since it changes with every update).
 }
+\keyword{internal}

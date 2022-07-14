@@ -2,12 +2,12 @@
 % Please edit documentation in R/structure.R
 \name{parse_structAPI_response}
 \alias{parse_structAPI_response}
-\title{Parse API response into usable format}
+\title{Parse the SURS GetStructure API response into usable format}
 \usage{
 parse_structAPI_response(res, output = "tree")
 }
 \arguments{
-\item{res}{API text response - output from \link[SURSfetchR]{get_structAPI_response}}
+\item{res}{API text response - output from the SURS GetStructure API.}
 
 \item{output}{defaults to "tree", other possibilities are "lol" for a list of lists
 and "df" for a df obvs.}
@@ -16,6 +16,7 @@ and "df" for a df obvs.}
 a data.tree tree object, a data frame or a list of lists
 }
 \description{
+Takes the text response from the Getstructure API that we get using \link[SURSfetchR]{get_API_response}.
 Defaults to returning a tree structure from the package data.tree, but
 you could also return a data frame or a list of lists.
 }

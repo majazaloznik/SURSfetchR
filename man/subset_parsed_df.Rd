@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{subset_parsed_df}
 \alias{subset_parsed_df}
-\title{Subset parsed df by date updated}
+\title{Subset parsed df from SURS html by date updated}
 \usage{
 subset_parsed_df(df, date = Sys.Date())
 }
@@ -16,5 +16,6 @@ if NULL returns whole table.}
 table dataframe with two columns, nrow depends on subset.
 }
 \description{
-Subset parsed df by date updated
+Function to get a subset of the dataframe parsed from the SURS website using
+\link[SURSfetchR]{parse_surs_updates}.
 }

@@ -1,7 +1,7 @@
 Package: SURSfetchR
 Type: Package
 Title: Fetching data from the SURS API
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: person("Maja", "Zaloznik", email = "maja.zaloznik@gmail.com", 
   role = c("aut", "cre"))
 Maintainer: majazaloznik <maja.zaloznik@gmail.com>

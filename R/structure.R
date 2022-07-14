@@ -1,8 +1,10 @@
-#' Get file structure tree from Surs API
+#' Get API response in json format and extract as text
 #'
-#' This function returns the text response from the GetStructure method on the
+#' This function is a general funciton to return a simple json response in text
+#' format. The defaults are set to return from the GetStructure method on the
 #' SiStat API with the complete file (matrix) and category (field) structure
-#' for the available .px files
+#' for the available .px files, but can be used for anything. Added the user agent
+#' as well, currenlty this package repository.
 #'
 #' @param url in case you want to call some other API, but defaults to the GetStructure one
 #' @param ua thought i'd be nice and identify myself in the call, the user agent
@@ -12,7 +14,7 @@
 #' downstream
 #' @export
 #'
-get_structAPI_response <- function(url = "https://pxweb.stat.si/SiStat/sl/Api/GetStructure",
+get_API_response <- function(url = "https://pxweb.stat.si/SiStat/sl/Api/GetStructure",
                                    ua = httr::user_agent("https://github.com/majazaloznik/SURSfetchR")){
   res <- httr::GET(url = url,
                    response = "json",
@@ -20,12 +22,13 @@ get_structAPI_response <- function(url = "https://pxweb.stat.si/SiStat/sl/Api/Ge
   cont <- httr::content(res, as = "text")
 }
 
-#' Parse API response into usable format
+#' Parse the SURS GetStructure API response into usable format
 #'
+#' Takes the text response from the Getstructure API that we get using \link[SURSfetchR]{get_API_response}.
 #' Defaults to returning a tree structure from the package data.tree, but
 #' you could also return a data frame or a list of lists.
 #'
-#' @param res API text response - output from \link[SURSfetchR]{get_structAPI_response}
+#' @param res API text response - output from the SURS GetStructure API.
 #' @param output defaults to "tree", other possibilities are "lol" for a list of lists
 #' and "df" for a df obvs.
 #'
@@ -63,6 +66,7 @@ parse_structAPI_response <- function(res, output = "tree") {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_name <- function(node) {
   result <- node$naslovSlo
   if(length(result) == 0) result <- node$pxMatrixName
@@ -78,6 +82,7 @@ node_name <- function(node) {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_id <- function(node) {
   result <- node$idSistatPodrocje
   if(length(result) == 0) result <- node$idPxMatrix
@@ -93,6 +98,7 @@ node_id <- function(node) {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_file_id <- function(node) {
   result <- node$idPxFile
   return(result)
@@ -107,6 +113,7 @@ node_file_id <- function(node) {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_matrix_name <- function(node) {
   result <- node$description
   return(result)
@@ -122,6 +129,7 @@ node_matrix_name <- function(node) {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_updated <- function(node) {
   result <- node$lastUpdated
   return(result)
@@ -136,6 +144,7 @@ node_updated <- function(node) {
 #' @param node tree node
 #'
 #' @return character vector of length 1
+#' @keywords internal
 node_parent <- function(node) {
   if( node$isRoot ) {
     result <- 0
@@ -150,7 +159,7 @@ node_parent <- function(node) {
   }
 }
 
-#' Extract proper hierarcy from tree structure
+#' Extract proper hierarcy from tree structure from thr GetStructure API
 #'
 #' The tree structure has superfluous levels that need to be collapsed, which this function
 #' does, while pulling out the relevant labels and other fields we are interested in and

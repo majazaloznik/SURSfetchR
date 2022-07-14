@@ -15,5 +15,7 @@ a character string in html
 \description{
 This function takes a single 7 column row from the daily changes table output
 from \link[SURSfetchR]{extract_new_changes} and parses into a nice printable
-format that can then be used in a reporting email.
+format that can then be used in a reporting email. Helper function used in
+\link[SURSfetchR]{print_for_type}.
 }
+\keyword{internal}

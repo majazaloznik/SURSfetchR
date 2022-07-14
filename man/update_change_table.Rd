@@ -15,6 +15,6 @@ update_change_table(old_df, changes)
 dataframe with 8 columns
 }
 \description{
-Take the new changes extracted from the API by comparing with the change table
-add today's date and append to previous change table
+Take the new changes extracted from the Notifications API by comparing with
+the change table, add today's date and append to previous change table.
 }

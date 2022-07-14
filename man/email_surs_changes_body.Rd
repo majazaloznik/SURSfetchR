@@ -2,7 +2,7 @@
 % Please edit documentation in R/email.R
 \name{email_surs_changes_body}
 \alias{email_surs_changes_body}
-\title{Prepare html body to email SURS changes}
+\title{Prepare html body to email SURS Notifications changes}
 \usage{
 email_surs_changes_body(changes, today)
 }

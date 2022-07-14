@@ -2,7 +2,7 @@
 % Please edit documentation in R/email.R
 \name{print_for_type}
 \alias{print_for_type}
-\title{Prints out changes for a single change type}
+\title{Prints out changes for a single change type from Notifications}
 \usage{
 print_for_type(daily, type = 2)
 }
@@ -15,7 +15,8 @@ print_for_type(daily, type = 2)
 a character string in html
 }
 \description{
-This function takes as its input the daily changes table output
-from \link[SURSfetchR]{extract_new_changes} and for each type of change (1-6)
-prints out an emailable text.
+This function takes as its input the Notifications daily changes table output
+from \link[SURSfetchR]{extract_new_changes} or \link[SURSfetchR]{extract_tomorrows_changes}
+and for each type of change (1-6) prints out an emailable text.
 }
+\keyword{internal}

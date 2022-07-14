@@ -2,12 +2,13 @@
 #'
 #' This function takes a single 7 column row from the daily changes table output
 #' from \link[SURSfetchR]{extract_new_changes} and parses into a nice printable
-#' format that can then be used in a reporting email.
+#' format that can then be used in a reporting email. Helper function used in
+#' \link[SURSfetchR]{print_for_type}.
 #'
 #' @param row single row from table output of \link[SURSfetchR]{extract_new_changes}
 #'
 #' @return a character string in html
-#'
+#' @keywords internal
 parse_row <- function(row) {
   date <- format(as.Date(substr(row["veljavnoOd"], 1, 10), format= "%Y-%m-%d"), "%d.%m.%Y")
   text <- row["sporociloSlo"]
@@ -16,17 +17,17 @@ parse_row <- function(row) {
 }
 
 
-#' Prints out changes for a single change type
+#' Prints out changes for a single change type from Notifications
 #'
-#' This function takes as its input the daily changes table output
-#' from \link[SURSfetchR]{extract_new_changes} and for each type of change (1-6)
-#' prints out an emailable text.
+#' This function takes as its input the Notifications daily changes table output
+#' from \link[SURSfetchR]{extract_new_changes} or \link[SURSfetchR]{extract_tomorrows_changes}
+#' and for each type of change (1-6) prints out an emailable text.
 #'
 #' @param daily table output of \link[SURSfetchR]{extract_new_changes}
 #' @param type number from 1 to 6 for each different type of reported change.
 #'
 #' @return a character string in html
-#'
+#' @keywords internal
 print_for_type <- function(daily, type = 2) {
   idNotificationType <- NULL
   ifelse(any(daily$idNotificationType==type),
@@ -37,7 +38,7 @@ print_for_type <- function(daily, type = 2) {
 }
 
 
-#' Prepare html body to email SURS changes
+#' Prepare html body to email SURS Notifications changes
 #'
 #' This function takes the outputs of \link[SURSfetchR]{extract_new_changes} and
 #' \link[SURSfetchR]{extract_tomorrows_changes} that have
@@ -67,7 +68,7 @@ email_surs_changes_body <- function(changes, today) {
 }
 
 
-#' Email nicely parsed SURS reported changes
+#' Email nicely parsed SURS reported Notifications changes
 #'
 #' This function takes a html text as the body from  \link[SURSfetchR]{email_surs_changes_body}
 #' and emails it from a hardcoded gmail account - the Umar Data Bot one one.

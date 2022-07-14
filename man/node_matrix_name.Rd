@@ -17,3 +17,4 @@ Getting data from the depths of the API response. Helper function used
 to reshape and extract the data structure. Gets the long form name of the
 matrix.
 }
+\keyword{internal}
