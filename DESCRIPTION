@@ -24,8 +24,10 @@ Imports:
     jsonlite (>= 1.8.0),
     gmailr (>= 1.0.1),
     data.tree,
-    pxweb (>= 0.15.1),
-    tibble (>= 3.1.7)
+    tibble (>= 3.1.7),
+    pxweb
 RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10)
+Remotes:
+    rOpenGov/pxweb
