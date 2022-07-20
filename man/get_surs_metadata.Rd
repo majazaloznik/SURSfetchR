@@ -15,5 +15,6 @@ A tibble with four columns and the same number of rows as there
 are dimensions in the table
 }
 \description{
-GET the metadata for an individual table from the SURS API
+Takes the matrix code of a SURS table (with or without the .px extension)
+and uses GET to return the metadata as a tibble.
 }

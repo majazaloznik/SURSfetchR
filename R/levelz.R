@@ -1,5 +1,8 @@
 #' GET the metadata for an individual table from the SURS API
 #'
+#' Takes the matrix code of a SURS table (with or without the .px extension)
+#' and uses GET to return the metadata as a tibble.
+#'
 #' @param id character vector of length 1 with code of matrix. Can be with or
 #' without the .px extension.
 #'
@@ -13,17 +16,35 @@ get_surs_metadata <- function(id) {
   id <- ifelse(grepl(".px$", id), id, paste0(id, ".px"))
   url <- paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", id)
   res <-httr::GET(url)
-  mtd <- pxweb:::pxweb_parse_response(res)
+  mtd <- pxweb::pxweb_parse_response(res)
   mtdt_tbl <- tibble::tibble(
     dimension_name = sapply(mtd$variables, function(x) x$text),
     elim = sapply(mtd$variables, function(x) x$elimination),
     time = sapply(mtd$variables, function(x) x$time),
     levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4])))
+  Sys.sleep(0.075)
   return(mtdt_tbl)
 }
-#
-#
-# fill_listcolumn_w_mtdt(df){
-#
-#  return(df)
-# }
+
+
+#' GET metadata and join into dataframe of matrices
+#'
+#' Starting out with a data frame with an "id" column of matrix names, the
+#' function loops through them and parses the GET response metadata into
+#' a tibble that is saved in the "levelz" list-column. Uses
+#' \link[SURSfetchR]{get_surs_metadata} in the loop.
+#'
+#' @param df dataframe with an id column containing the .px codes
+#'
+#' @return a dataframe appended with the listcolumn of metadata
+#' @export
+fill_listcolumn_w_mtdt <- function(df) {
+  checkmate::assert_names(names(df), must.include = c("id"))
+  checkmate::assert_data_frame(df)
+  levelz <- vector("list", nrow(df))
+  for(i in 1:nrow(df)) {
+    levelz[[i]] <- get_surs_metadata(df$id[i])
+  }
+  df$levelz <- levelz
+ return(df)
+}
