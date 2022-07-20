@@ -204,6 +204,7 @@ get_full_structure <- function(tree){
                                    suffix = c("", "_parent"))) %>%
     dplyr::rename(name = my_name, parent_name = my_name_parent) %>%
     dplyr::mutate(parent_name = ifelse(is.na(parent_name), "SiStat", parent_name)) %>%
+    dplyr::mutate(arch = grepl("archiveMatrixList", pathString)) %>%
     dplyr::relocate(parent_name, .after = parent_id) %>%
     dplyr::distinct()-> full_hierarchy
 }
