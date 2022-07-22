@@ -12,7 +12,8 @@ log_script_run(
 \arguments{
 \item{path}{path to logs folder, defaults to `here::here("logs")`}
 
-\item{script}{name of script being run, defaults to actual script being run}
+\item{script}{path of script being run, defaults to actual script being run,
+which only works when beign sources.}
 }
 \value{
 NA if there is an error, otherwise nothing, but has side effects

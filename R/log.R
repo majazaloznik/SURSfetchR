@@ -6,7 +6,8 @@
 #' also includes the script name. Logs are dataframes saved as .rds files.
 #'
 #' @param path path to logs folder, defaults to `here::here("logs")`
-#' @param script name of script being run, defaults to actual script being run
+#' @param script path of script being run, defaults to actual script being run,
+#' which only works when beign sources.
 #'
 #' @return NA if there is an error, otherwise nothing, but has side effects
 #' of writing to log files.

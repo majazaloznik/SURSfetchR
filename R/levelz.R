@@ -22,21 +22,26 @@ get_surs_metadata <- function(id) {
     elim = sapply(mtd$variables, function(x) x$elimination),
     time = sapply(mtd$variables, function(x) x$time),
     levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4])))
-  Sys.sleep(0.075)
+  #Sys.sleep(0.075)
   return(mtdt_tbl)
 }
 
 
 #' GET metadata and join into dataframe of matrices
 #'
-#' Starting out with a data frame with an "id" column of matrix names, the
+#' Starting out with a data frame with an `id` column of matrix names, the
 #' function loops through them and parses the GET response metadata into
-#' a tibble that is saved in the "levelz" list-column. Uses
-#' \link[SURSfetchR]{get_surs_metadata} in the loop.
+#' a tibble that is saved in the `levelz` list-column. Uses
+#' \link[SURSfetchR]{get_surs_metadata} in the loop. Also pulls out some summary
+#' data from the tibbles to the highest levels, like `elim_any` if any dimensions
+#' have the elimination flag on, `time_any` if any have the time flag on, `dimz`
+#' to get the number of dimensions and `dim_names` with a vector of the dimension
+#' names.
 #'
 #' @param df dataframe with an id column containing the .px codes
 #'
-#' @return a dataframe appended with the listcolumn of metadata
+#' @return a dataframe appended with the listcolumn of metadata and
+#' other summary columns
 #' @export
 fill_listcolumn_w_mtdt <- function(df) {
   checkmate::assert_names(names(df), must.include = c("id"))
@@ -46,5 +51,9 @@ fill_listcolumn_w_mtdt <- function(df) {
     levelz[[i]] <- get_surs_metadata(df$id[i])
   }
   df$levelz <- levelz
+  df$elim_any <- apply(df, 1, \(x) any(x$levelz$elim == TRUE))
+  df$time_any <- apply(df, 1, \(x) any(x$levelz$time == TRUE))
+  df$dimz <- apply(df, 1, \(x) nrow(x$levelz))
+  df$dim_names <- apply(df, 1, \(x) paste0(x$levelz$dimension_name, collapse = "; "))
  return(df)
 }
