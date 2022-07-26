@@ -12,9 +12,9 @@
 #' @export
 get_surs_metadata <- function(id) {
   checkmate::qassert(id, "S[5,11]")
-  id <- sub(".PX$", ".px", id)
-  id <- ifelse(grepl(".px$", id), id, paste0(id, ".px"))
-  url <- paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", id)
+  id <- sub(".PX$", "", id)
+  id <- sub(".px$", "", id)
+  url <- paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", id, ".px")
   res <-httr::GET(url)
   mtd <- pxweb::pxweb_parse_response(res)
   mtdt_tbl <- tibble::tibble(
