@@ -37,5 +37,3 @@ test_that("Structure is extracted properly", {
   expect_true(inherits(tree, "Node"))
 })
 
-rm(rsp, out)
-

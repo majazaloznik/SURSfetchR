@@ -57,3 +57,43 @@ fill_listcolumn_w_mtdt <- function(df) {
   df$dim_names <- apply(df, 1, \(x) paste0(x$levelz$dimension_name, collapse = "; "))
  return(df)
 }
+
+
+
+#' Join together matrix hierarchy with relevant levels - for subset
+#'
+#' This function takes the matrix hierarchy you get out of \link[SURSfetchR]{get_matrix_hierarchy}
+#' and - gets the levels for each of the tables from the API, or rather for
+#' a subset if it is given. Outputs a multilevel nested dataframe that makes my head
+#' hurt, but has all the dataz.
+#'
+#' So if you leave all three parameters empty, you will get the full table for all
+#'
+#' @param mat_h Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
+#' provided the full one will be recreated from the GetStructure API.
+#' @param lev_h Nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt} with
+#' all the relevant levels, but will be requested if not provided.
+#' @param subset dataframe with an id column containing the .px codes of matrices of interest.
+#' If not provided, full mat_h list is used.
+#'
+#' @return a 11 column df with fiends, matrixes and levels for all the ids in the subset.
+#' @export
+#'
+matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL) {
+  if(is.null(subset)) subset <- data.frame(id = unique(mat_h$name))
+  if(!c("id") %in% names(subset)) stop("You need to provide the ids of the subset.")
+  if(is.null(mat_h)) {
+    cont <- get_API_response()
+    tree <- parse_structAPI_response(cont)
+    full <- get_full_structure(tree)
+    mat_h <- get_matrix_hierarchy(full)}
+  if(is.null(lev_h)) {
+    lev_h <- fill_listcolumn_w_mtdt(subset)
+  } else {
+    lev_h <- dplyr::right_join(subset, by = c("name" = "id"))
+  }
+  mat_h %>%
+    dplyr::right_join(lev_h, by = c("name" = "id")) -> out
+}
+
+
