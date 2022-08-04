@@ -84,7 +84,9 @@ pull_levels <- function(df){
 #' a subset if it is given. Outputs a multilevel nested dataframe that makes my head
 #' hurt, but has all the dataz.
 #'
-#' So if you leave all three parameters empty, you will get the full table for all
+#' So if you leave all three parameters empty, you will get the full table for all.
+#'
+#' Also, removes the archive matrices if the (default) archive parameter is set to FALSE
 #'
 #' @param mat_h Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
 #' provided the full one will be recreated from the GetStructure API.
@@ -92,11 +94,12 @@ pull_levels <- function(df){
 #' all the relevant levels, but will be requested if not provided.
 #' @param subset dataframe with an id column containing the .px codes of matrices of interest.
 #' If not provided, full mat_h list is used.
-#'
+#' @param archive default FALSE, removes rows with archived matrices
 #' @return a 13 column df with fields, matrixes and levels for all the ids in the subset.
 #' @export
 #'
-matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL) {
+matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
+                                     archive = FALSE) {
   if(is.null(subset)) subset <- data.frame(id = unique(mat_h$name))
   if(!c("id") %in% names(subset)) stop("You need to provide the ids of the subset.")
   subset$id <- sub(".PX$", "", subset$id)
@@ -106,13 +109,24 @@ matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL) 
     tree <- parse_structAPI_response(cont)
     full <- get_full_structure(tree)
     mat_h <- get_matrix_hierarchy(full)}
+  if(isFALSE(archive)) {
+      mat_h %>%
+      dplyr::filter(!grepl("archiveMatrixList", pathString)) -> mat_h}
   if(is.null(lev_h)) {
     lev_h <- pull_levels(fill_listcolumn_w_mtdt(subset))
   } else {
     lev_h <- dplyr::right_join(subset, by = c("name" = "id"))
   }
   mat_h %>%
-    dplyr::right_join(lev_h, by = c("name" = "id")) -> out
+    dplyr::inner_join(lev_h, by = c("name" = "id")) -> out
+  out %>%
+    dplyr::filter(time_any) -> out
+  if(nrow(out) >0) {
+    out$dim_notime <- apply(out, 1, \(x) x$levelz$time)
+    out$dim_names_notime <-  apply(out, 1, \(x) x$dim_names[!x$dim_notime])
+    out$dim_lz_notime <- apply(out, 1, \(x) x$dim_lz[!x$dim_notime])
+    out$no_series <- apply(out, 1, \(x) prod(unlist(x$dim_lz_notime)))
+    out <- dplyr::select(out, -dim_notime)}
   return(out)
 }
 

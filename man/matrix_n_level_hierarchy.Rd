@@ -4,7 +4,12 @@
 \alias{matrix_n_level_hierarchy}
 \title{Join together matrix hierarchy with relevant levels - for subset}
 \usage{
-matrix_n_level_hierarchy(mat_h = NULL, lev_h = NULL, subset = NULL)
+matrix_n_level_hierarchy(
+  mat_h = NULL,
+  lev_h = NULL,
+  subset = NULL,
+  archive = FALSE
+)
 }
 \arguments{
 \item{mat_h}{Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
@@ -15,6 +20,8 @@ all the relevant levels, but will be requested if not provided.}
 
 \item{subset}{dataframe with an id column containing the .px codes of matrices of interest.
 If not provided, full mat_h list is used.}
+
+\item{archive}{default FALSE, removes rows with archived matrices}
 }
 \value{
 a 13 column df with fields, matrixes and levels for all the ids in the subset.
@@ -26,5 +33,7 @@ a subset if it is given. Outputs a multilevel nested dataframe that makes my hea
 hurt, but has all the dataz.
 }
 \details{
-So if you leave all three parameters empty, you will get the full table for all
+So if you leave all three parameters empty, you will get the full table for all.
+
+Also, removes the archive matrices if the (default) archive parameter is set to FALSE
 }
