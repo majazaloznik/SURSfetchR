@@ -10,8 +10,7 @@ fill_listcolumn_w_mtdt(df)
 \item{df}{dataframe with an id column containing the .px codes}
 }
 \value{
-a dataframe appended with the listcolumn of metadata and
-other summary columns
+a dataframe appended with the listcolumn of metadata
 }
 \description{
 Starting out with a data frame with an `id` column of matrix names, the

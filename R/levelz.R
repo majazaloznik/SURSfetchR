@@ -21,8 +21,8 @@ get_surs_metadata <- function(id) {
     dimension_name = sapply(mtd$variables, function(x) x$text),
     elim = sapply(mtd$variables, function(x) x$elimination),
     time = sapply(mtd$variables, function(x) x$time),
-    levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4])))
-  #Sys.sleep(0.075)
+    levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4]))) %>%
+    dplyr::mutate(id = sub(".px$", "", id))
   return(mtdt_tbl)
 }
 
@@ -40,8 +40,7 @@ get_surs_metadata <- function(id) {
 #'
 #' @param df dataframe with an id column containing the .px codes
 #'
-#' @return a dataframe appended with the listcolumn of metadata and
-#' other summary columns
+#' @return a dataframe appended with the listcolumn of metadata
 #' @export
 fill_listcolumn_w_mtdt <- function(df) {
   checkmate::assert_names(names(df), must.include = c("id"))
@@ -51,14 +50,32 @@ fill_listcolumn_w_mtdt <- function(df) {
     levelz[[i]] <- get_surs_metadata(df$id[i])
   }
   df$levelz <- levelz
-  df$elim_any <- apply(df, 1, \(x) any(x$levelz$elim == TRUE))
-  df$time_any <- apply(df, 1, \(x) any(x$levelz$time == TRUE))
-  df$dimz <- apply(df, 1, \(x) nrow(x$levelz))
-  df$dim_names <- apply(df, 1, \(x) paste0(x$levelz$dimension_name, collapse = "; "))
  return(df)
 }
 
 
+#' Extract relevant info from the listcolumn with dimensions and levels
+#'
+#' Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}, this
+#' function extracts some stuff from the listcolumn with the data on dimensions and
+#' levels for each row, pulling them out into the top level of the dataframe.
+#'
+#' @param df dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}
+#'
+#' @return a dataframe with six additional columns
+#' @export
+pull_levels <- function(df){
+  df$elim_any <- apply(df, 1, \(x) any(x$levelz$elim == TRUE))
+  df$time_any <- apply(df, 1, \(x) any(x$levelz$time == TRUE))
+  df$dimz <- apply(df, 1, \(x) nrow(x$levelz))
+  df$dim_names <- apply(df, 1, \(x) paste0(x$levelz$dimension_name, collapse = "; "))
+  df$dim_lz <- apply(df, 1, \(x) as.list(apply(x$levelz, 1, \(z) nrow(z$levels))))
+  df$no_points <- apply(df, 1, \(x) prod(unlist(x$dim_lz)))
+  df %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(dim_lz = list(unlist(dim_lz))) -> df
+  return(df)
+}
 
 #' Join together matrix hierarchy with relevant levels - for subset
 #'
@@ -76,24 +93,27 @@ fill_listcolumn_w_mtdt <- function(df) {
 #' @param subset dataframe with an id column containing the .px codes of matrices of interest.
 #' If not provided, full mat_h list is used.
 #'
-#' @return a 11 column df with fiends, matrixes and levels for all the ids in the subset.
+#' @return a 13 column df with fields, matrixes and levels for all the ids in the subset.
 #' @export
 #'
 matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL) {
   if(is.null(subset)) subset <- data.frame(id = unique(mat_h$name))
   if(!c("id") %in% names(subset)) stop("You need to provide the ids of the subset.")
+  subset$id <- sub(".PX$", "", subset$id)
+  subset$id <- sub(".px$", "", subset$id)
   if(is.null(mat_h)) {
     cont <- get_API_response()
     tree <- parse_structAPI_response(cont)
     full <- get_full_structure(tree)
     mat_h <- get_matrix_hierarchy(full)}
   if(is.null(lev_h)) {
-    lev_h <- fill_listcolumn_w_mtdt(subset)
+    lev_h <- pull_levels(fill_listcolumn_w_mtdt(subset))
   } else {
     lev_h <- dplyr::right_join(subset, by = c("name" = "id"))
   }
   mat_h %>%
     dplyr::right_join(lev_h, by = c("name" = "id")) -> out
+  return(out)
 }
 
 

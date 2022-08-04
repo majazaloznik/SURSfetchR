@@ -9,4 +9,5 @@ mat_h <- get_matrix_hierarchy(full)
 
 api_list <- pxweb::pxweb_get("https://pxweb.stat.si/SiStatData/api/v1/sl/Data")
 df <- as.data.frame(api_list)[1:5,]
-matrixez_w_mtdt <- fill_listcolumn_w_mtdt(df)
+tmp <- fill_listcolumn_w_mtdt(df)
+matrixez_w_mtdt <- pull_levels(tmp)

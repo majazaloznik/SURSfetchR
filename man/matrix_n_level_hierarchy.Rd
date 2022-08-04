@@ -4,7 +4,7 @@
 \alias{matrix_n_level_hierarchy}
 \title{Join together matrix hierarchy with relevant levels - for subset}
 \usage{
-matrix_n_level_hierarchy(mat_h, lev_h, subset)
+matrix_n_level_hierarchy(mat_h = NULL, lev_h = NULL, subset = NULL)
 }
 \arguments{
 \item{mat_h}{Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
@@ -17,11 +17,14 @@ all the relevant levels, but will be requested if not provided.}
 If not provided, full mat_h list is used.}
 }
 \value{
-a 11 column df with fiends, matrixes and levels for all the ids in the subset.
+a 13 column df with fields, matrixes and levels for all the ids in the subset.
 }
 \description{
 This function takes the matrix hierarchy you get out of \link[SURSfetchR]{get_matrix_hierarchy}
 and - gets the levels for each of the tables from the API, or rather for
 a subset if it is given. Outputs a multilevel nested dataframe that makes my head
 hurt, but has all the dataz.
+}
+\details{
+So if you leave all three parameters empty, you will get the full table for all
 }
