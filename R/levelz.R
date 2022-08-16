@@ -32,11 +32,7 @@ get_surs_metadata <- function(id) {
 #' Starting out with a data frame with an `id` column of matrix names, the
 #' function loops through them and parses the GET response metadata into
 #' a tibble that is saved in the `levelz` list-column. Uses
-#' \link[SURSfetchR]{get_surs_metadata} in the loop. Also pulls out some summary
-#' data from the tibbles to the highest levels, like `elim_any` if any dimensions
-#' have the elimination flag on, `time_any` if any have the time flag on, `dimz`
-#' to get the number of dimensions and `dim_names` with a vector of the dimension
-#' names.
+#' \link[SURSfetchR]{get_surs_metadata} in the loop.
 #'
 #' @param df dataframe with an id column containing the .px codes
 #'
@@ -58,7 +54,11 @@ fill_listcolumn_w_mtdt <- function(df) {
 #'
 #' Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}, this
 #' function extracts some stuff from the listcolumn with the data on dimensions and
-#' levels for each row, pulling them out into the top level of the dataframe.
+#' levels for each row, pulling them out into the top level of the dataframe.  Pulls out some summary
+#' data from the tibbles to the highest levels, like `elim_any` if any dimensions
+#' have the elimination flag on, `time_any` if any have the time flag on, `dimz`
+#' to get the number of dimensions and `dim_names` with a vector of the dimension
+#' names.
 #'
 #' @param df dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}
 #'
@@ -68,12 +68,10 @@ pull_levels <- function(df){
   df$elim_any <- apply(df, 1, \(x) any(x$levelz$elim == TRUE))
   df$time_any <- apply(df, 1, \(x) any(x$levelz$time == TRUE))
   df$dimz <- apply(df, 1, \(x) nrow(x$levelz))
-  df$dim_names <- apply(df, 1, \(x) paste0(x$levelz$dimension_name, collapse = "; "))
-  df$dim_lz <- apply(df, 1, \(x) as.list(apply(x$levelz, 1, \(z) nrow(z$levels))))
+  df <- df %>%
+    dplyr::mutate(dim_names = purrr::map(levelz, ~ .x$dimension_name),
+                  dim_lz =   purrr::map(df$levelz, ~  purrr::map_dbl(.x$levels, nrow)))
   df$no_points <- apply(df, 1, \(x) prod(unlist(x$dim_lz)))
-  df %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(dim_lz = list(unlist(dim_lz))) -> df
   return(df)
 }
 
@@ -86,7 +84,10 @@ pull_levels <- function(df){
 #'
 #' So if you leave all three parameters empty, you will get the full table for all.
 #'
-#' Also, removes the archive matrices if the (default) archive parameter is set to FALSE
+#' Also, removes the archive matrices if the (default) archive parameter is set to FALSE.
+#'
+#' Importantly, the default also removes matrices that don't have a time parameter set properly!
+#'
 #'
 #' @param mat_h Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
 #' provided the full one will be recreated from the GetStructure API.
@@ -95,11 +96,13 @@ pull_levels <- function(df){
 #' @param subset dataframe with an id column containing the .px codes of matrices of interest.
 #' If not provided, full mat_h list is used.
 #' @param archive default FALSE, removes rows with archived matrices
+#' @param time defaults to TRUE ensuring only matrices with a tagged time dimension
+#' are included.
 #' @return a 13 column df with fields, matrixes and levels for all the ids in the subset.
 #' @export
 #'
-matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
-                                     archive = FALSE) {
+matrix_n_level_join <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
+                                     archive = FALSE, time = TRUE) {
   if(is.null(subset)) subset <- data.frame(id = unique(mat_h$name))
   if(!c("id") %in% names(subset)) stop("You need to provide the ids of the subset.")
   subset$id <- sub(".PX$", "", subset$id)
@@ -115,19 +118,28 @@ matrix_n_level_hierarchy <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
   if(is.null(lev_h)) {
     lev_h <- pull_levels(fill_listcolumn_w_mtdt(subset))
   } else {
-    lev_h <- dplyr::right_join(subset, by = c("name" = "id"))
+    if(!c("id") %in% names(lev_h)) stop("You need to provide the ids in the levels table")
+    lev_h$id <- sub(".PX$", "", lev_h$id)
+    lev_h$id <- sub(".px$", "", lev_h$id)
+    lev_h <- lev_h %>% dplyr::right_join(subset, by = c("id" = "id"))
   }
   mat_h %>%
     dplyr::inner_join(lev_h, by = c("name" = "id")) -> out
+  if(time) {
   out %>%
-    dplyr::filter(time_any) -> out
-  if(nrow(out) >0) {
-    out$dim_notime <- apply(out, 1, \(x) x$levelz$time)
-    out$dim_names_notime <-  apply(out, 1, \(x) x$dim_names[!x$dim_notime])
-    out$dim_lz_notime <- apply(out, 1, \(x) x$dim_lz[!x$dim_notime])
-    out$no_series <- apply(out, 1, \(x) prod(unlist(x$dim_lz_notime)))
-    out <- dplyr::select(out, -dim_notime)}
+    dplyr::filter(time_any) -> out}
   return(out)
 }
 
 
+full_hierarchy_unnest <- function(df) {
+  if(nrow(df) >0) {
+    # df$dim_notime <- apply(df, 1, \(x) x$levelz$time)
+    df <- df %>%
+      dplyr::mutate(dim_notime = purrr::map(levelz, ~ .x$time),
+                    dim_names_notime = purrr::map2(dim_names, dim_notime, ~ .x[!.y]),
+                    dim_lz_notime = purrr::map2(dim_lz, dim_notime,  ~ .x[!.y]),
+                    no_series = purrr::map(dim_lz_notime, prod)) %>%
+      dplyr::select( -dim_notime)}
+  return(df)
+}

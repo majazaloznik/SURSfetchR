@@ -19,8 +19,10 @@ test_that("Metadata tibbles are written into a listcolumn", {
 })
 
 test_that("Field and matrix and level hierarch works.", {
-  join <- matrix_n_level_hierarchy(mat_h,subset = df)
+  join <- matrix_n_level_join(mat_h, subset = df, archive = TRUE, time = FALSE)
   expect_true(nrow(join) >= nrow(df))
   expect_false(any(is.na(join$id)))
+  full <- full_hierarchy_unnest(join)
+  expect_true(ncol(join) + 3 == ncol(full))
 
 })

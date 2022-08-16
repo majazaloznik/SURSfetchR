@@ -15,5 +15,9 @@ a dataframe with six additional columns
 \description{
 Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}, this
 function extracts some stuff from the listcolumn with the data on dimensions and
-levels for each row, pulling them out into the top level of the dataframe.
+levels for each row, pulling them out into the top level of the dataframe.  Pulls out some summary
+data from the tibbles to the highest levels, like `elim_any` if any dimensions
+have the elimination flag on, `time_any` if any have the time flag on, `dimz`
+to get the number of dimensions and `dim_names` with a vector of the dimension
+names.
 }

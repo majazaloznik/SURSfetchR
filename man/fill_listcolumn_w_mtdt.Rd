@@ -16,9 +16,5 @@ a dataframe appended with the listcolumn of metadata
 Starting out with a data frame with an `id` column of matrix names, the
 function loops through them and parses the GET response metadata into
 a tibble that is saved in the `levelz` list-column. Uses
-\link[SURSfetchR]{get_surs_metadata} in the loop. Also pulls out some summary
-data from the tibbles to the highest levels, like `elim_any` if any dimensions
-have the elimination flag on, `time_any` if any have the time flag on, `dimz`
-to get the number of dimensions and `dim_names` with a vector of the dimension
-names.
+\link[SURSfetchR]{get_surs_metadata} in the loop.
 }
