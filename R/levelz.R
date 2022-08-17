@@ -84,9 +84,16 @@ pull_levels <- function(df){
 #'
 #' So if you leave all three parameters empty, you will get the full table for all.
 #'
+#' If both the full `mat_h` and `lev_h` are given, then subset determines which ones are
+#' in the final table.
+#'
+#' `lev_h` also operates as a subset if it is given, but this is really just useful
+#' for testing.
+#'
 #' Also, removes the archive matrices if the (default) archive parameter is set to FALSE.
 #'
-#' Importantly, the default also removes matrices that don't have a time parameter set properly!
+#' Importantly, the default also removes matrices that don't have a time parameter set
+#' which can be changed by changing `time` to `FALSE`.
 #'
 #'
 #' @param mat_h Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
@@ -121,7 +128,7 @@ matrix_n_level_join <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
     if(!c("id") %in% names(lev_h)) stop("You need to provide the ids in the levels table")
     lev_h$id <- sub(".PX$", "", lev_h$id)
     lev_h$id <- sub(".px$", "", lev_h$id)
-    lev_h <- lev_h %>% dplyr::right_join(subset, by = c("id" = "id"))
+    lev_h <- lev_h %>% dplyr::inner_join(subset, by = c("id" = "id"))
   }
   mat_h %>%
     dplyr::inner_join(lev_h, by = c("name" = "id")) -> out
@@ -132,6 +139,26 @@ matrix_n_level_join <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
 }
 
 
+#' Extract time dim stuff from nested tables in fully joined matrix & level table
+#'
+#' With the fully joined table output from \link[SURSfetchR]{matrix_n_level_join},
+#' this function extracts some more stuff from the nested listcolumns especially
+#' the dimensions that are not time related and calculates the number of
+#' series in each table (`no_series`).T
+#'
+#' This is not foolproof in the sense that the time dimension must be explicitly
+#' flagged with the time argument in the header, so if SURS doesn't do that,
+#' then the matrix won't show up here
+#'
+#'
+#' @param df dataframe output of \link[SURSfetchR]{matrix_n_level_join}
+#'
+#' @return dataframe with three more columns than going in: `dim_names_notime` are
+#' the dimensions without the time dimension, `dim_lz_notime` are the numbers of
+#' levels of these dimensions and `no_series` is the number of series in the matrix
+#'
+#' @export
+#'
 full_hierarchy_unnest <- function(df) {
   if(nrow(df) >0) {
     # df$dim_notime <- apply(df, 1, \(x) x$levelz$time)

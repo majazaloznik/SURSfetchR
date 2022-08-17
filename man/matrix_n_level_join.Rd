@@ -39,7 +39,14 @@ hurt, but has all the dataz.
 \details{
 So if you leave all three parameters empty, you will get the full table for all.
 
+If both the full `mat_h` and `lev_h` are given, then subset determines which ones are
+in the final table.
+
+`lev_h` also operates as a subset if it is given, but this is really just useful
+for testing.
+
 Also, removes the archive matrices if the (default) archive parameter is set to FALSE.
 
-Importantly, the default also removes matrices that don't have a time parameter set properly!
+Importantly, the default also removes matrices that don't have a time parameter set
+which can be changed by changing `time` to `FALSE`.
 }
