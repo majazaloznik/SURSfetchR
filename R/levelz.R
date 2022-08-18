@@ -166,7 +166,7 @@ full_hierarchy_unnest <- function(df) {
       dplyr::mutate(dim_notime = purrr::map(levelz, ~ .x$time),
                     dim_names_notime = purrr::map2(dim_names, dim_notime, ~ .x[!.y]),
                     dim_lz_notime = purrr::map2(dim_lz, dim_notime,  ~ .x[!.y]),
-                    no_series = purrr::map(dim_lz_notime, prod)) %>%
+                    no_series = purrr::map_dbl(dim_lz_notime, prod)) %>%
       dplyr::select( -dim_notime)}
   return(df)
 }
