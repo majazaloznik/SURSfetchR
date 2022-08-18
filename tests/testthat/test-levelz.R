@@ -28,4 +28,10 @@ test_that("Field and matrix and level hierarch works.", {
   full <- full_hierarchy_unnest(join)
   expect_true(ncol(join) + 3 == ncol(full))
   expect_true(all(full$no_points >= full$no_series))
+  full <- full %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(level_combos = list(get_level_combos(levelz, dim_names_notime))) %>%
+    tidyr::unnest(level_combos)
+  expect_true(ncol(full) == 26)
+  expect_true(nrow(full) == 3459)
 })

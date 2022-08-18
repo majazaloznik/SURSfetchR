@@ -170,3 +170,29 @@ full_hierarchy_unnest <- function(df) {
       dplyr::select( -dim_notime)}
   return(df)
 }
+
+
+#' Helper function for extracting level combinations for each matrix
+#'
+#' Starting from the dataframe output from \link[SURSfetchR]{full_hierarchy_unnest}
+#' this helper function gets the non-time levels from the `levelz` table, specifically
+#' their names and creates a table with all possible combinations i.e. a table listing
+#' all the series inside each matrix. Can be used `rowwise` in a `mutate` call with
+#' something like  `list(get_level_combos(levelz, dim_names_notime)))`, but don't
+#' try running it on the whole table, since it would end up with 415 million rows
+#' and that won't work..
+#'
+#' @param x name of listcolumn with levelz tibbles
+#' @param y name of listcolumn with dimension names to be used (so you can use
+#' a subset - usually the subset excluding the time variable)
+#' @return a dataframe or tibble with a column for each level and a row for each
+#' combination of level values.
+#
+#' @export
+get_level_combos <- function(x, y) {
+  x %>%
+    dplyr::filter(dimension_name %in% unlist(y)) %>%
+    dplyr::pull(levels) %>%
+    purrr::map( "valueTexts") %>%
+    expand.grid()
+}
