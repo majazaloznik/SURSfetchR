@@ -21,3 +21,6 @@ have the elimination flag on, `time_any` if any have the time flag on, `dimz`
 to get the number of dimensions and `dim_names` with a vector of the dimension
 names.
 }
+\details{
+Also changes the data type for the updated to POSIXct
+}

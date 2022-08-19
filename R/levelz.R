@@ -60,6 +60,8 @@ fill_listcolumn_w_mtdt <- function(df) {
 #' to get the number of dimensions and `dim_names` with a vector of the dimension
 #' names.
 #'
+#' Also changes the data type for the updated to POSIXct
+#'
 #' @param df dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}
 #'
 #' @return a dataframe with six additional columns
@@ -72,6 +74,9 @@ pull_levels <- function(df){
     dplyr::mutate(dim_names = purrr::map(levelz, ~ .x$dimension_name),
                   dim_lz =   purrr::map(df$levelz, ~  purrr::map_dbl(.x$levels, nrow)))
   df$no_points <- apply(df, 1, \(x) prod(unlist(x$dim_lz)))
+  if("updated" %in% colnames(df)) {
+  df %>%
+    dplyr::mutate(updated = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone())) -> df}
   return(df)
 }
 

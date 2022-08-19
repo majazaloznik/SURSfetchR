@@ -28,6 +28,7 @@ test_that("Structure is extracted properly", {
   expect_equal(ncol(full), 9)
   expect_gt(nrow(full), 6000)
   expect_true(all(sapply(full, \(x) !all(is.na(x)))))
+  expect_true(inherits(full$updated, "POSIXct"))
   mat_h <- get_matrix_hierarchy(full)
   expect_true(nrow(mat_h) < nrow(full))
   field_h <- get_field_hierarchy(full)

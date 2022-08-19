@@ -2,7 +2,7 @@
 % Please edit documentation in R/structure.R
 \name{get_full_structure}
 \alias{get_full_structure}
-\title{Extract proper hierarcy from tree structure from thr GetStructure API}
+\title{Extract proper hierarcy from tree structure from the GetStructure API}
 \usage{
 get_full_structure(tree)
 }

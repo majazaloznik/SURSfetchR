@@ -159,7 +159,7 @@ node_parent <- function(node) {
   }
 }
 
-#' Extract proper hierarcy from tree structure from thr GetStructure API
+#' Extract proper hierarcy from tree structure from the GetStructure API
 #'
 #' The tree structure has superfluous levels that need to be collapsed, which this function
 #' does, while pulling out the relevant labels and other fields we are interested in and
@@ -204,6 +204,7 @@ get_full_structure <- function(tree){
                                    suffix = c("", "_parent"))) %>%
     dplyr::rename(name = my_name, parent_name = my_name_parent) %>%
     dplyr::mutate(parent_name = ifelse(is.na(parent_name), "SiStat", parent_name)) %>%
+    dplyr::mutate(updated = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone())) %>%
     dplyr::mutate(arch = grepl("archiveMatrixList", pathString)) %>%
     dplyr::relocate(parent_name, .after = parent_id) %>%
     dplyr::distinct()-> full_hierarchy

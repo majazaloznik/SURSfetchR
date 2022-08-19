@@ -14,10 +14,11 @@ test_that("Metadata is properly parsed from GET", {
 test_that("Metadata tibbles are written into a listcolumn", {
   expect_error(fill_listcolumn_w_mtdt("222"))
   checkmate::expect_tibble(matrixez_w_mtdt$levelz[[1]])
-  x <- data.frame(id = c("0156104S"))
+  x <- data.frame(id = c("0156104S"), updated = "2022-05-30T10:30:00")
   xx <- fill_listcolumn_w_mtdt(x)
   xxx <- pull_levels(xx)
-  expect_equal(ncol(xxx), 8)
+  expect_equal(ncol(xxx), 9)
+  expect_true(inherits(xxx$updated, "POSIXct"))
 })
 
 test_that("Field and matrix and level hierarch works.", {
