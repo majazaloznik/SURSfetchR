@@ -16,7 +16,7 @@ matrix_n_level_join(
 \item{mat_h}{Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
 provided the full one will be recreated from the GetStructure API.}
 
-\item{lev_h}{Nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt} with
+\item{lev_h}{Nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz} with
 all the relevant levels, but will be requested if not provided.}
 
 \item{subset}{dataframe with an id column containing the .px codes of matrices of interest.

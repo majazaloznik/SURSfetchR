@@ -8,7 +8,7 @@
 # api_list <- pxweb::pxweb_get("https://pxweb.stat.si/SiStatData/api/v1/sl/Data")
 # set.seed(42)
 # df <- as.data.frame(api_list)[sample(1:3000,5),]
-# tmp <- fill_listcolumn_w_mtdt(df)
+# tmp <- fill_listcolumn_w_levelz(df)
 # matrixez_w_mtdt <- pull_levels(tmp)
 #
 # saveRDS(matrixez_w_mtdt, "tests/testthat/testdata/matrixez_w_mtdt.rds")

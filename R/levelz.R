@@ -1,7 +1,10 @@
-#' GET the metadata for an individual table from the SURS API
+#' GET the dimensions and levels for an individual table from the SURS API
 #'
 #' Takes the matrix code of a SURS table (with or without the .px extension)
-#' and uses GET to return the metadata as a tibble.
+#' and uses GET to return the metadata as a tibble. NB: this is a limited set
+#' of metadata, with only dim_names and levels and the elim and time varz.
+#' I think I used it because it had the levels in a nice format. Use XXX instead
+#' to get the richer metadata out.
 #'
 #' @param id character vector of length 1 with code of matrix. Can be with or
 #' without the .px extension.
@@ -10,7 +13,7 @@
 #' are dimensions in the table
 #'
 #' @export
-get_surs_metadata <- function(id) {
+get_table_levels <- function(id) {
   checkmate::qassert(id, "S[5,11]")
   id <- sub(".PX$", "", id)
   id <- sub(".px$", "", id)
@@ -27,23 +30,23 @@ get_surs_metadata <- function(id) {
 }
 
 
-#' GET metadata and join into dataframe of matrices
+#' GET levels and join into dataframe of matrices
 #'
 #' Starting out with a data frame with an `id` column of matrix names, the
-#' function loops through them and parses the GET response metadata into
+#' function loops through them and parses the GET response metadata (mainly levels) into
 #' a tibble that is saved in the `levelz` list-column. Uses
-#' \link[SURSfetchR]{get_surs_metadata} in the loop.
+#' \link[SURSfetchR]{get_table_levels} in the loop.
 #'
 #' @param df dataframe with an id column containing the .px codes
 #'
 #' @return a dataframe appended with the listcolumn of metadata
 #' @export
-fill_listcolumn_w_mtdt <- function(df) {
+fill_listcolumn_w_levelz <- function(df) {
   checkmate::assert_names(names(df), must.include = c("id"))
   checkmate::assert_data_frame(df)
   levelz <- vector("list", nrow(df))
   for(i in 1:nrow(df)) {
-    levelz[[i]] <- get_surs_metadata(df$id[i])
+    levelz[[i]] <- get_table_levels(df$id[i])
     Sys.sleep(0.1)
   }
   df$levelz <- levelz
@@ -53,7 +56,7 @@ fill_listcolumn_w_mtdt <- function(df) {
 
 #' Extract relevant info from the listcolumn with dimensions and levels
 #'
-#' Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}, this
+#' Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz}, this
 #' function extracts some stuff from the listcolumn with the data on dimensions and
 #' levels for each row, pulling them out into the top level of the dataframe.  Pulls out some summary
 #' data from the tibbles to the highest levels, like `elim_any` if any dimensions
@@ -63,7 +66,7 @@ fill_listcolumn_w_mtdt <- function(df) {
 #'
 #' Also changes the data type for the updated to POSIXct
 #'
-#' @param df dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}
+#' @param df dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz}
 #'
 #' @return a dataframe with six additional columns
 #' @export
@@ -105,7 +108,7 @@ pull_levels <- function(df){
 #'
 #' @param mat_h Nested dataframe output of \link[SURSfetchR]{get_matrix_hierarchy}. If not
 #' provided the full one will be recreated from the GetStructure API.
-#' @param lev_h Nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt} with
+#' @param lev_h Nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz} with
 #' all the relevant levels, but will be requested if not provided.
 #' @param subset dataframe with an id column containing the .px codes of matrices of interest.
 #' If not provided, full mat_h list is used.
@@ -130,7 +133,7 @@ matrix_n_level_join <- function(mat_h = NULL, lev_h = NULL, subset = NULL,
       mat_h %>%
       dplyr::filter(!grepl("archiveMatrixList", pathString)) -> mat_h}
   if(is.null(lev_h)) {
-    lev_h <- pull_levels(fill_listcolumn_w_mtdt(subset))
+    lev_h <- pull_levels(fill_listcolumn_w_levelz(subset))
   } else {
     if(!c("id") %in% names(lev_h)) stop("You need to provide the ids in the levels table")
     lev_h$id <- sub(".PX$", "", lev_h$id)

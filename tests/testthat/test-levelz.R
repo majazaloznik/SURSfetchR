@@ -2,20 +2,20 @@ matrixez_w_mtdt <- readRDS(test_path("testdata", "matrixez_w_mtdt.rds"))
 mat_h <- readRDS(test_path("testdata", "mat_h.rds"))
 
 test_that("Metadata is properly parsed from GET", {
-  expect_error(get_surs_metadata("222"))
-  mtdt_tbl <- get_surs_metadata("2221702S")
+  expect_error(get_table_levels("222"))
+  mtdt_tbl <- get_table_levels("2221702S")
   checkmate::expect_tibble(mtdt_tbl)
   checkmate::expect_list(mtdt_tbl$levels)
-  expect_equal(mtdt_tbl, get_surs_metadata("2221702S.px"))
-  expect_equal(mtdt_tbl, get_surs_metadata("2221702S.PX"))
+  expect_equal(mtdt_tbl, get_table_levels("2221702S.px"))
+  expect_equal(mtdt_tbl, get_table_levels("2221702S.PX"))
 })
 
 
 test_that("Metadata tibbles are written into a listcolumn", {
-  expect_error(fill_listcolumn_w_mtdt("222"))
+  expect_error(fill_listcolumn_w_levelz("222"))
   checkmate::expect_tibble(matrixez_w_mtdt$levelz[[1]])
   x <- data.frame(id = c("0156104S"), updated = "2022-05-30T10:30:00")
-  xx <- fill_listcolumn_w_mtdt(x)
+  xx <- fill_listcolumn_w_levelz(x)
   xxx <- pull_levels(xx)
   expect_equal(ncol(xxx), 9)
   expect_true(inherits(xxx$updated_file, "POSIXct"))

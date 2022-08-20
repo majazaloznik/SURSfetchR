@@ -7,13 +7,13 @@
 pull_levels(df)
 }
 \arguments{
-\item{df}{dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}}
+\item{df}{dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz}}
 }
 \value{
 a dataframe with six additional columns
 }
 \description{
-Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_mtdt}, this
+Taking the nested dataframe output of \link[SURSfetchR]{fill_listcolumn_w_levelz}, this
 function extracts some stuff from the listcolumn with the data on dimensions and
 levels for each row, pulling them out into the top level of the dataframe.  Pulls out some summary
 data from the tibbles to the highest levels, like `elim_any` if any dimensions
