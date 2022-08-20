@@ -44,6 +44,7 @@ fill_listcolumn_w_mtdt <- function(df) {
   levelz <- vector("list", nrow(df))
   for(i in 1:nrow(df)) {
     levelz[[i]] <- get_surs_metadata(df$id[i])
+    Sys.sleep(0.1)
   }
   df$levelz <- levelz
  return(df)
