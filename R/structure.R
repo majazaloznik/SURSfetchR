@@ -204,7 +204,8 @@ get_full_structure <- function(tree){
                                    suffix = c("", "_parent"))) %>%
     dplyr::rename(name = my_name, parent_name = my_name_parent) %>%
     dplyr::mutate(parent_name = ifelse(is.na(parent_name), "SiStat", parent_name)) %>%
-    dplyr::mutate(updated = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone())) %>%
+    dplyr::mutate(published = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone()),
+                  .keep = "unused") %>%
     dplyr::mutate(arch = grepl("archiveMatrixList", pathString)) %>%
     dplyr::relocate(parent_name, .after = parent_id) %>%
     dplyr::distinct()-> full_hierarchy
@@ -244,7 +245,7 @@ get_field_hierarchy <- function(full_df) {
            pathString = gsub("/archiveMatrixList$", "", pathString),
            pathString = gsub("/$", "", pathString)) %>%
     dplyr::distinct(pathString, .keep_all= TRUE) %>%
-    dplyr::select(-file_id,  -matrix_name, -updated) -> field_hierarchy
+    dplyr::select(-file_id,  -matrix_name, -published) -> field_hierarchy
   field_hierarchy
 }
 

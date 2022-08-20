@@ -18,7 +18,7 @@ test_that("Metadata tibbles are written into a listcolumn", {
   xx <- fill_listcolumn_w_mtdt(x)
   xxx <- pull_levels(xx)
   expect_equal(ncol(xxx), 9)
-  expect_true(inherits(xxx$updated, "POSIXct"))
+  expect_true(inherits(xxx$updated_file, "POSIXct"))
 })
 
 test_that("Field and matrix and level hierarch works.", {

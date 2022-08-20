@@ -76,7 +76,8 @@ pull_levels <- function(df){
   df$no_points <- apply(df, 1, \(x) prod(unlist(x$dim_lz)))
   if("updated" %in% colnames(df)) {
   df %>%
-    dplyr::mutate(updated = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone())) -> df}
+    dplyr::mutate(updated_file = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone()),
+                  .keep = "unused") -> df}
   return(df)
 }
 
