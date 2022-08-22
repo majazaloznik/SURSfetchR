@@ -11,11 +11,11 @@ get_px_metadata(id)
 without the .px extension.}
 }
 \value{
-A tibble with four columns and single row
+A data.frame with seven columns and single row
 }
 \description{
 In addition to the  \link[SURSfetchR]{get_table_levels} function, which gets the table's
 dimensions and levels, this one gets some other metadata from the .px file, which are
 not available to the pxweb library but use the pxR library. These are the creation date,
-units and notes, which are parsed as a list
+units and notes, which are parsed as json and some other minor things.
 }

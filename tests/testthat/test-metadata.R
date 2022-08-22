@@ -6,4 +6,5 @@ test_that("Metadata is properly parsed", {
   expect_equal(mtdt_tbl, get_px_metadata("2221702S.px"))
   expect_equal(mtdt_tbl, get_px_metadata("2221702S.PX"))
   checkmate::expect_posixct(mtdt_tbl$created)
+  expect_true(ncol(mtdt_tbl)== 7)
 })
