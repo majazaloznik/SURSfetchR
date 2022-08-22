@@ -20,9 +20,11 @@ get_px_metadata <- function(id) {
                     encoding = "CP1250",
                     na.strings = c('"."', '".."', '"..."', '"...."')
   )
-  df <- data.frame(name = unlist(l$MATRIX),
+  df <- data.frame(code = unlist(l$MATRIX),
+                   name = unlist(l$DESCRIPTION),
                created = as.POSIXct(l$CREATION.DATE[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
                units = l$UNITS[[1]],
-               notes = I(list(c(l$NOTE, l$NOTEX))))
+               notes = I(list(c(l$NOTE, l$NOTEX)))) %>%
+    dplyr::mutate(notes = jsonlite::toJSON(notes))
   df
 }
