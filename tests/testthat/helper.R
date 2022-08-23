@@ -13,3 +13,4 @@
 #
 # saveRDS(matrixez_w_mtdt, "tests/testthat/testdata/matrixez_w_mtdt.rds")
 # saveRDS(mat_h, "tests/testthat/testdata/mat_h.rds")
+# saveRDS(full, "tests/testthat/testdata/full_h.rds")
