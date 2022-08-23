@@ -65,7 +65,7 @@ write_multiple_rows <- function(master_list_surs, con, table_name, sql_statement
 
   counter <- 0
   for (i in seq(nrow(master_list_surs))){
-    counter <- get(paste("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter)
+    counter <- get(paste0("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter)
   }
   message(paste(counter, "new rows inserted into table ", table_name))
 }
