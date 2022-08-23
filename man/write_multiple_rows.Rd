@@ -4,7 +4,7 @@
 \alias{write_multiple_rows}
 \title{Umbrella function to write multiple rows into the a postgres table}
 \usage{
-write_multiple_rows(master_list_surs, con, table_name, sql_statement)
+write_multiple_rows(master_list_surs, con, table_name, sql_statement, ...)
 }
 \arguments{
 \item{master_list_surs}{dataframe with at minimum a "code" column with
