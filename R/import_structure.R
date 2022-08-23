@@ -9,7 +9,7 @@
 #' @param dbtable the `tbl()` link to the table we are inserting to
 #' @param con connection to the database
 #' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_rows_table}
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
 #' to count how many successful rows were inserted.
 #'
 #' @return side effect is writing to the database.

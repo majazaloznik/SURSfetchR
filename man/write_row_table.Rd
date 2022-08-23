@@ -15,7 +15,7 @@ write_row_table(code_no, dbtable, con, sql_statement, counter)
 
 \item{sql_statement}{the sql statement to insert the values}
 
-\item{counter}{integer counter used in  \link[SURSfetchR]{write_rows_table}
+\item{counter}{integer counter used in  \link[SURSfetchR]{write_multiple_rows}
 to count how many successful rows were inserted.}
 }
 \value{
