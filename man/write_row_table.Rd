@@ -4,7 +4,7 @@
 \alias{write_row_table}
 \title{Write a single row to the `table` table for SURS}
 \usage{
-write_row_table(code_no, dbtable, con, sql_statement, counter)
+write_row_table(code_no, dbtable, con, sql_statement, counter, ...)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}

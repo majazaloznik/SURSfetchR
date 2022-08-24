@@ -11,6 +11,8 @@
 #' @param sql_statement the sql statement to insert the values
 #' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
 #' to count how many successful rows were inserted.
+#' @param ... just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
 #'
 #' @return side effect is writing to the database.
 #' @export

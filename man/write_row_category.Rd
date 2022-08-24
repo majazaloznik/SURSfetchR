@@ -2,7 +2,7 @@
 % Please edit documentation in R/import_structure.R
 \name{write_row_category}
 \alias{write_row_category}
-\title{Write categories for a single table to the category table}
+\title{Write categories for a single table to the `category` table}
 \usage{
 write_row_category(code_no, dbcategory, con, sql_statement, counter, full)
 }
@@ -20,6 +20,9 @@ to count how many successful rows were inserted.}
 
 \item{full}{full field hierarchy with parent_ids et al, output from
 \link[SURSfetchR]{get_full_structure}}
+}
+\value{
+incremented counter, side effect is writing to the database.
 }
 \description{
 Helper function that extracts the field hierarchy from the full
