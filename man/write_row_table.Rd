@@ -17,6 +17,9 @@ write_row_table(code_no, dbtable, con, sql_statement, counter, ...)
 
 \item{counter}{integer counter used in  \link[SURSfetchR]{write_multiple_rows}
 to count how many successful rows were inserted.}
+
+\item{...}{just here, because other funs in this family have extra parameters
+passed to them and i cannot use map unless this one also has this option.}
 }
 \value{
 side effect is writing to the database.
