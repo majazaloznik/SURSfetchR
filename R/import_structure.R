@@ -57,11 +57,9 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter) {
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
 #'
-#' @return
+#' @return incremented counter, side effect is writing to the database.
 #' @export
-#'
-#' @examples
-#'
+
 write_row_category <- function(code_no, dbcategory, con, sql_statement, counter, full) {
   checkmate::qassert(code_no, "S[5,11]")
   code_no <- sub(".PX$", "", code_no)
@@ -73,7 +71,6 @@ write_row_category <- function(code_no, dbcategory, con, sql_statement, counter,
   counter_i = 0
   for (i in seq_len(nrow(rows))){
     tryCatch({
-
 
       dbExecute(con, sql_statement, list(rows[i,]$id,
                                          rows[i,]$name,
@@ -107,6 +104,8 @@ write_row_category <- function(code_no, dbcategory, con, sql_statement, counter,
 #' @param table_name character name of table in db, also used to get the
 #' relevant function to write a single row.
 #' @param sql_statement character string to write single row to the database.
+#' @param ... other parameters that get passed on to the `write_row_` type
+#' function.
 #'
 #' @return nothing - side effect is writing to the database, and outputing message
 #' to say how many rows were inserted.

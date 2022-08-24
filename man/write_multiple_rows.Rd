@@ -17,6 +17,9 @@ table.}
 relevant function to write a single row.}
 
 \item{sql_statement}{character string to write single row to the database.}
+
+\item{...}{other parameters that get passed on to the `write_row_` type
+function.}
 }
 \value{
 nothing - side effect is writing to the database, and outputing message
