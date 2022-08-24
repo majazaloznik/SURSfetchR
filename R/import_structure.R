@@ -15,7 +15,7 @@
 #' @return side effect is writing to the database.
 #' @export
 
-write_row_table <- function(code_no, dbtable, con, sql_statement, counter) {
+write_row_table <- function(code_no, dbtable, con, sql_statement, counter, ...) {
   checkmate::qassert(code_no, "S[5,11]")
   code_no <- sub(".PX$", "", code_no)
   code_no <- sub(".px$", "", code_no)
@@ -41,7 +41,7 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter) {
 
 
 
-#' Write categories for a single table to the category table
+#' Write categories for a single table to the `category` table
 #'
 #' Helper function that extracts the field hierarchy from the full
 #' hierarchy data.frame, and fills up the category table with field ids and
