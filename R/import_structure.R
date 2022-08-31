@@ -146,6 +146,7 @@ write_row_category_relationship <- function(code_no, dbcategory, con, sql_statem
 #'
 #' @return incremented counter, side effect is writing to the database.
 #' @export
+#'
 write_row_category_table <- function(code_no, dbcategory_table, con, sql_statement, counter, full) {
   checkmate::qassert(code_no, "S[5,11]")
   code_no <- sub(".PX$", "", code_no)
@@ -195,7 +196,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 #'
 #' @return incremented counter, side effect is writing to the database.
 #'
-#'
+#' @export
 write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
