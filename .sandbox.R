@@ -4,30 +4,49 @@ library(tidyr)
 library(dplyr)
 library(purrr)
 
-operating_hierarchy <- readRDS("../../analysis/mesecni_kazalniki/data/operating_hierarchy.rds")
-full_hierarchy <- readRDS("../../analysis/mesecni_kazalniki/data/full_hierarchy.rds")
+rsp <- get_API_response()
+out <- parse_structAPI_response(rsp)
+full <- get_full_structure(out)
+mat_h <-  get_matrix_hierarchy(full)
 
-get_level_combos2 <- function(x, y) {
-  x %>%
-    dplyr::filter(dimension_name %in% unlist(y)) %>%
-    pull(levels) %>%
-    purrr::map( "valueTexts") %>%
-    expand.grid()
-}
+api_list <- pxweb::pxweb_get("https://pxweb.stat.si/SiStatData/api/v1/sl/Data")
+df <- as.data.frame(api_list)
 
-operating_hierarchy <- operating_hierarchy %>%
-  rowwise() %>%
-  mutate(level_combos = list(get_level_combos2(levelz, dim_names_notime)))
-saveRDS(operating_hierarchy, "../../analysis/mesecni_kazalniki/data/operating_hierarchy_full.rds")
 
-x <- operating_hierarchy[1:5,]
+df_w_mtdt <- readRDS("../../analysis/mesecni_kazalniki/data/matrices_w_levels.rds")
 
-x %>%
- unnest(level_combos) -> y
 
-operating_hierarchy %>%
-  filter(no_points == no_series) -> xx
-which.max(operating_hierarchy$no_points)
+full_hierarchy <- matrix_n_level_join(mat_h, df_w_mtdt, archive = TRUE, time = FALSE)
+full_hierarchy <- full_hierarchy_unnest(full_hierarchy)
 full_hierarchy %>%
-  filter(arch == TRUE) %>%
-  summarise(data_points = sum(no_points))
+  mutate(check = difftime(updated.x, updated.y, units="hours")) -> x
+
+x <- get_row(12953, full)
+get_row(12953, full)
+master_list_surs <- readRDS("M:/analysis/mesecni_kazalniki/data/master_list_surs.rds")
+full %>%
+  dplyr::filter(name %in% master_list_surs$code) -> x
+
+
+
+insert_table <- data.frame(table = character(),
+                           sql = character())
+
+insert_table <- dplyr::bind_rows(insert_table,
+                          c(table = "table",
+                            sql = paste("INSERT INTO \"table\"",
+                                        "(code, name, source_id, url, description, notes)",
+                                        "VALUES",
+                                        "($1, $2, $3, $4, $5, $6)")))
+
+insert_table <- dplyr::bind_rows(insert_table,
+                          c(table = "category",
+                            sql = paste("INSERT INTO category",
+                                        "(id, name, parent_id, source_id)",
+                                        "VALUES",
+                                        "($1, $2, $3, $4)")))
+
+
+purrr::map2(insert_table$table, insert_table$sql, ~
+              write_multiple_rows(master_list_surs, con, .x, .y, full))
+

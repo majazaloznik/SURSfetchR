@@ -144,8 +144,6 @@ write_row_category_relationship <- function(code_no, dbcategory, con, sql_statem
 #' \link[SURSfetchR]{get_full_structure}
 #'
 #' @return incremented counter, side effect is writing to the database.
-#'
-#' @examples
 write_row_category_table <- function(code_no, dbcategory_table, con, sql_statement, counter, full) {
   checkmate::qassert(code_no, "S[5,11]")
   code_no <- sub(".PX$", "", code_no)
@@ -179,6 +177,49 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 }
 
 
+#' Write categories for a single table to the `table_dimensions` table
+#'
+#' Helper function that extracts the dimensions for each table and their "time" status.
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param dbcategory_table tbl() link to db table, although this one isn't actually used
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param full full field hierarchy with parent_ids et al, output from
+#' \link[SURSfetchR]{get_full_structure}, not used here tho.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#'
+write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, full) {
+  dplyr::tbl(con, "table") %>%
+    dplyr::filter(code == code_no) %>%
+    dplyr::pull(id) -> table_id
+  tmp <- get_table_levels(code_no) %>%
+    dplyr::mutate(table_id = table_id) %>%
+    dplyr::select(table_id, dimension_name, time)
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      dbExecute(con, sql_statement, list(tmp[i,]$table_id,
+                                         tmp[i,]$dimension_name,
+                                         tmp[i,]$time))
+      counter_i <- counter_i + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
+  return(counter_i)
+}
+
+
+
 #' Umbrella function to write multiple rows into the a postgres table
 #'
 #' Takes a column of SURS codes from the master_list_code and for each row
@@ -206,7 +247,8 @@ write_multiple_rows <- function(master_list_surs, con, table_name, sql_statement
 
   counter <- 0
   for (i in seq(nrow(master_list_surs))){
-    counter <- get(paste0("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter, ...)
+    count_new <- get(paste0("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter, ...)
+    counter <- counter + count_new
   }
-  message(paste(counter, "new rows inserted into table ", table_name, "/n"))
+  message(paste(counter, "new rows inserted into table ", table_name, "\n"))
 }
