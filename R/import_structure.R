@@ -37,6 +37,7 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter, ...) 
     message(paste("INSERT into table table didn't work for",
                   "code ", code_no, ". Here is the original error: \n \n",
                   cnd))
+    message(paste("new row inserted for matrix ", code_no))
     return(counter)}
   )
 }
@@ -144,6 +145,7 @@ write_row_category_relationship <- function(code_no, dbcategory, con, sql_statem
 #' \link[SURSfetchR]{get_full_structure}
 #'
 #' @return incremented counter, side effect is writing to the database.
+#' @export
 write_row_category_table <- function(code_no, dbcategory_table, con, sql_statement, counter, full) {
   checkmate::qassert(code_no, "S[5,11]")
   code_no <- sub(".PX$", "", code_no)
@@ -188,13 +190,13 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 #' @param sql_statement the sql statement to insert the values
 #' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
 #' to count how many successful rows were inserted.
-#' @param full full field hierarchy with parent_ids et al, output from
-#' \link[SURSfetchR]{get_full_structure}, not used here tho.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
 #'
 #' @return incremented counter, side effect is writing to the database.
 #'
 #'
-write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, full) {
+write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
     dplyr::pull(id) -> table_id
@@ -208,6 +210,7 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
                                          tmp[i,]$dimension_name,
                                          tmp[i,]$time))
       counter_i <- counter_i + 1
+      counter <- counter + 1
     },
     error = function(cnd) {
       print(cnd)
@@ -215,7 +218,7 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
     )
   }
   message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
-  return(counter_i)
+  return(counter)
 }
 
 
@@ -247,8 +250,7 @@ write_multiple_rows <- function(master_list_surs, con, table_name, sql_statement
 
   counter <- 0
   for (i in seq(nrow(master_list_surs))){
-    count_new <- get(paste0("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter, ...)
-    counter <- counter + count_new
+    counter <- get(paste0("write_row_", table_name))(master_list_surs$code[i], dbtable, con, sql_statement, counter, ...)
   }
   message(paste(counter, "new rows inserted into table ", table_name, "\n"))
 }
