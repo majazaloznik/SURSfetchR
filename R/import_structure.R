@@ -24,7 +24,7 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter, ...) 
   tryCatch({if(!dbtable %>% select(code) %>%  filter(code == code_no)
                %>%  collect() %>% nrow()){
     mtdt <- get_px_metadata(code_no)
-    dbExecute(con, sql_statement, list(mtdt$code,
+    DBI::dbExecute(con, sql_statement, list(mtdt$code,
                                        mtdt$name,
                                        mtdt$source,
                                        mtdt$url,
@@ -71,7 +71,7 @@ write_row_category <- function(code_no, dbcategory, con, sql_statement, counter,
   for (i in seq_len(nrow(rows))){
     tryCatch({
 
-      dbExecute(con, sql_statement, list(rows[i,]$id,
+      DBI::dbExecute(con, sql_statement, list(rows[i,]$id,
                                          rows[i,]$name,
                                          rows[i,]$source_id))
       counter_i <- counter_i + 1
@@ -115,7 +115,7 @@ write_row_category_relationship <- function(code_no, dbcategory, con, sql_statem
   for (i in seq_len(nrow(rows))){
     tryCatch({
 
-      dbExecute(con, sql_statement, list(rows[i,]$id,
+      DBI::dbExecute(con, sql_statement, list(rows[i,]$id,
                                          rows[i,]$parent_id,
                                          rows[i,]$source_id))
       counter_i <- counter_i + 1
@@ -164,7 +164,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
   for (i in seq_len(nrow(rows))){
     tryCatch({
 
-      dbExecute(con, sql_statement, list(rows[i,]$table_id,
+      DBI::dbExecute(con, sql_statement, list(rows[i,]$table_id,
                                          rows[i,]$category_id,
                                          1))
       counter_i <- counter_i + 1
@@ -186,7 +186,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 #' Gets run from \link[SURSfetchR]{write_multiple_rows}.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
-#' @param dbcategory_table tbl() link to db table, although this one isn't actually used
+#' @param dbtable_dimensions tbl() link to db table, although this one isn't actually used
 #' @param con connection to the database
 #' @param sql_statement the sql statement to insert the values
 #' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
@@ -207,7 +207,7 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
     tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,]$table_id,
+      DBI::dbExecute(con, sql_statement, list(tmp[i,]$table_id,
                                          tmp[i,]$dimension_name,
                                          tmp[i,]$time))
       counter_i <- counter_i + 1
@@ -219,6 +219,59 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
     )
   }
   message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
+  return(counter)
+}
+
+#' Write dimension levels for a single table to the `dimension_levels` table
+#'
+#' Helper function that extracts the levels for all the dimensions for each
+#' table and get their code and text.
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param dbtable_dimensions tbl() link to db table, although this one isn't actually used
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_dimension_levels <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
+  dplyr::tbl(con, "table") %>%
+    dplyr::filter(code == code_no) %>%
+    dplyr::pull(id) -> tbl_id
+
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::filter(time == FALSE) %>%
+    dplyr::select(dimension, id) %>%
+    collect() -> dim_ids
+
+  tmp <- get_table_levels(code_no) %>%
+    tidyr::unnest(levels) %>%
+    dplyr::mutate(table_id = tbl_id) %>%
+    dplyr::select(dimension_name, values, valueTexts) %>%
+    dplyr::inner_join(dim_ids, by = c("dimension_name" = "dimension"))
+
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      DBI::dbExecute(con, sql_statement, list(tmp[i,]$id,
+                                         tmp[i,]$values,
+                                         tmp[i,]$valueTexts))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new dimension-level rows inserted for matrix ", code_no))
   return(counter)
 }
 
