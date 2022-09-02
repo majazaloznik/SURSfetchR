@@ -377,8 +377,8 @@ write_row_series_levels <- function(code_no, dbseries_levels, con, sql_statement
     dplyr::collect() %>%
     dplyr::select(table_id, id, code) %>%
     tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") %>%
-    select(series_id = id,  paste0(dimz)) %>%
-    pivot_longer(-series_id, names_to = "tab_dim_id" ) -> tmp
+    dplyr::select(series_id = id,  paste0(dimz)) %>%
+    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id" ) -> tmp
 
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
