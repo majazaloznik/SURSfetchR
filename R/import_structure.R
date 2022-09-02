@@ -293,9 +293,8 @@ write_row_dimension_levels <- function(code_no, dbtable_dimensions, con, sql_sta
 #'
 #' @export
 write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
-
-  tmp <- data.frame(tolower(strsplit(get_px_metadata(code_no)$units, ", ")))
-
+  tmp <- data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
+    mutate_all(tolower)
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
     tryCatch({
