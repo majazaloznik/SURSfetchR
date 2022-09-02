@@ -275,7 +275,71 @@ write_row_dimension_levels <- function(code_no, dbtable_dimensions, con, sql_sta
   return(counter)
 }
 
+#' Write series into to the `series` table
+#'
+#' Helper function that extracts the individual series = combinations of dimension
+#' levels from the API levels tables. .
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param dbseries tbl() link to db table, although this one isn't actually used
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...) {
+  dplyr::tbl(con, "table") %>%
+    dplyr::filter(code == code_no) %>%
+    dplyr::pull(id) -> tbl_id
 
+  lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::filter(time) %>%
+    dplyr::collect() %>%
+    dplyr::pull(dimension) -> int
+  int_id <- ifelse(stringi::stri_escape_unicode(int) %in% names(lookupV),
+                   getElement(lookupV, stringi::stri_escape_unicode(int)), NA)
+
+  get_table_levels(code_no) %>%
+    dplyr::filter(!time) %>%
+    dplyr::pull(levels) %>%
+    purrr::map("values") %>%
+    expand.grid() %>%
+    tidyr::unite("code", dplyr::everything(), sep = "--") %>%
+    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id)) %>%
+    cbind(get_table_levels(code_no) %>%
+            dplyr::filter(!time) %>%
+            dplyr::pull(levels) %>%
+            purrr::map("valueTexts") %>%
+            expand.grid() %>%
+            tidyr::unite("title", dplyr::everything(), sep = " - ")) -> tmp
+
+
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      dbExecute(con, sql_statement, list(tbl_id,
+                                         tmp[i,]$title,
+                                         tmp[i,]$code,
+                                         int_id))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new series inserted for matrix ", code_no))
+  return(counter)
+}
 
 #' Umbrella function to write multiple rows into the a postgres table
 #'
