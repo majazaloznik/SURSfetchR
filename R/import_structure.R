@@ -334,6 +334,14 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     dplyr::filter(code == code_no) %>%
     dplyr::pull(id) -> tbl_id
 
+  unit <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
+  if(length(unit)!=1) {unit <- NA} else {
+    unit <- tolower(unit)
+    dplyr::tbl(con, "unit") %>%
+      dplyr::filter(name == unit) %>%
+      pull(id) -> unit
+  }
+
   lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
@@ -349,14 +357,14 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     purrr::map("values") %>%
     expand.grid() %>%
     tidyr::unite("code", dplyr::everything(), sep = "--") %>%
-    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id)) %>%
+    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id),
+                  unit = unit) %>%
     cbind(get_table_levels(code_no) %>%
             dplyr::filter(!time) %>%
             dplyr::pull(levels) %>%
             purrr::map("valueTexts") %>%
             expand.grid() %>%
             tidyr::unite("title", dplyr::everything(), sep = " - ")) -> tmp
-
 
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
