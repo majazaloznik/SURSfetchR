@@ -357,6 +357,11 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 
   get_table_id(code_no) -> tbl_id
 
+  unit <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
+  if(length(unit)!=1) {unit <- NA} else {
+    unit <- get_unit_id(unit)
+  }
+
   lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
@@ -375,9 +380,9 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
-    dplyr::mutate(unit = dplyr::row_number()) %>%
+    dplyr::mutate(poz = dplyr::row_number()) %>%
     filter(dimension == "MERITVE") %>%
-    pull(unit) -> meritve_dim_no
+    pull(poz) -> meritve_dim_no
 
   if(length(meritve_dim_id) == 1) {
     dplyr::tbl(con, "dimension_levels") %>%
@@ -421,7 +426,8 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
       dbExecute(con, sql_statement, list(tbl_id,
                                          tmp[i,]$title,
                                          tmp[i,]$code,
-                                         int_id))
+                                         int_id,
+                                         tmp[i,]$unit))
       counter_i <- counter_i + 1
       counter <- counter + 1
     },
