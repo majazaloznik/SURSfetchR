@@ -1,3 +1,29 @@
+#' Helper fun to get correct table id from px code
+#'
+#' @param code_no px. code e.g. 0300230S
+#'
+#' @return numeric code from the table table
+#' @keywords internal
+get_table_id <- function(code_no) {
+  dplyr::tbl(con, "table") %>%
+    dplyr::filter(code == code_no) %>%
+    dplyr::pull(id)
+}
+
+#' Helper fun to get correct code from unit text
+#'
+#' @param unit char text of unit label
+#'
+#' @return numeric code from db table unit
+#' @keywords internal
+get_unit_id <- function(unit){
+  unit <- tolower(unit)
+  dplyr::tbl(con, "unit") %>%
+    dplyr::filter(name == unit) %>%
+    pull(id)
+}
+
+
 #' Write a single row to the `table` table for SURS
 #'
 #' Helper function that extracts metadata from the API and inserts it into the
@@ -198,9 +224,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 #'
 #' @export
 write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id) -> table_id
+  get_table_id(code_no) -> tbl_id
   tmp <- get_table_levels(code_no) %>%
     dplyr::mutate(table_id = table_id) %>%
     dplyr::select(table_id, dimension_name, time)
@@ -241,10 +265,7 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
 #'
 #' @export
 write_row_dimension_levels <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id) -> tbl_id
-
+  get_table_id(code_no) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time == FALSE) %>%
@@ -311,6 +332,9 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
   return(counter)
 }
 
+
+
+
 #' Write series into to the `series` table
 #'
 #' Helper function that extracts the individual series = combinations of dimension
@@ -330,17 +354,8 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
 #'
 #' @export
 write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...) {
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id) -> tbl_id
 
-  unit <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
-  if(length(unit)!=1) {unit <- NA} else {
-    unit <- tolower(unit)
-    dplyr::tbl(con, "unit") %>%
-      dplyr::filter(name == unit) %>%
-      pull(id) -> unit
-  }
+  get_table_id(code_no) -> tbl_id
 
   lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
@@ -351,14 +366,48 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
   int_id <- ifelse(stringi::stri_escape_unicode(int) %in% names(lookupV),
                    getElement(lookupV, stringi::stri_escape_unicode(int)), NA)
 
+
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::mutate(row = dplyr::row_number()) %>%
+    filter(dimension == "MERITVE") %>%
+    pull(id) -> meritve_dim_id
+
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::mutate(unit = dplyr::row_number()) %>%
+    filter(dimension == "MERITVE") %>%
+    pull(unit) -> meritve_dim_no
+
+  if(length(meritve_dim_id) == 1) {
+    dplyr::tbl(con, "dimension_levels") %>%
+      dplyr::filter(tab_dim_id == meritve_dim_id) %>%
+      dplyr::collect() %>%
+      dplyr::mutate(unit = regmatches(level_text, regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
+                                                          level_text, perl = TRUE))) %>%
+      dplyr::select(-level_text) %>%
+      rowwise() %>%
+      dplyr::mutate(unit = get_unit_id(unit)) -> tmp1
+  }
+
   get_table_levels(code_no) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("values") %>%
     expand.grid() %>%
-    tidyr::unite("code", dplyr::everything(), sep = "--") %>%
-    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id),
-                  unit = unit) %>%
+    mutate(unit = unit) -> tmp2
+
+  if(length(meritve_dim_id) == 1 & all(is.na(tmp2$level_value))) {
+    tmp2 %>%
+      select(-unit) %>%
+      rename("unit" := !!(paste0("Var", meritve_dim_no))) %>%
+      left_join(tmp1, by = c("unit" = "unit")) %>%
+      select(-tab_dim_id) -> tmp2
+  }
+
+  tmp2 %>%
+    tidyr::unite("code", dplyr::starts_with("Var"), sep = "--") %>%
+    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id)) %>%
     cbind(get_table_levels(code_no) %>%
             dplyr::filter(!time) %>%
             dplyr::pull(levels) %>%
@@ -407,9 +456,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 #'
 #' @export
 write_row_series_levels <- function(code_no, dbseries_levels, con, sql_statement, counter, ...) {
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id) -> tbl_id
+  get_table_id(code_no) -> tbl_id
 
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
