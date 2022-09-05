@@ -57,13 +57,13 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter, ...) 
                                        "",
                                        mtdt$notes))
     counter <- counter + 1
+    message(paste("new row inserted for matrix ", code_no))
     return(counter)
   } else {return(counter)}},
   error = function(cnd) {
     message(paste("INSERT into table table didn't work for",
                   "code ", code_no, ". Here is the original error: \n \n",
                   cnd))
-    message(paste("new row inserted for matrix ", code_no))
     return(counter)}
   )
 }
@@ -151,7 +151,7 @@ write_row_category_relationship <- function(code_no, dbcategory, con, sql_statem
     }
     )
   }
-  message(paste(counter_i, "new categories inserted for matrix ", code_no))
+  message(paste(counter_i, "new category relationships inserted for matrix ", code_no))
   return(counter)
 }
 
@@ -226,7 +226,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
   get_table_id(code_no) -> tbl_id
   tmp <- get_table_levels(code_no) %>%
-    dplyr::mutate(table_id = table_id) %>%
+    dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(table_id, dimension_name, time)
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
