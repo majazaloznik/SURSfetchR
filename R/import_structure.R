@@ -353,6 +353,7 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
 #' @return incremented counter, side effect is writing to the database.
 #'
 #' @export
+
 write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...) {
 
   get_table_id(code_no) -> tbl_id
@@ -399,14 +400,14 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("values") %>%
-    expand.grid() %>%
+    expand.grid(stringsAsFactors = FALSE) %>%
     mutate(unit = unit) -> tmp2
 
   if(length(meritve_dim_id) == 1 & all(is.na(tmp2$level_value))) {
     tmp2 %>%
       select(-unit) %>%
       rename("unit" := !!(paste0("Var", meritve_dim_no))) %>%
-      left_join(tmp1, by = c("unit" = "unit")) %>%
+      left_join(tmp1, by = c("unit" = "level_value")) %>%
       select(-tab_dim_id) -> tmp2
   }
 
