@@ -91,6 +91,7 @@ full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
 code_no <- "0300230S" # meritve, tri enote
 code_no <- "1701106S" # indeks, ena enota
 code_no <- "1700104S"
+code_no <- "1700104S"
 sql_statement <- paste("INSERT INTO series",
                        "(table_id, name_long,  code, interval_id, unit_id)",
                        "VALUES",
@@ -125,7 +126,8 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     pull(id) -> meritve_dim_id
 
   dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::filter(table_id == tbl_id,
+                  time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     filter(dimension == "MERITVE") %>%
     pull(poz) -> meritve_dim_no
@@ -159,7 +161,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 
   expanded_level_codes %>%
     tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",int_id)) %>%
+    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
     cbind(get_table_levels(code_no) %>%
             dplyr::filter(!time) %>%
             dplyr::pull(levels) %>%
@@ -186,4 +188,81 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
   message(paste(counter_i, "new series inserted from matrix ", code_no))
   return(counter)
 }
+
+url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", code_no, ".px")
+l <- pxR::read.px(url,
+                  encoding = "CP1250",
+                  na.strings = c('"."', '".."', '"..."', '"...."')
+)
+
+
+id <- "1700104S"
+get_px_metadata <- function(id) {
+  checkmate::qassert(id, "S[5,11]")
+  id <- sub(".PX$", "", id)
+  id <- sub(".px$", "", id)
+  url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
+  l <- pxR::read.px(url,
+                    encoding = "CP1250",
+                    na.strings = c('"."', '".."', '"..."', '"...."')
+  )
+  df <- data.frame(code = unlist(l$MATRIX),
+                   name = unlist(l$DESCRIPTION),
+                   created = as.POSIXct(l$CREATION.DATE[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
+                   units = l$UNITS[[1]],
+                   notes = I(list(c(l$NOTE, l$NOTEX))),
+                   valuenotes =I(list(l$VALUENOTE))) %>%
+    dplyr::mutate(notes = jsonlite::toJSON(notes),
+                  source = 1,
+                  url = paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", code, ".px"))
+  df
+}
+
+
+
+get_valuenotes_dimension <- function(x){
+  x <- regmatches(x, regexpr("[A-Z.]+(?=\\.)", x, perl = TRUE))
+  gsub( "\\.", " ", x)
+}
+
+get_valuenotes_level <- function(x){
+  y <- gsub( "\\.", " ", x)
+  gsub(paste0(get_valuenotes_dimension(x), " "), "", y)
+}
+
+get_valuenotes_unit <- function(x){
+  y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
+  y <- gsub( "\\.", "", y)
+  unit_name <- gsub("\" \"", "", y)
+  as.numeric(get_unit_id(unit_name))
+}
+
+get_tab_dim_id <- function(tbl_id, dim_name) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id,
+                  dimension == dim_name) %>%
+    dplyr::pull(id)
+}
+
+get_level_value <- function(tbl_dm_id, lvl_text) {
+  dplyr::tbl(con, "dimension_levels") %>%
+    dplyr::filter(tab_dim_id == tbl_dm_id,
+                  level_text == lvl_text) %>%
+    dplyr::pull(level_value)
+}
+
+
+x <- get_px_metadata(id)$valuenotes
+
+xx <- purrr::map(x, names)[[1]]
+
+
+
+df <- map_dfr(xx, ~ c(dim_name = get_valuenotes_dimension(.),
+                      level_text = get_valuenotes_level(.))) %>%
+  rowwise() %>%
+  mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name),
+         level_value = get_level_value(tab_dim_id, level_text)) %>%
+  ungroup() %>%
+  mutate(unit_id = purrr::map_dbl(x[[1]], get_valuenotes_unit))
 
