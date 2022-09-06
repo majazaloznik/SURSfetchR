@@ -353,25 +353,23 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
 #' @return incremented counter, side effect is writing to the database.
 #'
 #' @export
-
 write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...) {
 
   get_table_id(code_no) -> tbl_id
 
-  unit <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
-  if(length(unit)!=1) {unit <- NA} else {
-    unit <- get_unit_id(unit)
-  }
-
-  lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
+  interval_lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time) %>%
     dplyr::collect() %>%
-    dplyr::pull(dimension) -> int
-  int_id <- ifelse(stringi::stri_escape_unicode(int) %in% names(lookupV),
-                   getElement(lookupV, stringi::stri_escape_unicode(int)), NA)
+    dplyr::pull(dimension) -> interval_text
+  interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
+                        getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
 
+  units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
+  if(length(units_from_px)==1) {
+    unit_id <- get_unit_id(units_from_px)} else {
+      unit_id <- NA}
 
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
@@ -385,7 +383,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     filter(dimension == "MERITVE") %>%
     pull(poz) -> meritve_dim_no
 
-  if(length(meritve_dim_id) == 1) {
+  if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
     dplyr::tbl(con, "dimension_levels") %>%
       dplyr::filter(tab_dim_id == meritve_dim_id) %>%
       dplyr::collect() %>%
@@ -393,7 +391,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
                                                           level_text, perl = TRUE))) %>%
       dplyr::select(-level_text) %>%
       rowwise() %>%
-      dplyr::mutate(unit = get_unit_id(unit)) -> tmp1
+      dplyr::mutate(unit_id = get_unit_id(unit)) -> units_by_meritve_levels
   }
 
   get_table_levels(code_no) %>%
@@ -401,34 +399,35 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     dplyr::pull(levels) %>%
     purrr::map("values") %>%
     expand.grid(stringsAsFactors = FALSE) %>%
-    mutate(unit = unit) -> tmp2
+    mutate(unit_id = unit_id) -> expanded_level_codes
 
   if(length(meritve_dim_id) == 1 & all(is.na(tmp2$level_value))) {
-    tmp2 %>%
-      select(-unit) %>%
-      rename("unit" := !!(paste0("Var", meritve_dim_no))) %>%
-      left_join(tmp1, by = c("unit" = "level_value")) %>%
-      select(-tab_dim_id) -> tmp2
+    expanded_level_codes %>%
+      select(-unit_id) %>%
+      rename("level_value" := !!(paste0("Var", meritve_dim_no))) %>%
+      left_join(units_by_meritve_levels, by = c("level_value" = "level_value")) %>%
+      rename(!!(paste0("Var", meritve_dim_no)) := "level_value") %>%
+      select(-tab_dim_id, -unit) -> expanded_level_codes
   }
 
-  tmp2 %>%
-    tidyr::unite("code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",int_id)) %>%
+  expanded_level_codes %>%
+    tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
+    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",int_id)) %>%
     cbind(get_table_levels(code_no) %>%
             dplyr::filter(!time) %>%
             dplyr::pull(levels) %>%
             purrr::map("valueTexts") %>%
             expand.grid() %>%
-            tidyr::unite("title", dplyr::everything(), sep = " - ")) -> tmp
+            tidyr::unite("series_title", dplyr::everything(), sep = " - ")) -> tmp
 
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
     tryCatch({
       dbExecute(con, sql_statement, list(tbl_id,
-                                         tmp[i,]$title,
-                                         tmp[i,]$code,
-                                         int_id,
-                                         tmp[i,]$unit))
+                                         tmp[i,]$series_title,
+                                         tmp[i,]$series_code,
+                                         interval_id,
+                                         tmp[i,]$unit_id))
       counter_i <- counter_i + 1
       counter <- counter + 1
     },
@@ -437,9 +436,10 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     }
     )
   }
-  message(paste(counter_i, "new series inserted for matrix ", code_no))
+  message(paste(counter_i, "new series inserted from matrix ", code_no))
   return(counter)
 }
+
 
 
 #' Write series-level combinations into to the `series_levels` table
