@@ -412,7 +412,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 
   expanded_level_codes %>%
     tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",int_id)) %>%
+    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
     cbind(get_table_levels(code_no) %>%
             dplyr::filter(!time) %>%
             dplyr::pull(levels) %>%
