@@ -378,7 +378,8 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
     pull(id) -> meritve_dim_id
 
   dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::filter(table_id == tbl_id,
+                  time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     filter(dimension == "MERITVE") %>%
     pull(poz) -> meritve_dim_no
