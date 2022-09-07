@@ -1,10 +1,20 @@
-#' Helper fun to get correct table id from px code
+#' Helper functions to get stuff out of db tables
+#'
+#' Group of functions that lookup stuff in relevant tables on the `con` connection
+#' to get correct table id from px code. Also make sure the `search_path` is set to
+#' the correct scheme.
 #'
 #' @param code_no px. code e.g. 0300230S
-#'
+#' @param unit char text of unit label
+#' @param tbl_id numeric table id from table table
+#' @param dim_name character dimension name
+#' @param tbl_dm_id numeric table-dimension id from that same table
+#' @param lvl_text character text of level label
+#' @param meritve_dim_id numeric dimension id of MERITVE dim
+#' @rdname get_stuff
 #' @return numeric code from the table table
 #' @keywords internal
-get_table_id <- function(code_no) {
+get_table_id <- function(code_no, con) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
     dplyr::pull(id)
@@ -12,15 +22,213 @@ get_table_id <- function(code_no) {
 
 #' Helper fun to get correct code from unit text
 #'
-#' @param unit char text of unit label
-#'
+#' @rdname get_stuff
 #' @return numeric code from db table unit
 #' @keywords internal
-get_unit_id <- function(unit){
+get_unit_id <- function(unit, con){
   unit <- tolower(unit)
   dplyr::tbl(con, "unit") %>%
     dplyr::filter(name == unit) %>%
-    pull(id)
+    dplyr::pull(id)
+}
+
+#' @rdname get_stuff
+
+#' @return numeric code of table-dimension id
+#' @keywords internal
+get_tab_dim_id <- function(tbl_id, dim_name, con) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id,
+                  dimension == dim_name) %>%
+    dplyr::pull(id)
+}
+
+
+#' @rdname get_stuff
+#' @return character code from level value code
+#' @keywords internal
+get_level_value <- function(tbl_dm_id, lvl_text, con) {
+  dplyr::tbl(con, "dimension_levels") %>%
+    dplyr::filter(tab_dim_id == tbl_dm_id,
+                  level_text == lvl_text) %>%
+    dplyr::pull(level_value)
+}
+
+#' @rdname get_stuff
+#' @return character code from level value code
+#' @keywords internal
+get_interval_id <- function(code_no, con) {
+  interval_lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::filter(time) %>%
+    dplyr::collect() %>%
+    dplyr::pull(dimension) -> interval_text
+  interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
+                        getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
+  interval_id
+}
+
+#' @rdname get_stuff
+#' @return numeric id of MERITVE dimension if it exists, else integer64(0)
+#' @keywords internal
+get_meritve_id <- function(tbl_id, con) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::mutate(row = dplyr::row_number()) %>%
+    dplyr::filter(dimension == "MERITVE") %>%
+    dplyr::pull(id)
+}
+
+#' @rdname get_stuff
+#' @return numeric position of MERITVE dimension if it exists, else integer64(0)
+#' @keywords internal
+get_meritve_no <-function(tbl_id, con) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id,
+                  time != TRUE) %>%
+    dplyr::mutate(poz = dplyr::row_number()) %>%
+    dplyr::filter(dimension == "MERITVE") %>%
+    dplyr::pull(poz)
+}
+
+#' @rdname get_stuff
+#' @return tibble with 4 cols including `level_value` and `unit_id`
+#' @keywords internal
+get_unit_levels_from_meritve <- function(meritve_dim_id, con){
+  dplyr::tbl(con, "dimension_levels") %>%
+    dplyr::filter(tab_dim_id == meritve_dim_id) %>%
+    dplyr::collect() %>%
+    dplyr::mutate(unit = regmatches(level_text, regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
+                                                        level_text, perl = TRUE))) %>%
+    dplyr::select(-level_text) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(unit_id = get_unit_id(unit, con))
+}
+
+#' @rdname get_stuff
+#' @return numeric id of valuenotes dimension if it exists, else integer64(0)
+#' @keywords internal
+get_valuenotes_id <- function(tbl_id, dim_name, con) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::mutate(row = dplyr::row_number()) %>%
+    dplyr::filter(dimension == dim_name) %>%
+    dplyr::pull(id)
+}
+
+#' @rdname get_stuff
+#' @return numeric position of valuenotes dimension if it exists, else integer64(0)
+#' @keywords internal
+get_valuenotes_no <-function(tbl_id, dim_name, con) {
+  dplyr::tbl(con, "table_dimensions") %>%
+    dplyr::filter(table_id == tbl_id,
+                  time != TRUE) %>%
+    dplyr::mutate(poz = dplyr::row_number()) %>%
+    dplyr::filter(dimension == dim_name) %>%
+    dplyr::pull(poz)
+}
+
+
+#' Family of helper functions to extract units from VALUENOTES list
+#'
+#' Some SURS matrices have the units for individual levels saved in a list
+#' in the VALUENOTES slot of the px. metadata. These need to be regexed outta there
+#' with the following three functions.
+#'
+#' @param x a character string, either the element name (for dimension and level)
+#' or the element itself (for the unit)
+#' @return character string of cleaned up dimension name, dimension level label or
+#' unit name (which is what we are after in the end).
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_dimension <- function(x){
+  x <- regmatches(x, regexpr("[A-Z.]+(?=\\.)", x, perl = TRUE))
+  gsub( "\\.", " ", x)
+}
+
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_level <- function(x){
+  y <- gsub( "\\.", " ", x)
+  gsub(paste0(get_valuenotes_dimension(x), " "), "", y)
+}
+
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_unit <- function(x, con){
+  y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
+  y <- gsub( "\\.", "", y)
+  unit_name <- gsub("\" \"", "", y)
+  as.numeric(get_unit_id(unit_name, con))
+}
+
+#' Expanding from levels to series codes and titles
+#'
+#' These two helper functions take a set of non-time levels for a single table
+#' and expand the grid to get all of their combinations and then either return
+#' a dataframe with columns for each level code, or one where the level texts
+#' have been concatenated into the series titles.
+#' @param code_nopx. code e.g. 0300230S
+#' @param unit_id num text of unit id
+#' @return dataframe with expanded levels, one column per non-time dimension plus
+#' unit_id for the level codes and sinle column with series titles for the other one.
+#' @rdname expanding
+#' @keywords internal
+expand_to_level_codes <- function (code_no, unit_id) {
+  get_table_levels(code_no) %>%
+    dplyr::filter(!time) %>%
+    dplyr::pull(levels) %>%
+    purrr::map("values") %>%
+    expand.grid(stringsAsFactors = FALSE) %>%
+    dplyr::mutate(unit_id = unit_id)
+}
+#' @rdname expanding
+#' @keywords internal
+expand_to_series_titles <- function(code_no){
+  get_table_levels(code_no) %>%
+    dplyr::filter(!time) %>%
+    dplyr::pull(levels) %>%
+    purrr::map("valueTexts") %>%
+    expand.grid() %>%
+    tidyr::unite("series_title", dplyr::everything(), sep = " - ")
+}
+
+#' Joining the unit tables from either meritve or valuenotes.
+#'
+#' These two helper functions take the expanded level code tables and
+#' join the appropriate unit_ids from either the meritve or the valuenotes
+#' tables.
+#'
+#' @param expanded_level_codes dataframe output of \link[SURSfetchR]{expand_to_level_codes}
+#' @param meritve_dim_no numeric output of \link[SURSfetchR]{get_meritve_no}
+#' @param units_by_meritve_levels dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}
+#' @param valuenotes_dim_no numeric output of \link[SURSfetchR]{get_valuenotes_no}
+#' @param units_by_levels dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}
+#' @return datafram from expanded_level_codes with added `unit_id` column
+#'
+#' @rdname add_units
+#' @keywords internal
+add_meritve_level_units <- function(expanded_level_codes, meritve_dim_no,
+                                    units_by_meritve_levels){
+  expanded_level_codes %>%
+    dplyr::select(-unit_id) %>%
+    dplyr::rename("level_value" := !!(paste0("Var", meritve_dim_no))) %>%
+    dplyr::left_join(units_by_meritve_levels, by = c("level_value" = "level_value")) %>%
+    dplyr::rename(!!(paste0("Var", meritve_dim_no)) := "level_value") %>%
+    dplyr::select(-tab_dim_id, -unit)
+}
+
+#' @rdname add_units
+#' @keywords internal
+add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
+                                       units_by_levels){
+  expanded_level_codes %>%
+    dplyr::select(-unit_id) %>%
+    dplyr::rename("level_value" := !!(paste0("Var", valuenotes_dim_no))) %>%
+    dplyr::left_join(units_by_levels, by = c("level_value" = "level_value")) %>%
+    dplyr::rename(!!(paste0("Var", valuenotes_dim_no)) := "level_value") %>%
+    dplyr::select(-dim_name, -level_text, -tab_dim_id)
 }
 
 
@@ -67,6 +275,7 @@ write_row_table <- function(code_no, dbtable, con, sql_statement, counter, ...) 
     return(counter)}
   )
 }
+
 
 #' Write categories for a single table to the `category` table
 #'
@@ -224,7 +433,7 @@ write_row_category_table <- function(code_no, dbcategory_table, con, sql_stateme
 #'
 #' @export
 write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
+  get_table_id(code_no, con) -> tbl_id
   tmp <- get_table_levels(code_no) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(table_id, dimension_name, time)
@@ -265,7 +474,7 @@ write_row_table_dimensions <- function(code_no, dbtable_dimensions, con, sql_sta
 #'
 #' @export
 write_row_dimension_levels <- function(code_no, dbtable_dimensions, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
+  get_table_id(code_no, con) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time == FALSE) %>%
@@ -334,6 +543,55 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
 
 
 
+#' Prepare table to insert into `series` table
+#'
+#' This is a big one. Prepares the table to insert into the series table, which
+#' along expanding the leves to get all the series and their codes as well, which
+#' include also figuring out their time interval, this function also tries to
+#' extract the unit for each series, which can get pretty tricky. There are generally
+#' three options:
+#' 1. either the whole table and therefore all the series within it have a single unit
+#' which we get from the .px metadata.
+#' 2. or there is a MERITVE dimensions, which might (?) contain the units for each
+#' level in parentheses at the end of the label. So we get if from there
+#' 3. ooor, there is no MERITVE dimension, and then there is (?) a slot in the .px
+#' data called `valuenotes`, which contains the units and again there is an even
+#' more convoluted way to get them out and know which level values they apply to.
+#'
+#' @param code_no character obect of the matrix code (e.g. 2300123S)
+#' @param con postgresql connection to the database.
+#'
+#' @return a dataframe with three columns: series_title, series_code and unit_id as
+#' well as the same number of rows as there are series
+#' @export
+
+prepare_series_table <- function(code_no, con){
+  get_table_id(code_no, con) -> tbl_id
+  get_interval_id(code_no, con) -> interval_id
+  get_single_unit_from_px(code_no, con) -> unit_id
+  expand_to_level_codes(code_no, unit_id) -> expanded_level_codes
+  if(is.na(unit_id)) {
+    get_meritve_id(tbl_id, con) -> meritve_dim_id
+    get_meritve_no(tbl_id, con) -> meritve_dim_no
+    if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
+      get_unit_levels_from_meritve(meritve_dim_id, con) -> units_by_meritve_levels
+      add_meritve_level_units(expanded_level_codes, meritve_dim_no,
+                              units_by_meritve_levels) -> expanded_level_codes
+    } else { # if valuenotes exist
+      get_valuenotes_from_px(code_no, tbl_id, con) -> units_by_levels
+      get_valuenotes_id(tbl_id, units_by_levels$dim_name[1], con) -> valuenotes_dim_id
+      get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1], con) -> valuenotes_dim_no
+      if(length(valuenotes_dim_id) == 1){
+        add_valuenotes_level_units(expanded_level_codes, valuenotes_dim_no,
+                                   units_by_levels) -> expanded_level_codes}
+    }
+  }
+
+  expanded_level_codes %>%
+    tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
+    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
+    cbind(expand_to_series_titles(code_no))
+}
 
 #' Write series into to the `series` table
 #'
@@ -354,72 +612,9 @@ write_row_unit <- function(code_no, dbunits, con, sql_statement, counter, ...) {
 #'
 #' @export
 write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...) {
-
-  get_table_id(code_no) -> tbl_id
-
-  interval_lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::filter(time) %>%
-    dplyr::collect() %>%
-    dplyr::pull(dimension) -> interval_text
-  interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
-                        getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
-
-  units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
-  if(length(units_from_px)==1) {
-    unit_id <- get_unit_id(units_from_px)} else {
-      unit_id <- NA}
-
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::mutate(row = dplyr::row_number()) %>%
-    filter(dimension == "MERITVE") %>%
-    pull(id) -> meritve_dim_id
-
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id,
-                  time != TRUE) %>%
-    dplyr::mutate(poz = dplyr::row_number()) %>%
-    filter(dimension == "MERITVE") %>%
-    pull(poz) -> meritve_dim_no
-
-  if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
-    dplyr::tbl(con, "dimension_levels") %>%
-      dplyr::filter(tab_dim_id == meritve_dim_id) %>%
-      dplyr::collect() %>%
-      dplyr::mutate(unit = regmatches(level_text, regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
-                                                          level_text, perl = TRUE))) %>%
-      dplyr::select(-level_text) %>%
-      rowwise() %>%
-      dplyr::mutate(unit_id = get_unit_id(unit)) -> units_by_meritve_levels
-  }
-
-  get_table_levels(code_no) %>%
-    dplyr::filter(!time) %>%
-    dplyr::pull(levels) %>%
-    purrr::map("values") %>%
-    expand.grid(stringsAsFactors = FALSE) %>%
-    mutate(unit_id = unit_id) -> expanded_level_codes
-
-  if(length(meritve_dim_id) == 1 & all(is.na(tmp2$level_value))) {
-    expanded_level_codes %>%
-      select(-unit_id) %>%
-      rename("level_value" := !!(paste0("Var", meritve_dim_no))) %>%
-      left_join(units_by_meritve_levels, by = c("level_value" = "level_value")) %>%
-      rename(!!(paste0("Var", meritve_dim_no)) := "level_value") %>%
-      select(-tab_dim_id, -unit) -> expanded_level_codes
-  }
-
-  expanded_level_codes %>%
-    tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
-    cbind(get_table_levels(code_no) %>%
-            dplyr::filter(!time) %>%
-            dplyr::pull(levels) %>%
-            purrr::map("valueTexts") %>%
-            expand.grid() %>%
-            tidyr::unite("series_title", dplyr::everything(), sep = " - ")) -> tmp
+  get_table_id(code_no, con) -> tbl_id
+  get_interval_id(code_no, con) -> interval_id
+  prepare_series_table(code_no, con) -> tmp
 
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
@@ -464,7 +659,7 @@ write_row_series <- function(code_no, dbseries, con, sql_statement, counter, ...
 #'
 #' @export
 write_row_series_levels <- function(code_no, dbseries_levels, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
+  get_table_id(code_no, con) -> tbl_id
 
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,

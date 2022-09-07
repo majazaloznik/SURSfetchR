@@ -22,16 +22,15 @@ get_px_metadata <- function(id) {
   )
   df <- data.frame(code = unlist(l$MATRIX),
                    name = unlist(l$DESCRIPTION),
-               created = as.POSIXct(l$CREATION.DATE[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
-               units = l$UNITS[[1]],
-               notes = I(list(c(l$NOTE, l$NOTEX)))) %>%
+                   created = as.POSIXct(l$CREATION.DATE[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
+                   units = l$UNITS[[1]],
+                   notes = I(list(c(l$NOTE, l$NOTEX))),
+                   valuenotes =I(list(l$VALUENOTE))) %>%
     dplyr::mutate(notes = jsonlite::toJSON(notes),
                   source = 1,
                   url = paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", code, ".px"))
   df
 }
-
-
 #' Helper function to get parent category from full hierarchy
 #'
 #' This is a recursive function to be used inside another semi-recursive
@@ -103,5 +102,35 @@ get_row <- function(id_no, full, output = NULL){
 }
 
 
-
+#' Clean up specific metadata from the px file
+#'
+#' Helper functions for specific slots in the output from
+#' \link[SURSfetchR]{get_px_metadata} that extracts and makes useable the stuff
+#' in there
+#' @param code_no character string of px code
+#' @param tbl_id numeric value of table's id in the `table` table
+#' @rdname get_px_stuff
+#' @keywords internal
+get_single_unit_from_px <- function(code_no, con){
+  units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
+  if(length(units_from_px)==1) {
+    unit_id <- get_unit_id(units_from_px, con)} else {
+      unit_id <- NA}
+  unit_id
+}
+#' @rdname get_px_stuff
+#' @keywords internal
+get_valuenotes_from_px <- function(code_no, tbl_id, con) {
+  as_tibble(get_px_metadata(code_no)$valuenotes[[1]]) %>%
+    tidyr::gather() -> x
+  if(nrow(x)>0){
+  purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
+                     level_text = get_valuenotes_level(.))) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
+           level_value = get_level_value(tab_dim_id, level_text, con)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out} else {
+      out <- NULL}
+}
 
