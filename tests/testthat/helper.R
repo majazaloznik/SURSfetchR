@@ -1,3 +1,4 @@
+library(dittodb)
 # # this is a setup file that is supposed to be run before all the tests.
 # # have now moved the object to the testdata folder cuz it was taking too long
 # rsp <- get_API_response()

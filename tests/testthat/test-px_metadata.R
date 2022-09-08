@@ -22,3 +22,6 @@ test_that("Categories are properly parsed", {
  expect_error(get_row(123, x))
 })
 
+with_mock_db(
+  get_single_unit_from_px("0300230S")
+)

@@ -13,9 +13,9 @@
 \alias{get_valuenotes_no}
 \title{Helper functions to get stuff out of db tables}
 \usage{
-get_table_id(code_no)
+get_table_id(code_no, con)
 
-get_unit_id(unit)
+get_unit_id(unit, con)
 
 get_tab_dim_id(tbl_id, dim_name)
 
@@ -35,6 +35,8 @@ get_valuenotes_no(tbl_id, dim_name)
 }
 \arguments{
 \item{code_no}{px. code e.g. 0300230S}
+
+\item{con}{connection to postgres database}
 
 \item{unit}{char text of unit label}
 
