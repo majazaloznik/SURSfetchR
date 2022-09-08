@@ -1,4 +1,4 @@
-with_mock_db({
+dittodb::with_mock_db({
   con <- DBI::dbConnect(RPostgres::Postgres(),
                         dbname = "sandbox",
                         host = "localhost",
