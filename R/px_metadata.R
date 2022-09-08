@@ -118,6 +118,7 @@ get_single_unit_from_px <- function(code_no){
       unit_id <- NA}
   unit_id
 }
+
 #' @rdname get_px_stuff
 #' @keywords internal
 get_valuenotes_from_px <- function(code_no, tbl_id) {
@@ -130,7 +131,7 @@ get_valuenotes_from_px <- function(code_no, tbl_id) {
     dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name),
            level_value = get_level_value(tab_dim_id, level_text)) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out} else {
+    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit)) -> out} else {
       out <- NULL}
 }
 

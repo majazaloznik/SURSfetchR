@@ -10,9 +10,10 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Suggests: 
+    checkmate (>= 2.1.0),
     covr,
-    testthat (>= 3.0.0),
-    checkmate (>= 2.1.0)
+    dittodb,
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
     lubridate (>= 1.8.0),
@@ -33,5 +34,5 @@ Imports:
 RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10)
-Remotes:
+Remotes: 
     rOpenGov/pxweb
