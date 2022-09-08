@@ -5,6 +5,7 @@
 #' the correct scheme.
 #'
 #' @param code_no px. code e.g. 0300230S
+#' @param con connection to postgres database
 #' @param unit char text of unit label
 #' @param tbl_id numeric table id from table table
 #' @param dim_name character dimension name
@@ -14,7 +15,7 @@
 #' @rdname get_stuff
 #' @return numeric code from the table table
 #' @keywords internal
-get_table_id <- function(code_no) {
+get_table_id <- function(code_no, con) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
     dplyr::pull(id)
@@ -25,7 +26,7 @@ get_table_id <- function(code_no) {
 #' @rdname get_stuff
 #' @return numeric code from db table unit
 #' @keywords internal
-get_unit_id <- function(unit){
+get_unit_id <- function(unit, con){
   unit <- tolower(unit)
   dplyr::tbl(con, "unit") %>%
     dplyr::filter(name == unit) %>%
