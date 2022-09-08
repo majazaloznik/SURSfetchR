@@ -4,19 +4,10 @@
 \alias{write_row_dimension_levels}
 \title{Write dimension levels for a single table to the `dimension_levels` table}
 \usage{
-write_row_dimension_levels(
-  code_no,
-  dbtable_dimensions,
-  con,
-  sql_statement,
-  counter,
-  ...
-)
+write_row_dimension_levels(code_no, con, sql_statement, counter, ...)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
-
-\item{dbtable_dimensions}{tbl() link to db table, although this one isn't actually used}
 
 \item{con}{connection to the database}
 

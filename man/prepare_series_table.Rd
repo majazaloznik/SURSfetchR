@@ -4,12 +4,10 @@
 \alias{prepare_series_table}
 \title{Prepare table to insert into `series` table}
 \usage{
-prepare_series_table(code_no, con)
+prepare_series_table(code_no)
 }
 \arguments{
 \item{code_no}{character obect of the matrix code (e.g. 2300123S)}
-
-\item{con}{postgresql connection to the database.}
 }
 \value{
 a dataframe with three columns: series_title, series_code and unit_id as

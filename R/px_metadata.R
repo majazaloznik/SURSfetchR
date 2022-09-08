@@ -8,7 +8,7 @@
 #' @param id character vector of length 1 with code of matrix. Can be with or
 #' without the .px extension.
 #'
-#' @return A data.frame with seven columns and single row
+#' @return A data.frame with eight columns and single row
 #' @export
 #'
 get_px_metadata <- function(id) {
@@ -111,26 +111,59 @@ get_row <- function(id_no, full, output = NULL){
 #' @param tbl_id numeric value of table's id in the `table` table
 #' @rdname get_px_stuff
 #' @keywords internal
-get_single_unit_from_px <- function(code_no, con){
+get_single_unit_from_px <- function(code_no){
   units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
   if(length(units_from_px)==1) {
-    unit_id <- get_unit_id(units_from_px, con)} else {
+    unit_id <- get_unit_id(units_from_px)} else {
       unit_id <- NA}
   unit_id
 }
 #' @rdname get_px_stuff
 #' @keywords internal
-get_valuenotes_from_px <- function(code_no, tbl_id, con) {
+get_valuenotes_from_px <- function(code_no, tbl_id) {
   as_tibble(get_px_metadata(code_no)$valuenotes[[1]]) %>%
     tidyr::gather() -> x
   if(nrow(x)>0){
   purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
                      level_text = get_valuenotes_level(.))) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
-           level_value = get_level_value(tab_dim_id, level_text, con)) %>%
+    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name),
+           level_value = get_level_value(tab_dim_id, level_text)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out} else {
       out <- NULL}
 }
 
+
+#' Family of helper functions to extract units from VALUENOTES list
+#'
+#' Some SURS matrices have the units for individual levels saved in a list
+#' in the VALUENOTES slot of the px. metadata. These need to be regexed outta there
+#' with the following three functions.
+#'
+#' @param x a character string, either the element name (for dimension and level)
+#' or the element itself (for the unit)
+#' @return character string of cleaned up dimension name, dimension level label or
+#' unit name (which is what we are after in the end).
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_dimension <- function(x){
+  x <- regmatches(x, regexpr("[A-Z.]+(?=\\.)", x, perl = TRUE))
+  gsub( "\\.", " ", x)
+}
+
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_level <- function(x){
+  y <- gsub( "\\.", " ", x)
+  gsub(paste0(get_valuenotes_dimension(x), " "), "", y)
+}
+
+#' @rdname valuenotes
+#' @keywords internal
+get_valuenotes_unit <- function(x){
+  y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
+  y <- gsub( "\\.", "", y)
+  unit_name <- gsub("\" \"", "", y)
+  as.numeric(get_unit_id(unit_name))
+}

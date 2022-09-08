@@ -4,19 +4,10 @@
 \alias{write_row_category_table}
 \title{Write categories for a single table to the `category_table` table}
 \usage{
-write_row_category_table(
-  code_no,
-  dbcategory_table,
-  con,
-  sql_statement,
-  counter,
-  full
-)
+write_row_category_table(code_no, con, sql_statement, counter, full)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
-
-\item{dbcategory_table}{tbl() link to db table, although this one isn't actually used}
 
 \item{con}{connection to the database}
 

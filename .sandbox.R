@@ -26,9 +26,9 @@ insert_table <- data.frame(table = character(),
 insert_table <- bind_rows(insert_table,
                           c(table = "table",
                             sql = paste("INSERT INTO \"table\"",
-                                        "(code, name, source_id, url, description, notes)",
+                                        "(code, name, source_id, url, notes)",
                                         "VALUES",
-                                        "($1, $2, $3, $4, $5, $6)")))
+                                        "($1, $2, $3, $4, $5)")))
 
 insert_table <- bind_rows(insert_table,
                           c(table = "category",
@@ -91,15 +91,13 @@ full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
 code_no <- "0300230S" # meritve, tri enote
 code_no <- "1701106S" # indeks, ena enota
 code_no <- "1700104S"
-code_no <- "1700104S"
+
+system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
+                           write_multiple_rows(master_list_surs[1,], con, .x, .y, full)))
+
+
+
 sql_statement <- paste("INSERT INTO series",
-                       "(table_id, name_long,  code, interval_id, unit_id)",
-                       "VALUES",
-                       "($1, $2, $3, $4, $5)")
-
-write_row_series(code_no, dbseries = NULL,
-                 con, sql_statement, counter = 0)
-
-system.time(purrr::walk2(insert_table$table[8], insert_table$sql[8], ~
-                           write_multiple_rows(master_list_surs, con, .x, .y, full)))
-
+      "(table_id, name_long,  code, interval_id, unit_id)",
+      "VALUES",
+      "($1, $2, $3, $4, $5)")
