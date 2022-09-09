@@ -168,7 +168,7 @@ write_row_category_table <- function(code_no, con, sql_statement, counter, full)
 #' @export
 write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...) {
   get_table_id(code_no, con) -> tbl_id
-  tmp <- get_table_levels(code_no, con) %>%
+  tmp <- get_table_levels(code_no) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(table_id, dimension_name, time)
   counter_i = 0
@@ -214,7 +214,7 @@ write_row_dimension_levels <- function(code_no, con, sql_statement, counter, ...
     dplyr::select(dimension, id) %>%
     collect() -> dim_ids
 
-  tmp <- get_table_levels(code_no, con) %>%
+  tmp <- get_table_levels(code_no) %>%
     tidyr::unnest(levels) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%

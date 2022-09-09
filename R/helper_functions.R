@@ -11,7 +11,7 @@
 #' @rdname expanding
 #' @keywords internal
 expand_to_level_codes <- function (code_no, unit_id, con) {
-  get_table_levels(code_no, con) %>%
+  get_table_levels(code_no) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("values") %>%
@@ -21,7 +21,7 @@ expand_to_level_codes <- function (code_no, unit_id, con) {
 #' @rdname expanding
 #' @keywords internal
 expand_to_series_titles <- function(code_no, con){
-  get_table_levels(code_no, con) %>%
+  get_table_levels(code_no) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("valueTexts") %>%
