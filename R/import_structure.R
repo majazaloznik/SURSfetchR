@@ -167,8 +167,8 @@ write_row_category_table <- function(code_no, con, sql_statement, counter, full)
 #'
 #' @export
 write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
-  tmp <- get_table_levels(code_no) %>%
+  get_table_id(code_no, con) -> tbl_id
+  tmp <- get_table_levels(code_no, con) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(table_id, dimension_name, time)
   counter_i = 0
@@ -207,14 +207,14 @@ write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...
 #'
 #' @export
 write_row_dimension_levels <- function(code_no, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
+  get_table_id(code_no, con) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time == FALSE) %>%
     dplyr::select(dimension, id) %>%
     collect() -> dim_ids
 
-  tmp <- get_table_levels(code_no) %>%
+  tmp <- get_table_levels(code_no, con) %>%
     tidyr::unnest(levels) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%
@@ -297,19 +297,19 @@ write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
 #' @export
 
 prepare_series_table <- function(code_no){
-  get_table_id(code_no) -> tbl_id
-  get_interval_id(code_no) -> interval_id
-  get_single_unit_from_px(code_no) -> unit_id
-  expand_to_level_codes(code_no, unit_id) -> expanded_level_codes
+  get_table_id(code_no, con) -> tbl_id
+  get_interval_id(code_no, con) -> interval_id
+  get_single_unit_from_px(code_no, con) -> unit_id
+  expand_to_level_codes(code_no, unit_id, con) -> expanded_level_codes
   if(is.na(unit_id)) {
-    get_meritve_id(tbl_id) -> meritve_dim_id
-    get_meritve_no(tbl_id) -> meritve_dim_no
+    get_meritve_id(tbl_id, con) -> meritve_dim_id
+    get_meritve_no(tbl_id, con) -> meritve_dim_no
     if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
-      get_unit_levels_from_meritve(meritve_dim_id) -> units_by_meritve_levels
+      get_unit_levels_from_meritve(meritve_dim_id, con) -> units_by_meritve_levels
       add_meritve_level_units(expanded_level_codes, meritve_dim_no,
                               units_by_meritve_levels) -> expanded_level_codes
     } else { # if valuenotes exist
-      get_valuenotes_from_px(code_no, tbl_id) -> units_by_levels
+      get_valuenotes_from_px(code_no, tbl_id, con) -> units_by_levels
       get_valuenotes_id(tbl_id, units_by_levels$dim_name[1]) -> valuenotes_dim_id
       get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1]) -> valuenotes_dim_no
       if(length(valuenotes_dim_id) == 1){
@@ -321,7 +321,7 @@ prepare_series_table <- function(code_no){
   expanded_level_codes %>%
     tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
     dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
-    cbind(expand_to_series_titles(code_no)) %>%
+    cbind(expand_to_series_titles(code_no, con)) %>%
     dplyr::mutate(table_id = tbl_id,
                   interval_id = interval_id)
 }
@@ -347,7 +347,7 @@ prepare_series_table <- function(code_no){
 #'
 #' @export
 write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
-  get_table_id(code_no) -> tbl_id
+  get_table_id(code_no, con) -> tbl_id
 
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,

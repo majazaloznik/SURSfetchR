@@ -37,7 +37,7 @@ get_unit_id <- function(unit, con){
 
 #' @return numeric code of table-dimension id
 #' @keywords internal
-get_tab_dim_id <- function(tbl_id, dim_name) {
+get_tab_dim_id <- function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   dimension == dim_name) %>%
@@ -48,7 +48,7 @@ get_tab_dim_id <- function(tbl_id, dim_name) {
 #' @rdname get_stuff
 #' @return character code from level value code
 #' @keywords internal
-get_level_value <- function(tbl_dm_id, lvl_text) {
+get_level_value <- function(tbl_dm_id, lvl_text, con) {
   dplyr::tbl(con, "dimension_levels") %>%
     dplyr::filter(tab_dim_id == tbl_dm_id,
                   level_text == lvl_text) %>%
@@ -58,8 +58,8 @@ get_level_value <- function(tbl_dm_id, lvl_text) {
 #' @rdname get_stuff
 #' @return character code from level value code
 #' @keywords internal
-get_interval_id <- function(code_no) {
-  tbl_id <- get_table_id(code_no)
+get_interval_id <- function(code_no, con) {
+  tbl_id <- get_table_id(code_no, con)
   interval_lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
@@ -74,7 +74,7 @@ get_interval_id <- function(code_no) {
 #' @rdname get_stuff
 #' @return numeric id of MERITVE dimension if it exists, else integer64(0)
 #' @keywords internal
-get_meritve_id <- function(tbl_id) {
+get_meritve_id <- function(tbl_id, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
@@ -85,7 +85,7 @@ get_meritve_id <- function(tbl_id) {
 #' @rdname get_stuff
 #' @return numeric position of MERITVE dimension if it exists, else integer64(0)
 #' @keywords internal
-get_meritve_no <-function(tbl_id) {
+get_meritve_no <-function(tbl_id, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   time != TRUE) %>%
@@ -97,7 +97,7 @@ get_meritve_no <-function(tbl_id) {
 #' @rdname get_stuff
 #' @return tibble with 4 cols including `level_value` and `unit_id`
 #' @keywords internal
-get_unit_levels_from_meritve <- function(meritve_dim_id){
+get_unit_levels_from_meritve <- function(meritve_dim_id, con){
   dplyr::tbl(con, "dimension_levels") %>%
     dplyr::filter(tab_dim_id == meritve_dim_id) %>%
     dplyr::collect() %>%
@@ -105,13 +105,13 @@ get_unit_levels_from_meritve <- function(meritve_dim_id){
                                                         level_text, perl = TRUE))) %>%
     dplyr::select(-level_text) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(unit_id = get_unit_id(unit))
+    dplyr::mutate(unit_id = get_unit_id(unit, con))
 }
 
 #' @rdname get_stuff
 #' @return numeric id of valuenotes dimension if it exists, else integer64(0)
 #' @keywords internal
-get_valuenotes_id <- function(tbl_id, dim_name) {
+get_valuenotes_id <- function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
@@ -122,7 +122,7 @@ get_valuenotes_id <- function(tbl_id, dim_name) {
 #' @rdname get_stuff
 #' @return numeric position of valuenotes dimension if it exists, else integer64(0)
 #' @keywords internal
-get_valuenotes_no <-function(tbl_id, dim_name) {
+get_valuenotes_no <-function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   time != TRUE) %>%

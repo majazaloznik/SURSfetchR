@@ -10,8 +10,8 @@
 #' unit_id for the level codes and sinle column with series titles for the other one.
 #' @rdname expanding
 #' @keywords internal
-expand_to_level_codes <- function (code_no, unit_id) {
-  get_table_levels(code_no) %>%
+expand_to_level_codes <- function (code_no, unit_id, con) {
+  get_table_levels(code_no, con) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("values") %>%
@@ -20,8 +20,8 @@ expand_to_level_codes <- function (code_no, unit_id) {
 }
 #' @rdname expanding
 #' @keywords internal
-expand_to_series_titles <- function(code_no){
-  get_table_levels(code_no) %>%
+expand_to_series_titles <- function(code_no, con){
+  get_table_levels(code_no, con) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
     purrr::map("valueTexts") %>%

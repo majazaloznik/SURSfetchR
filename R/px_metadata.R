@@ -111,25 +111,25 @@ get_row <- function(id_no, full, output = NULL){
 #' @param tbl_id numeric value of table's id in the `table` table
 #' @rdname get_px_stuff
 #' @keywords internal
-get_single_unit_from_px <- function(code_no){
+get_single_unit_from_px <- function(code_no, con){
   units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
   if(length(units_from_px)==1) {
-    unit_id <- get_unit_id(units_from_px)} else {
+    unit_id <- get_unit_id(units_from_px, con)} else {
       unit_id <- NA}
   unit_id
 }
 
 #' @rdname get_px_stuff
 #' @keywords internal
-get_valuenotes_from_px <- function(code_no, tbl_id) {
+get_valuenotes_from_px <- function(code_no, tbl_id, con) {
   as_tibble(get_px_metadata(code_no)$valuenotes[[1]]) %>%
     tidyr::gather() -> x
   if(nrow(x)>0){
   purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
                      level_text = get_valuenotes_level(.))) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name),
-           level_value = get_level_value(tab_dim_id, level_text)) %>%
+    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
+           level_value = get_level_value(tab_dim_id, level_text, con)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit)) -> out} else {
       out <- NULL}
@@ -162,9 +162,9 @@ get_valuenotes_level <- function(x){
 
 #' @rdname valuenotes
 #' @keywords internal
-get_valuenotes_unit <- function(x){
+get_valuenotes_unit <- function(x, con){
   y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
   y <- gsub( "\\.", "", y)
   unit_name <- gsub("\" \"", "", y)
-  as.numeric(get_unit_id(unit_name))
+  as.numeric(get_unit_id(unit_name, con))
 }
