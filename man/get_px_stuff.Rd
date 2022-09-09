@@ -5,9 +5,9 @@
 \alias{get_valuenotes_from_px}
 \title{Clean up specific metadata from the px file}
 \usage{
-get_single_unit_from_px(code_no)
+get_single_unit_from_px(code_no, con)
 
-get_valuenotes_from_px(code_no, tbl_id)
+get_valuenotes_from_px(code_no, tbl_id, con)
 }
 \arguments{
 \item{code_no}{character string of px code}

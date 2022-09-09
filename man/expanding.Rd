@@ -5,9 +5,9 @@
 \alias{expand_to_series_titles}
 \title{Expanding from levels to series codes and titles}
 \usage{
-expand_to_level_codes(code_no, unit_id)
+expand_to_level_codes(code_no, unit_id, con)
 
-expand_to_series_titles(code_no)
+expand_to_series_titles(code_no, con)
 }
 \arguments{
 \item{unit_id}{num text of unit id}

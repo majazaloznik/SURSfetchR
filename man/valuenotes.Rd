@@ -10,7 +10,7 @@ get_valuenotes_dimension(x)
 
 get_valuenotes_level(x)
 
-get_valuenotes_unit(x)
+get_valuenotes_unit(x, con)
 }
 \arguments{
 \item{x}{a character string, either the element name (for dimension and level)

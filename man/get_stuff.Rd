@@ -17,21 +17,21 @@ get_table_id(code_no, con)
 
 get_unit_id(unit, con)
 
-get_tab_dim_id(tbl_id, dim_name)
+get_tab_dim_id(tbl_id, dim_name, con)
 
-get_level_value(tbl_dm_id, lvl_text)
+get_level_value(tbl_dm_id, lvl_text, con)
 
-get_interval_id(code_no)
+get_interval_id(code_no, con)
 
-get_meritve_id(tbl_id)
+get_meritve_id(tbl_id, con)
 
-get_meritve_no(tbl_id)
+get_meritve_no(tbl_id, con)
 
-get_unit_levels_from_meritve(meritve_dim_id)
+get_unit_levels_from_meritve(meritve_dim_id, con)
 
-get_valuenotes_id(tbl_id, dim_name)
+get_valuenotes_id(tbl_id, dim_name, con)
 
-get_valuenotes_no(tbl_id, dim_name)
+get_valuenotes_no(tbl_id, dim_name, con)
 }
 \arguments{
 \item{code_no}{px. code e.g. 0300230S}
@@ -75,5 +75,10 @@ numeric position of valuenotes dimension if it exists, else integer64(0)
 Group of functions that lookup stuff in relevant tables on the `con` connection
 to get correct table id from px code. Also make sure the `search_path` is set to
 the correct scheme.
+}
+\details{
+NB: there is an issue with BIGINT datatype being read by dittodb in R, that's
+why those have an `as.numeric()` added at the end, because there is no native
+type in R or sth.
 }
 \keyword{internal}

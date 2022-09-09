@@ -4,6 +4,10 @@
 #' to get correct table id from px code. Also make sure the `search_path` is set to
 #' the correct scheme.
 #'
+#' NB: there is an issue with BIGINT datatype being read by dittodb in R, that's
+#' why those have an `as.numeric()` added at the end, because there is no native
+#' type in R or sth.
+#'
 #' @param code_no px. code e.g. 0300230S
 #' @param con connection to postgres database
 #' @param unit char text of unit label
@@ -18,6 +22,7 @@
 get_table_id <- function(code_no, con) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
+    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -41,6 +46,7 @@ get_tab_dim_id <- function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   dimension == dim_name) %>%
+    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -79,6 +85,7 @@ get_meritve_id <- function(tbl_id, con) {
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
+    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -91,6 +98,7 @@ get_meritve_no <-function(tbl_id, con) {
                   time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
+    dplyr::mutate(poz = as.numeric(poz)) %>%
     dplyr::pull(poz)
 }
 
@@ -116,6 +124,7 @@ get_valuenotes_id <- function(tbl_id, dim_name, con) {
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
     dplyr::filter(dimension == dim_name) %>%
+    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -128,5 +137,6 @@ get_valuenotes_no <-function(tbl_id, dim_name, con) {
                   time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == dim_name) %>%
+    dplyr::mutate(poz = as.numeric(poz)) %>%
     dplyr::pull(poz)
 }
