@@ -33,8 +33,6 @@ dittodb::with_mock_db({
 
   test_that("mock tests for get_time_dimension", {
     out <- get_time_dimension("0300230S", con)
-    print(out)
-    print(nchar(out))
     expect_true(length(out) == 1)
     expect_true(grepl( ".ETRTLETJE", out))
   })

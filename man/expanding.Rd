@@ -10,7 +10,7 @@ expand_to_level_codes(code_no, unit_id, con)
 expand_to_series_titles(code_no, con)
 }
 \arguments{
-\item{unit_id}{num text of unit id}
+\item{unit_id}{num of unit id}
 
 \item{code_nopx.}{code e.g. 0300230S}
 }
