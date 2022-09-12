@@ -135,7 +135,7 @@ SURSfetchR:::get_meritve_no(2, con)
 
 stop_db_capturing()
 
-get_level_text_from_meritve
+
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = "sandbox",
