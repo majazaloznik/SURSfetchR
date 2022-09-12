@@ -298,14 +298,16 @@ write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
 
 prepare_series_table <- function(code_no){
   get_table_id(code_no, con) -> tbl_id
-  get_interval_id(code_no, con) -> interval_id
+  get_time_dimension(code_no, con) <- time_dimension
+  get_interval_id(time_dimension) -> interval_id
   get_single_unit_from_px(code_no, con) -> unit_id
   expand_to_level_codes(code_no, unit_id, con) -> expanded_level_codes
   if(is.na(unit_id)) {
     get_meritve_id(tbl_id, con) -> meritve_dim_id
     get_meritve_no(tbl_id, con) -> meritve_dim_no
     if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
-      get_unit_levels_from_meritve(meritve_dim_id, con) -> units_by_meritve_levels
+      get_level_text_from_meritve(meritve_dim_id, con) -> level_text_from_meritve
+      get_unit_levels_from_meritve(level_text_from_meritve, con) -> units_by_meritve_levels
       add_meritve_level_units(expanded_level_codes, meritve_dim_no,
                               units_by_meritve_levels) -> expanded_level_codes
     } else { # if valuenotes exist

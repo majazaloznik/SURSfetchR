@@ -93,7 +93,6 @@ SURSfetchR:::get_level_value(2, "Tekoče cene (mio EUR)", con)
 stop_db_capturing()
 
 
-
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = "sandbox",
@@ -104,8 +103,10 @@ con <- dbConnect(RPostgres::Postgres(),
 
 on.exit(dbDisconnect)
 dbSendQuery(con, "set search_path to test_platform")
-SURSfetchR:::get_interval_id("0300230S", con)
+SURSfetchR:::get_time_dimension("0300230S", con)
 stop_db_capturing()
+
+
 
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
@@ -134,6 +135,19 @@ SURSfetchR:::get_meritve_no(2, con)
 
 stop_db_capturing()
 
+get_level_text_from_meritve
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_text_from_meritve(2, con)
+stop_db_capturing()
 
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
@@ -145,7 +159,8 @@ con <- dbConnect(RPostgres::Postgres(),
 
 on.exit(dbDisconnect)
 dbSendQuery(con, "set search_path to test_platform")
-SURSfetchR:::get_unit_levels_from_meritve(2, con)
+level_text <- SURSfetchR:::get_level_text_from_meritve(2, con)
+SURSfetchR:::get_unit_levels_from_meritve(level_text, con)
 stop_db_capturing()
 
 start_db_capturing()

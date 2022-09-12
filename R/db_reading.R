@@ -61,20 +61,16 @@ get_level_value <- function(tbl_dm_id, lvl_text, con) {
     dplyr::pull(level_value)
 }
 
+
 #' @rdname get_stuff
-#' @return character code from level value code
+#' @return character text of time dimension from table code
 #' @keywords internal
-get_interval_id <- function(code_no, con) {
+get_time_dimension <- function(code_no, con) {
   tbl_id <- get_table_id(code_no, con)
-  interval_lookupV <- setNames(c("Q", "M", "Y"), c("\\u010cETRTLETJE", "MESEC", "LETO"))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time) %>%
-    dplyr::collect() %>%
-    dplyr::pull(dimension) -> interval_text
-  interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
-                        getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
-  interval_id
+    dplyr::pull(dimension)
 }
 
 #' @rdname get_stuff
@@ -105,10 +101,17 @@ get_meritve_no <-function(tbl_id, con) {
 #' @rdname get_stuff
 #' @return tibble with 4 cols including `level_value` and `unit_id`
 #' @keywords internal
-get_unit_levels_from_meritve <- function(meritve_dim_id, con){
+get_level_text_from_meritve <- function(meritve_dim_id, con){
   dplyr::tbl(con, "dimension_levels") %>%
     dplyr::filter(tab_dim_id == meritve_dim_id) %>%
-    dplyr::collect() %>%
+    dplyr::collect()
+}
+
+#' @rdname get_stuff
+#' @return tibble with 4 cols including `level_value` and `unit_id`
+#' @keywords internal
+get_unit_levels_from_meritve <- function(meritve_level_text, con){
+  meritve_level_text %>%
     dplyr::mutate(unit = regmatches(level_text, regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
                                                         level_text, perl = TRUE))) %>%
     dplyr::select(-level_text) %>%
@@ -139,4 +142,23 @@ get_valuenotes_no <-function(tbl_id, dim_name, con) {
     dplyr::filter(dimension == dim_name) %>%
     dplyr::mutate(poz = as.numeric(poz)) %>%
     dplyr::pull(poz)
+}
+
+
+#' Helper to get interval id from lookup vector
+#'
+#' This is not a db reading function, but it kinda fits with them, simply
+#' because i'm using a lookup vector inside the funciton instead of creating
+#' another table in the database to get the interval id.
+#'
+#' @param interval_text text of the time interval name
+#'
+#' @return character code of interval id
+#' @keywords internal
+get_interval_id <- function(interval_text) {
+  interval_lookupV <- setNames(c("Q", "M", "Y", "Q"),
+                               c("\\u010cETRTLETJE", "MESEC", "LETO", "?ETRTLETJE"))
+  interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
+                        getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
+  interval_id
 }

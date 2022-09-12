@@ -31,10 +31,10 @@ dittodb::with_mock_db({
     expect_true(out == "V")
   })
 
-  test_that("mock tests for get_interval?id", {
-    out <- get_interval_id("0300230S", con)
+  test_that("mock tests for get_time_dimension", {
+    out <- get_time_dimension("0300230S", con)
     expect_true(length(out) == 1)
-    expect_true(out == "Q")
+    expect_true(nchar(out) == 10)
   })
 
   test_that("mock tests for get_meritve_id", {
@@ -49,8 +49,11 @@ dittodb::with_mock_db({
     expect_true(out == 2)
   })
 
-  test_that("mock tests for get_meritve_no", {
-    out <- get_unit_levels_from_meritve(2, con)
+
+  test_that("mock tests for get_level_text_from_meritve", {
+    out <- get_level_text_from_meritve(2, con)
+    expect_true(all(dim(out) == c(6,3)))
+    out <- get_unit_levels_from_meritve(out, con)
     expect_true(all(dim(out) == c(6,4)))
   })
 
@@ -68,3 +71,16 @@ dittodb::with_mock_db({
 
   dbDisconnect(con)
 })
+
+test_that("mock tests for get_valuenotes_no", {
+  out <- get_interval_id("ČETRTLETJE")
+  expect_true(length(out) == 1)
+  expect_true(out == "Q")
+  out <- get_interval_id("MESEC")
+  expect_true(length(out) == 1)
+  expect_true(out == "M")
+  out <- get_interval_id("LETO")
+  expect_true(length(out) == 1)
+  expect_true(out == "Y")
+})
+

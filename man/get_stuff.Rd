@@ -5,9 +5,10 @@
 \alias{get_unit_id}
 \alias{get_tab_dim_id}
 \alias{get_level_value}
-\alias{get_interval_id}
+\alias{get_time_dimension}
 \alias{get_meritve_id}
 \alias{get_meritve_no}
+\alias{get_level_text_from_meritve}
 \alias{get_unit_levels_from_meritve}
 \alias{get_valuenotes_id}
 \alias{get_valuenotes_no}
@@ -21,13 +22,15 @@ get_tab_dim_id(tbl_id, dim_name, con)
 
 get_level_value(tbl_dm_id, lvl_text, con)
 
-get_interval_id(code_no, con)
+get_time_dimension(code_no, con)
 
 get_meritve_id(tbl_id, con)
 
 get_meritve_no(tbl_id, con)
 
-get_unit_levels_from_meritve(meritve_dim_id, con)
+get_level_text_from_meritve(meritve_dim_id, con)
+
+get_unit_levels_from_meritve(meritve_level_text, con)
 
 get_valuenotes_id(tbl_id, dim_name, con)
 
@@ -59,11 +62,13 @@ numeric code of table-dimension id
 
 character code from level value code
 
-character code from level value code
+character text of time dimension from table code
 
 numeric id of MERITVE dimension if it exists, else integer64(0)
 
 numeric position of MERITVE dimension if it exists, else integer64(0)
+
+tibble with 4 cols including `level_value` and `unit_id`
 
 tibble with 4 cols including `level_value` and `unit_id`
 
