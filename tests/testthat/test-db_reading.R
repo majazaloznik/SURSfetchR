@@ -33,8 +33,10 @@ dittodb::with_mock_db({
 
   test_that("mock tests for get_time_dimension", {
     out <- get_time_dimension("0300230S", con)
+    print(out)
+    print(nchar(out))
     expect_true(length(out) == 1)
-    expect_true(nchar(out) == 10)
+    expect_true(grepl( ".ETRTLETJE", out))
   })
 
   test_that("mock tests for get_meritve_id", {
@@ -53,8 +55,8 @@ dittodb::with_mock_db({
   test_that("mock tests for get_level_text_from_meritve", {
     out <- get_level_text_from_meritve(2, con)
     expect_true(all(dim(out) == c(6,3)))
-    out <- get_unit_levels_from_meritve(out, con)
-    expect_true(all(dim(out) == c(6,4)))
+    out <- get_unit_levels_from_meritve(out, con)[1,]
+    expect_true(all(dim(out) == c(1,4)))
   })
 
   test_that("mock tests for get_valuenotes_id", {
