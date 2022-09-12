@@ -64,7 +64,7 @@ dittodb::with_mock_db({
   DBI::dbSendQuery(con, "set search_path to test_platform")
 
   test_that("extraction from valuenotes works", {
-    x <- SURSfetchR:::get_valuenotes_from_px("1700104S", 15, con)
+    x <- get_valuenotes_from_px("1700104S", 15, con)
     expect_true(all(dim(x) == c(6,5)))
     expect_true(all(unique(x$unit_id) == c(2, 17)))
   })

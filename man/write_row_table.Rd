@@ -26,6 +26,3 @@ side effect is writing to the database.
 Helper function that extracts metadata from the API and inserts it into the
 sql statement and then gets written to the `table` table in the connection.
 }
-\details{
-Checks to make sure the code_no doesn't exist in the table already.
-}

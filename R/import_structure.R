@@ -11,94 +11,51 @@
 #' @export
 prepare_table_table <- function(code_no) {
   get_px_metadata(code_no) %>%
-    select(-created, -valuenotes)
+    dplyr::select(-created, -valuenotes)
 }
 
-
-#' Write categories for a single table to the `category` table
+#' Prepare table to insert into `category` table
 #'
 #' Helper function that extracts all the parent categories from the full
-#' hierarchy data.frame, and fills up the category table with field ids and
-#' their names. Gets run from \link[SURSfetchR]{write_multiple_rows}. Uses original
-#' id's from SURS, keeping them unique by adding the source_id to the constraint.
-#'
+#' hierarchy data.frame, and prepares the category table with field ids and
+#' their names.
 #' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
-#'
-#' @return incremented counter, side effect is writing to the database.
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
 #' @export
-write_row_category <- function(code_no, con, sql_statement, counter, full) {
-  checkmate::qassert(code_no, "S[5,11]")
-  code_no <- sub(".PX$", "", code_no)
-  code_no <- sub(".px$", "", code_no)
+#'
+prepare_category_table <- function(code_no, full) {
   id_no <- unique(full$id[full$name == code_no])
   rows <- get_row(id_no, full) %>%
-    select(-parent_id)
-  counter_i = 0
-  for (i in seq_len(nrow(rows))){
-    tryCatch({
-
-      DBI::dbExecute(con, sql_statement, list(rows[i,]$id,
-                                         rows[i,]$name,
-                                         rows[i,]$source_id))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-    }
-    )
-  }
-  message(paste(counter_i, "new categories inserted for matrix ", code_no))
-  return(counter)
+    dplyr::select(-parent_id)
 }
 
-#' Write categories for a single table to the `category_relationship` table
+
+
+#' Prepare table to insert into `category_relationship` table
 #'
 #' Helper function that extracts the field hierarchy from the full
-#' hierarchy data.frame, and fills up the category table with field ids and
-#' their parents. Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
+#' hierarchy data.frame, and  prepares the category relationship table with field ids and
+#' their parents
 #' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
-#'
-#' @return incremented counter, side effect is writing to the database.
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
 #' @export
-
-write_row_category_relationship <- function(code_no, con, sql_statement, counter, full) {
-  checkmate::qassert(code_no, "S[5,11]")
-  code_no <- sub(".PX$", "", code_no)
-  code_no <- sub(".px$", "", code_no)
+#'
+prepare_category_relationship_table <- function(code_no, full) {
   id_no <- unique(full$id[full$name == code_no])
   rows <- get_row(id_no, full) %>%
     dplyr::mutate(parent_id = as.numeric(parent_id)) %>%
     dplyr::arrange(parent_id)
-  counter_i = 0
-  for (i in seq_len(nrow(rows))){
-    tryCatch({
-
-      DBI::dbExecute(con, sql_statement, list(rows[i,]$id,
-                                         rows[i,]$parent_id,
-                                         rows[i,]$source_id))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-    }
-    )
-  }
-  message(paste(counter_i, "new category relationships inserted for matrix ", code_no))
-  return(counter)
 }
+
+
+
+
 
 #' Write categories for a single table to the `category_table` table
 #'
