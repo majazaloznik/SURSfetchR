@@ -176,7 +176,31 @@ dbSendQuery(con, "set search_path to test_platform")
 SURSfetchR:::get_unit_id("mio EUR", con)
 stop_db_capturing()
 
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
 
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_unit_id("indeks", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_unit_id("ravnotežje v odstotnih točkah", con)
+stop_db_capturing()
 
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
@@ -205,3 +229,94 @@ SURSfetchR:::get_valuenotes_no(14, "EKONOMSKI KAZALNIK", con)
 stop_db_capturing()
 
 
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_tab_dim_id(15, "EKONOMSKI KAZALNIKI", con)
+stop_db_capturing()
+
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Izkoriščdenost proizvodnih zmogljivosti", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Ustreznost proizvodnih zmogljivosti", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Konkurenčni položaj na domačem trgu", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Konkurenčni položaj na trgih držav EU", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Konkurenčni položaj na trgih zunaj EU", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_value(48, "Obseg novih naročil", con)
+stop_db_capturing()

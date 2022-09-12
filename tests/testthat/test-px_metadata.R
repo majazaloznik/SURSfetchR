@@ -22,6 +22,52 @@ test_that("Categories are properly parsed", {
  expect_error(get_row(123, x))
 })
 
-with_mock_db(
-  get_single_unit_from_px("0300230S")
-)
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "sandbox",
+                        host = "localhost",
+                        port = 5432,
+                        user = "mzaloznik",
+                        password = Sys.getenv("PG_local_MAJA_PSW"))
+  DBI::dbSendQuery(con, "set search_path to test_platform")
+
+  test_that("single unit from px metadata", {
+  x <- get_single_unit_from_px("0300230S", con)
+  expect_true(is.na(x))
+  x <- get_single_unit_from_px("0457101S", con)
+  expect_true(x == 7)
+  })
+})
+
+test_that("valuenotes regex works", {
+  x <- get_px_metadata("1700104S")$valuenotes[[1]][1]
+  out <- get_valuenotes_dimension(names(x))
+  expect_equal(out, "EKONOMSKI KAZALNIKI")
+  out <- get_valuenotes_dimension("BLA.BLA.BLA.bla")
+  expect_equal(out, "BLA BLA BLA")
+  out <- get_valuenotes_dimension("Barabe")
+  expect_true(length(out) == 0)
+  out <- get_valuenotes_level(names(x))
+  expect_true(grepl(".zmogljivosti", out))
+  out <- get_valuenotes_unit(x, con)
+  expect_true(out == 2)
+})
+
+
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "sandbox",
+                        host = "localhost",
+                        port = 5432,
+                        user = "mzaloznik",
+                        password = Sys.getenv("PG_local_MAJA_PSW"))
+  DBI::dbSendQuery(con, "set search_path to test_platform")
+
+  test_that("extraction from valuenotes works", {
+    x <- SURSfetchR:::get_valuenotes_from_px("1700104S", 15, con)
+    expect_true(all(dim(x) == c(6,5)))
+    expect_true(all(unique(x$unit_id) == c(2, 17)))
+  })
+})
+
+
