@@ -12,9 +12,11 @@ prepare_units_table(code_no, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the single column containing the different units used
+in this table.
 }
 \description{
 Helper function that extracts the units for each table from the px metadata.
+Returns table ready to insert into the `units`table with the
+db_writing family of functions.
 }

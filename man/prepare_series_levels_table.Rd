@@ -12,11 +12,13 @@ prepare_series_levels_table(code_no, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `series_id`, `tab_dim_id`, `value` columns
+all the series-level combinatins for this table.
 }
 \description{
 Helper function that extracts the individual levels for each series and
 gets the correct dimension id for each one and the correct series id to
 keep with the constraints.
+Returns table ready to insert into the `series_levels`table with the
+db_writing family of functions.
 }

@@ -13,11 +13,12 @@ prepare_category_relationship_table(code_no, full)
 \link[SURSfetchR]{get_full_structure}}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `id`, `name`, `parent_id`, `source_id` for each relationship
+betweeh categories
 }
 \description{
 Helper function that extracts the field hierarchy from the full
 hierarchy data.frame, and  prepares the category relationship table with field ids and
-their parents
+their parents' id. Returns table ready to insert into the `category_relationship`
+table with the db_writing family of functions.
 }

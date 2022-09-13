@@ -12,9 +12,11 @@ prepare_table_dimensions_table(code_no, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `table_id`, `dimension_name`, `time` columns for
+each dimension of this table.
 }
 \description{
 Helper function that extracts the dimensions for each table and their "time" status.
+Returns table ready to insert into the `table_dimensions`table with the
+db_writing family of functions.
 }

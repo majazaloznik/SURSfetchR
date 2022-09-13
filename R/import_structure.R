@@ -40,12 +40,14 @@ prepare_category_table <- function(code_no, full) {
 #'
 #' Helper function that extracts the field hierarchy from the full
 #' hierarchy data.frame, and  prepares the category relationship table with field ids and
-#' their parents
+#' their parents' id. Returns table ready to insert into the `category_relationship`
+#' table with the db_writing family of functions.
+#'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `id`, `name`, `parent_id`, `source_id` for each relationship
+#' betweeh categories
 #' @export
 #'
 prepare_category_relationship_table <- function(code_no, full) {
@@ -60,14 +62,16 @@ prepare_category_relationship_table <- function(code_no, full) {
 #'
 #' Helper function that extracts the parent category for each table from the full
 #' hierarchy data.frame, and fills up the category_table table with the table ids and
-#' their categories (parents)
+#' their categories (parents). A single table can have multiple parents - meaning
+#' it is member of several categories (usually no more than two tho). Returns table
+#' ready to insert into the `category_table`table with the db_writing family of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `category_id` `table_id` and `source_id` columns for
+#' each table-category relationship.
 #' @export
 #'
 prepare_category_table_table <- function(code_no, full, con) {
@@ -83,11 +87,13 @@ prepare_category_table_table <- function(code_no, full, con) {
 #' Prepare table to insert into `table_dimensions` table
 #'
 #' Helper function that extracts the dimensions for each table and their "time" status.
+#' Returns table ready to insert into the `table_dimensions`table with the
+#' db_writing family of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `table_id`, `dimension_name`, `time` columns for
+#' each dimension of this table.
 #' @export
 #'
 prepare_table_dimensions_table <- function(code_no, con) {
@@ -100,12 +106,14 @@ prepare_table_dimensions_table <- function(code_no, con) {
 #' Prepare table to insert into `dimension_levels` table
 #'
 #' Helper function that extracts the levels for all the dimensions for each
-#' table and get their code and text.
+#' table and get their codes and text.
+#' Returns table ready to insert into the `dimension_levels`table with the
+#' db_writing family of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `dimension_name`, `values`, `valueTexts`, and `id`
+#' columns for this table.
 #' @export
 #'
 prepare_dimension_levels_table <- function(code_no, con) {
@@ -127,19 +135,19 @@ prepare_dimension_levels_table <- function(code_no, con) {
 #' Prepare table to insert into `units` table
 #'
 #' Helper function that extracts the units for each table from the px metadata.
+#' Returns table ready to insert into the `units`table with the
+#' db_writing family of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the single column containing the different units used
+#' in this table.
 #' @export
 #'
 prepare_units_table <- function(code_no, con) {
 data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
     dplyr::mutate_all(tolower)
 }
-
-
 
 
 
@@ -157,11 +165,14 @@ data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
 #' 3. ooor, there is no MERITVE dimension, and then there is (?) a slot in the .px
 #' data called `valuenotes`, which contains the units and again there is an even
 #' more convoluted way to get them out and know which level values they apply to.
+#' Returns table ready to insert into the `series`table with the
+#' db_writing family of functions.
 #'
 #' @param code_no character obect of the matrix code (e.g. 2300123S)
 #' @param con connection to the database
 #'
-#' @return a dataframe with three columns: series_title, series_code and unit_id as
+#' @return a dataframe with the following columns: `series_title`, `series_code`,
+#' `unit_id`, `table_id` and `interval_id`for each series in the table
 #' well as the same number of rows as there are series
 #' @export
 
@@ -204,12 +215,14 @@ prepare_series_table <- function(code_no, con){
 #' Helper function that extracts the individual levels for each series and
 #' gets the correct dimension id for each one and the correct series id to
 #' keep with the constraints.
+#' Returns table ready to insert into the `series_levels`table with the
+#' db_writing family of functions.
 #'
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `series_id`, `tab_dim_id`, `value` columns
+#' all the series-level combinatins for this table.
 #' @export
 #'
 prepare_series_levels_table <- function(code_no, con) {

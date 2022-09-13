@@ -12,7 +12,8 @@ prepare_series_table(code_no, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with three columns: series_title, series_code and unit_id as
+a dataframe with the following columns: `series_title`, `series_code`,
+`unit_id`, `table_id` and `interval_id`for each series in the table
 well as the same number of rows as there are series
 }
 \description{
@@ -28,4 +29,6 @@ level in parentheses at the end of the label. So we get if from there
 3. ooor, there is no MERITVE dimension, and then there is (?) a slot in the .px
 data called `valuenotes`, which contains the units and again there is an even
 more convoluted way to get them out and know which level values they apply to.
+Returns table ready to insert into the `series`table with the
+db_writing family of functions.
 }

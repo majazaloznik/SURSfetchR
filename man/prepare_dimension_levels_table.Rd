@@ -12,10 +12,12 @@ prepare_dimension_levels_table(code_no, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `dimension_name`, `values`, `valueTexts`, and `id`
+columns for this table.
 }
 \description{
 Helper function that extracts the levels for all the dimensions for each
-table and get their code and text.
+table and get their codes and text.
+Returns table ready to insert into the `dimension_levels`table with the
+db_writing family of functions.
 }

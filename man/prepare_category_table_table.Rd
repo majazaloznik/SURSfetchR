@@ -15,11 +15,13 @@ prepare_category_table_table(code_no, full, con)
 \item{con}{connection to the database}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `category_id` `table_id` and `source_id` columns for
+each table-category relationship.
 }
 \description{
 Helper function that extracts the parent category for each table from the full
 hierarchy data.frame, and fills up the category_table table with the table ids and
-their categories (parents)
+their categories (parents). A single table can have multiple parents - meaning
+it is member of several categories (usually no more than two tho). Returns table
+ready to insert into the `category_table`table with the db_writing family of functions.
 }
