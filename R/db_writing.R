@@ -107,8 +107,6 @@ write_row_category_relationship <- function(code_no, con, sql_statement, counter
   return(counter)
 }
 
-
-
 #' Write categories for a single table to the `category_table` table
 #'
 #' Helper function that extracts the parent category for each table from the full
@@ -127,7 +125,7 @@ write_row_category_relationship <- function(code_no, con, sql_statement, counter
 #' @export
 #'
 write_row_category_table <- function(code_no, con, sql_statement, counter, full) {
-  tmp <- prepare_category_table_table(code_no, full)
+  tmp <- prepare_category_table_table(code_no, full, con)
    counter_i = 0
   for (i in seq_len(nrow(tmp))){
     tryCatch({
