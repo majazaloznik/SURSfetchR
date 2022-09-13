@@ -154,6 +154,19 @@ library(testthat)
 #
 # on.exit(dbDisconnect)
 # dbSendQuery(con, "set search_path to test_platform")
+# SURSfetchR:::get_meritve_id(1, con)
+# stop_db_capturing()
+
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbSendQuery(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_id(15, con)
 # stop_db_capturing()
 #
@@ -183,6 +196,18 @@ library(testthat)
 # dbSendQuery(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_no(15, con)
 #
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbSendQuery(con, "set search_path to test_platform")
+# SURSfetchR:::get_meritve_no(15, con)
+#
 # stop_db_capturing()
 #
 # start_db_capturing()
@@ -197,7 +222,20 @@ library(testthat)
 # dbSendQuery(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_text_from_meritve(2, con)
 # stop_db_capturing()
-#
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_level_text_from_meritve(1, con)
+stop_db_capturing()
+
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",
