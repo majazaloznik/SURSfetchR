@@ -19,9 +19,9 @@ dittodb::with_mock_db({
     x <- SURSfetchR:::prepare_category_table_table("1700104S", full, con)
     expect_true(all(dim(x) == c(1,3)))
     expect_true(x$category_id == 321)
-    x <- SURSfetchR:::prepare_table_dimensions_table("1700104S", full, con)
-
-
+    x <- SURSfetchR:::prepare_table_dimensions_table("1700104S", con)
+    expect_true(all(dim(x) == c(3,3)))
+    expect_true(x$time[1])
   })
 })
 
