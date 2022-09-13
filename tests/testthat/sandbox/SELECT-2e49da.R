@@ -1,0 +1,21 @@
+structure(list(id = structure(c(0x1.d9cp-1064, 0x1.dap-1064, 
+0x1.da4p-1064, 0x1.da8p-1064, 0x1.dacp-1064, 0x1.dbp-1064, 0x1.db4p-1064, 
+0x1.db8p-1064, 0x1.dbcp-1064, 0x1.dcp-1064, 0x1.dc4p-1064, 0x1.dc8p-1064
+), class = "integer64"), table_id = c(15L, 15L, 15L, 15L, 15L, 
+15L, 15L, 15L, 15L, 15L, 15L, 15L), name_long = c("Originalni podatki - Izkorišèenost proizvodnih zmogljivosti", 
+"Desezonirani podatki - Izkorišèenost proizvodnih zmogljivosti", 
+"Originalni podatki - Ustreznost proizvodnih zmogljivosti", "Desezonirani podatki - Ustreznost proizvodnih zmogljivosti", 
+"Originalni podatki - Konkurenèni položaj na domaèem trgu", "Desezonirani podatki - Konkurenèni položaj na domaèem trgu", 
+"Originalni podatki - Konkurenèni položaj na trgih držav EU", 
+"Desezonirani podatki - Konkurenèni položaj na trgih držav EU", 
+"Originalni podatki - Konkurenèni položaj na trgih zunaj EU", 
+"Desezonirani podatki - Konkurenèni položaj na trgih zunaj EU", 
+"Originalni podatki - Obseg novih naroèil", "Desezonirani podatki - Obseg novih naroèil"
+), unit_id = c(2L, 2L, 17L, 17L, 17L, 17L, 17L, 17L, 17L, 17L, 
+17L, 17L), code = c("SURS--1700104S--1--1--Q", "SURS--1700104S--2--1--Q", 
+"SURS--1700104S--1--2--Q", "SURS--1700104S--2--2--Q", "SURS--1700104S--1--3--Q", 
+"SURS--1700104S--2--3--Q", "SURS--1700104S--1--4--Q", "SURS--1700104S--2--4--Q", 
+"SURS--1700104S--1--5--Q", "SURS--1700104S--2--5--Q", "SURS--1700104S--1--6--Q", 
+"SURS--1700104S--2--6--Q"), interval_id = c("Q", "Q", "Q", "Q", 
+"Q", "Q", "Q", "Q", "Q", "Q", "Q", "Q")), class = "data.frame", row.names = c(NA, 
+-12L))

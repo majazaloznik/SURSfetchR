@@ -296,9 +296,42 @@ write_row_series <- function(code_no, con, sql_statement, counter, ...) {
 }
 
 
-
-
-
+#' Write series-level combinations into to the `series_levels` table
+#'
+#' Helper function that writes the series levels to the database. .
+#'
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
+  tmp <- prepare_series_levels_table(code_no, con)
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      dbExecute(con, sql_statement, list(tmp[i,]$series_id,
+                                         tmp[i,]$tab_dim_id,
+                                         tmp[i,]$value))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new series-level combos inserted for matrix ", code_no))
+  return(counter)
+}
 
 
 

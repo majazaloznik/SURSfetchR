@@ -1,4 +1,5 @@
 full <- readRDS(test_path("testdata", "full_h.rds"))
+insert_table <- readRDS(test_path("testdata", "insert_table.rds"))
 
 dittodb::with_mock_db({
   con <- DBI::dbConnect(RPostgres::Postgres(),
@@ -20,6 +21,13 @@ dittodb::with_mock_db({
                                         "VALUES",
                                         "($1, $2, $3)"), 0, full)
     expect_equal(x, 0)
+    x <- write_row_category_relationship("1700104S", con, paste("INSERT INTO category_relationship",
+                                                                "(category_id, parent_id, source_id)",
+                                                                "VALUES",
+                                                                "($1, $2, $3)"), 0, full)
+    expect_equal(x, 0)
+
+
 
     x <- write_row_category_table("1700104S", con, paste("INSERT INTO category_table",
                                                          "(table_id, category_id, source_id)",
@@ -42,11 +50,21 @@ dittodb::with_mock_db({
                                                "VALUES",
                                                "($1)"), 0)
     expect_equal(x, 2)
-    x <- write_row_series("1700104S", con, paste("INSERT INTO series_levels",
+    x <- write_row_series("1700104S", con,  paste("INSERT INTO series",
+                                                  "(table_id, name_long,  code, interval_id, unit_id)",
+                                                  "VALUES",
+                                                  "($1, $2, $3, $4, $5)"), 0)
+    expect_equal(x, 12)
+    x <- write_row_series_levels("1700104S", con, paste("INSERT INTO series_levels",
                                                  "(series_id, tab_dim_id,  level_value)",
                                                  "VALUES",
                                                  "($1, $2, $3)"), 0)
-    expect_equal(x, 12)
+    expect_equal(x, 24)
+
+    # x <- purrr::walk2(insert_table$table, insert_table$sql, ~
+    #                     write_multiple_rows(data.frame(code = "1700104S"),
+    #                                         con, .x, .y, full))
+    # expect_equal(x, 12)
   })
 })
 

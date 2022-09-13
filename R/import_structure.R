@@ -143,7 +143,7 @@ data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
 #' Prepare table to insert into `series` table
 #'
 #' This is a big one. Prepares the table to insert into the series table, which
-#' along expanding the leves to get all the series and their codes as well, which
+#' along expanding the levels to get all the series and their codes as well, which
 #' include also figuring out their time interval, this function also tries to
 #' extract the unit for each series, which can get pretty tricky. There are generally
 #' three options:
@@ -195,28 +195,22 @@ prepare_series_table <- function(code_no, con){
 }
 
 
-#' Write series-level combinations into to the `series_levels` table
+
+#' Prepare table to insert into `series_levels` table
 #'
 #' Helper function that extracts the individual levels for each series and
 #' gets the correct dimension id for each one and the correct series id to
 #' keep with the constraints.
 #'
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
 #' @export
-write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
+#'
+prepare_series_levels_table <- function(code_no, con) {
   get_table_id(code_no, con) -> tbl_id
-
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   time != TRUE) %>%
@@ -228,23 +222,7 @@ write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
     dplyr::select(table_id, id, code) %>%
     tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") %>%
     dplyr::select(series_id = id,  paste0(dimz)) %>%
-    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id" ) -> tmp
-
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,]$series_id,
-                                         tmp[i,]$tab_dim_id,
-                                         tmp[i,]$value))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new series-level combos inserted for matrix ", code_no))
-  return(counter)
+    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id" )
 }
+
 

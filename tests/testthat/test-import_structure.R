@@ -34,9 +34,9 @@ dittodb::with_mock_db({
     x <- SURSfetchR:::prepare_series_table("0300230S", con)
     expect_true(all(dim(x) == c(360,5)))
     expect_true("SURS--0300230S--P3_P5--V--N--Q" %in% x$series_code)
-    # x <- prepare_series_levels_table("1700104S", con)
-    # expect_true(all(dim(x) == c(2,1)))
-    # expect_true(length(unique(x[,1])) == 2)
+    x <- SURSfetchR:::prepare_series_levels_table("1700104S", con)
+    expect_true(all(dim(x) == c(24,3)))
+    expect_true(length(unique(x$tab_dim_id)) == 2)
   })
 })
 

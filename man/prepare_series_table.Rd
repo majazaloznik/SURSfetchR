@@ -17,7 +17,7 @@ well as the same number of rows as there are series
 }
 \description{
 This is a big one. Prepares the table to insert into the series table, which
-along expanding the leves to get all the series and their codes as well, which
+along expanding the levels to get all the series and their codes as well, which
 include also figuring out their time interval, this function also tries to
 extract the unit for each series, which can get pretty tricky. There are generally
 three options:
