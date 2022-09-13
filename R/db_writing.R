@@ -108,6 +108,46 @@ write_row_category_relationship <- function(code_no, con, sql_statement, counter
 }
 
 
+
+#' Write categories for a single table to the `category_table` table
+#'
+#' Helper function that extracts the parent category for each table from the full
+#' hierarchy data.frame, and fills up the category_table table with the table ids and
+#' their categories (parents). Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param full full field hierarchy with parent_ids et al, output from
+#' \link[SURSfetchR]{get_full_structure}
+#'
+#' @return incremented counter, side effect is writing to the database.
+#' @export
+#'
+write_row_category_table <- function(code_no, con, sql_statement, counter, full) {
+  tmp <- prepare_category_table_table(code_no, full)
+   counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+
+      DBI::dbExecute(con, sql_statement, list(tmp[i,]$table_id,
+                                              tmp[i,]$category_id,
+                                              1))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
+  return(counter)
+}
+
+
 #' Write series into to the `series` table
 #'
 #' Helper function that extracts the individual series = combinations of dimension

@@ -33,7 +33,6 @@ prepare_category_table <- function(code_no, full) {
 }
 
 
-
 #' Prepare table to insert into `category_relationship` table
 #'
 #' Helper function that extracts the field hierarchy from the full
@@ -54,7 +53,24 @@ prepare_category_relationship_table <- function(code_no, full) {
 }
 
 
-
+#' Prepare table to insert into `category_table` table
+#'
+#' Helper function that extracts the field hierarchy from the full
+#' hierarchy data.frame, and  prepares the category relationship table with field ids and
+#' their parents
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param full full field hierarchy with parent_ids et al, output from
+#' \link[SURSfetchR]{get_full_structure}
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
+#' @export
+#'
+prepare_category_relationship_table <- function(code_no, full) {
+  id_no <- unique(full$id[full$name == code_no])
+  rows <- get_row(id_no, full) %>%
+    dplyr::mutate(parent_id = as.numeric(parent_id)) %>%
+    dplyr::arrange(parent_id)
+}
 
 
 #' Write categories for a single table to the `category_table` table

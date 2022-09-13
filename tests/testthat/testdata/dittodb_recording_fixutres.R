@@ -212,6 +212,19 @@ con <- dbConnect(RPostgres::Postgres(),
 
 on.exit(dbDisconnect)
 dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_unit_id("odstotne točke", con)
+stop_db_capturing()
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
 SURSfetchR:::get_valuenotes_id(14, "EKONOMSKI KAZALNIK", con)
 stop_db_capturing()
 

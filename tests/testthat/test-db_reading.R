@@ -17,6 +17,8 @@ dittodb::with_mock_db({
   test_that("mock tests for get_unit", {
     expect_true(length(get_unit_id("%", con)) == 1)
     expect_true(get_unit_id("%", con) == 2)
+    expect_true(length(get_unit_id("odstotne točke", con)) == 1)
+    expect_true(get_unit_id("odstotne točke", con) == 3)
   })
 
   test_that("mock tests for get_tab_dim_id", {
@@ -51,10 +53,10 @@ dittodb::with_mock_db({
 
 
   test_that("mock tests for get_level_text_from_meritve", {
-    out <- get_level_text_from_meritve(2, con)
+    out <- SURSfetchR:::get_level_text_from_meritve(2, con)
     expect_true(all(dim(out) == c(6,3)))
-    out <- get_unit_levels_from_meritve(out, con)[1,]
-    expect_true(all(dim(out) == c(1,4)))
+    out <- SURSfetchR:::get_unit_levels_from_meritve(out, con)
+    expect_true(all(dim(out) == c(6,4)))
   })
 
   test_that("mock tests for get_valuenotes_id", {
