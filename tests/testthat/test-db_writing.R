@@ -27,7 +27,11 @@ dittodb::with_mock_db({
                                                          "($1, $2, $3)"), 0, full)
     expect_equal(x, 1)
 
-
+    x <- write_row_table_dimensions("1700104S", con, paste("INSERT INTO table_dimensions",
+                                                           "(table_id, dimension, time)",
+                                                           "VALUES",
+                                                           "($1, $2, $3)"), 0)
+    expect_equal(x, 3)
   })
 })
 

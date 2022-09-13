@@ -162,7 +162,7 @@ write_row_category_table <- function(code_no, con, sql_statement, counter, full)
 #'
 #' @export
 write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_table_dimensions_table
+  tmp <- prepare_table_dimensions_table(code_no, con)
   counter_i = 0
   for (i in seq_len(nrow(tmp))){
     tryCatch({
