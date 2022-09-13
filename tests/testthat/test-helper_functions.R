@@ -21,7 +21,7 @@ dittodb::with_mock_db({
     out4 <- SURSfetchR:::add_meritve_level_units(out3, 2, units)
     expect_true(nrow(out4) == 360)
     expect_true(ncol(out4) == 4)
-    expect_true(all(unique(out4$unit_id) == c(1,2,17)))
+    expect_equal(unique(out4$unit_id), c(1,2,17))
     out5 <- SURSfetchR:::expand_to_level_codes("1700104S", NA, con)
     units <- SURSfetchR:::get_valuenotes_from_px("1700104S", 15, con)
     out6 <- SURSfetchR:::add_valuenotes_level_units(out5, 2, units)
