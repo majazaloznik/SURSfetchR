@@ -61,10 +61,12 @@ dittodb::with_mock_db({
                                                  "($1, $2, $3)"), 0)
     expect_equal(x, 24)
 
-    # x <- purrr::walk2(insert_table$table, insert_table$sql, ~
-    #                     write_multiple_rows(data.frame(code = "1700104S"),
-    #                                         con, .x, .y, full))
-    # expect_equal(x, 12)
+    x <- purrr::walk2(insert_table$table, insert_table$sql, ~
+                        write_multiple_rows(data.frame(code = "1700104S"),
+                                            con, .x, .y, full))
+    expect_equal(length(x), 9)
+    expect_true(all(c("table", "category", "category_relationship", "category_table", "table_dimensions",
+      "dimension_levels",  "unit" , "series", "series_levels") %in% x))
   })
 })
 
