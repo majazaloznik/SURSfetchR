@@ -28,7 +28,7 @@ prepare_table_table <- function(code_no) {
 #'
 prepare_category_table <- function(code_no, full) {
   id_no <- unique(full$id[full$name == code_no])
-  rows <- get_row(id_no, full) %>%
+  get_row(id_no, full) %>%
     dplyr::select(-parent_id)
 }
 
@@ -47,7 +47,7 @@ prepare_category_table <- function(code_no, full) {
 #'
 prepare_category_relationship_table <- function(code_no, full) {
   id_no <- unique(full$id[full$name == code_no])
-  rows <- get_row(id_no, full) %>%
+  get_row(id_no, full) %>%
     dplyr::mutate(parent_id = as.numeric(parent_id)) %>%
     dplyr::arrange(parent_id)
 }
@@ -55,72 +55,33 @@ prepare_category_relationship_table <- function(code_no, full) {
 
 #' Prepare table to insert into `category_table` table
 #'
-#' Helper function that extracts the field hierarchy from the full
-#' hierarchy data.frame, and  prepares the category relationship table with field ids and
-#' their parents
+#' Helper function that extracts the parent category for each table from the full
+#' hierarchy data.frame, and fills up the category_table table with the table ids and
+#' their categories (parents)
+#'
 #' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
 #' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 #' for this table.
 #' @export
 #'
-prepare_category_relationship_table <- function(code_no, full) {
-  id_no <- unique(full$id[full$name == code_no])
-  rows <- get_row(id_no, full) %>%
-    dplyr::mutate(parent_id = as.numeric(parent_id)) %>%
-    dplyr::arrange(parent_id)
-}
-
-
-#' Write categories for a single table to the `category_table` table
-#'
-#' Helper function that extracts the parent category for each table from the full
-#' hierarchy data.frame, and fills up the category_table table with the table ids and
-#' their categories (parents). Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param full full field hierarchy with parent_ids et al, output from
-#' \link[SURSfetchR]{get_full_structure}
-#'
-#' @return incremented counter, side effect is writing to the database.
-#' @export
-#'
-write_row_category_table <- function(code_no, con, sql_statement, counter, full) {
-  checkmate::qassert(code_no, "S[5,11]")
-  code_no <- sub(".PX$", "", code_no)
-  code_no <- sub(".px$", "", code_no)
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id) -> table_id
-  rows <- full %>%
+prepare_category_table_table <- function(code_no, full, con) {
+  get_table_id(code_no, con) -> tbl_id
+  full %>%
     dplyr::filter(name == code_no) %>%
     dplyr::select(category_id = parent_id) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(table_id = table_id,
-           source_id = 1)
-  counter_i = 0
-  for (i in seq_len(nrow(rows))){
-    tryCatch({
-
-      DBI::dbExecute(con, sql_statement, list(rows[i,]$table_id,
-                                         rows[i,]$category_id,
-                                         1))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
-  return(counter)
+    dplyr::mutate(table_id = tbl_id,
+                  source_id = 1)
 }
+
+
+
+
+
+
 
 
 #' Write categories for a single table to the `table_dimensions` table

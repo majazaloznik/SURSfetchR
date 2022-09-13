@@ -5,8 +5,6 @@
 \title{Prepare table to insert into `category_relationship` table}
 \usage{
 prepare_category_relationship_table(code_no, full)
-
-prepare_category_relationship_table(code_no, full)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
@@ -17,15 +15,8 @@ prepare_category_relationship_table(code_no, full)
 \value{
 a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 for this table.
-
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
 }
 \description{
-Helper function that extracts the field hierarchy from the full
-hierarchy data.frame, and  prepares the category relationship table with field ids and
-their parents
-
 Helper function that extracts the field hierarchy from the full
 hierarchy data.frame, and  prepares the category relationship table with field ids and
 their parents

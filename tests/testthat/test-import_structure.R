@@ -9,15 +9,16 @@ dittodb::with_mock_db({
                         password = Sys.getenv("PG_local_MAJA_PSW"))
   DBI::dbSendQuery(con, "set search_path to test_platform")
 
-  test_that("preparing table table", {
+  test_that("preparing tables", {
     x <- SURSfetchR:::prepare_table_table("1700104S")
     expect_true(all(dim(x) == c(1,6)))
     x <- SURSfetchR:::prepare_category_table("1700104S", full)
     expect_true(all(dim(x) == c(6,3)))
     x <- SURSfetchR:::prepare_category_relationship_table("1700104S", full)
     expect_true(all(dim(x) == c(6,4)))
-
-
+    x <- SURSfetchR:::prepare_category_table_table("1700104S", full, con)
+    expect_true(all(dim(x) == c(1,3)))
+    expect_true(x$category_id == 321)
   })
 })
 

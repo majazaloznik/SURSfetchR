@@ -21,6 +21,15 @@ dittodb::with_mock_db({
                                         "($1, $2, $3)"), 0, full)
     expect_equal(x, 0)
 
+    x <- write_row_category_table("1700104S", con, paste("INSERT INTO category_table",
+                                                         "(table_id, category_id, source_id)",
+                                                         "VALUES",
+                                                         "($1, $2, $3)"), 0, full)
+    expect_equal(x, 1)
+
+
+
+
   })
 })
 

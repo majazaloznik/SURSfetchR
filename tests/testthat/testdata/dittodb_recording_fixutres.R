@@ -24,6 +24,18 @@ dbSendQuery(con, "set search_path to test_platform")
 SURSfetchR:::get_table_id("0300230S", con)
 stop_db_capturing()
 
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbSendQuery(con, "set search_path to test_platform")
+SURSfetchR:::get_table_id("1700104S", con)
+stop_db_capturing()
 
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
