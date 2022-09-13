@@ -1,8 +1,9 @@
 #' Prepare table to insert into `table` table
 #'
-#' This one is really straightforward, and slightly superfluos, since it just
+#' This one is really straightforward, and slightly superfluous, since it just
 #' uses the \link[SURSfetchR]{get_px_metadata} function and removes two columns.
-#' Returns table ready to insert into the `table` table
+#' Returns table ready to insert into the `table` table with the db_writing family
+#' of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #'
@@ -18,12 +19,14 @@ prepare_table_table <- function(code_no) {
 #'
 #' Helper function that extracts all the parent categories from the full
 #' hierarchy data.frame, and prepares the category table with field ids and
-#' their names.
+#' their names. Returns table ready to insert into the `category` table with the db_writing family
+#' of functions.
+#'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-#' for this table.
+#' @return a dataframe with the `id`, `name`, `source_id` for each category that
+#' the table is a member of.
 #' @export
 #'
 prepare_category_table <- function(code_no, full) {

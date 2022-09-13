@@ -14,7 +14,8 @@ a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 for this table.
 }
 \description{
-This one is really straightforward, and slightly superfluos, since it just
+This one is really straightforward, and slightly superfluous, since it just
 uses the \link[SURSfetchR]{get_px_metadata} function and removes two columns.
-Returns table ready to insert into the `table` table
+Returns table ready to insert into the `table` table with the db_writing family
+of functions.
 }

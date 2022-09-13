@@ -13,11 +13,12 @@ prepare_category_table(code_no, full)
 \link[SURSfetchR]{get_full_structure}}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
-for this table.
+a dataframe with the `id`, `name`, `source_id` for each category that
+the table is a member of.
 }
 \description{
 Helper function that extracts all the parent categories from the full
 hierarchy data.frame, and prepares the category table with field ids and
-their names.
+their names. Returns table ready to insert into the `category` table with the db_writing family
+of functions.
 }
