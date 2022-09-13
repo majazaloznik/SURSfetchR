@@ -32,6 +32,12 @@ dittodb::with_mock_db({
                                                            "VALUES",
                                                            "($1, $2, $3)"), 0)
     expect_equal(x, 3)
+    x <- write_row_dimension_levels("1700104S", con, paste("INSERT INTO dimension_levels",
+                                                          "(tab_dim_id, level_value, level_text)",
+                                                          "VALUES",
+                                                          "($1, $2, $3)"), 0)
+    expect_equal(x, 8)
+
   })
 })
 

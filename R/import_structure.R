@@ -77,15 +77,12 @@ prepare_category_table_table <- function(code_no, full, con) {
                   source_id = 1)
 }
 
-
 #' Prepare table to insert into `table_dimensions` table
 #'
 #' Helper function that extracts the dimensions for each table and their "time" status.
-
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @param full full field hierarchy with parent_ids et al, output from
 #' \link[SURSfetchR]{get_full_structure}
 #' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 #' for this table.
@@ -98,60 +95,35 @@ prepare_table_dimensions_table <- function(code_no, con) {
     dplyr::select(table_id, dimension_name, time)
 }
 
-
-
-
-
-
-
-#' Write dimension levels for a single table to the `dimension_levels` table
+#' Prepare table to insert into `dimension_levels` table
 #'
 #' Helper function that extracts the levels for all the dimensions for each
 #' table and get their code and text.
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
+#' \link[SURSfetchR]{get_full_structure}
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
 #' @export
-write_row_dimension_levels <- function(code_no, con, sql_statement, counter, ...) {
+#'
+prepare_dimension_levels_table <- function(code_no, con) {
   get_table_id(code_no, con) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::filter(time == FALSE) %>%
     dplyr::select(dimension, id) %>%
-    collect() -> dim_ids
+    dplyr::collect() -> dim_ids
 
-  tmp <- get_table_levels(code_no) %>%
+  get_table_levels(code_no) %>%
     tidyr::unnest(levels) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%
     dplyr::inner_join(dim_ids, by = c("dimension_name" = "dimension"))
-
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$id,
-                                         tmp[i,]$values,
-                                         tmp[i,]$valueTexts))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new dimension-level rows inserted for matrix ", code_no))
-  return(counter)
 }
+
+
+
 
 #' Write units into to the `units` table
 #'
