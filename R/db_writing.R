@@ -273,7 +273,7 @@ write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
 #' @export
 write_row_series <- function(code_no, con, sql_statement, counter, ...) {
 
-  prepare_series_table(code_no) -> tmp
+  prepare_series_table(code_no, con) -> tmp
 
   counter_i = 0
   for (i in seq_len(nrow(tmp))){

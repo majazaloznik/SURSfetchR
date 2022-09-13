@@ -42,8 +42,11 @@ dittodb::with_mock_db({
                                                "VALUES",
                                                "($1)"), 0)
     expect_equal(x, 2)
-
-
+    x <- write_row_series("1700104S", con, paste("INSERT INTO series_levels",
+                                                 "(series_id, tab_dim_id,  level_value)",
+                                                 "VALUES",
+                                                 "($1, $2, $3)"), 0)
+    expect_equal(x, 12)
   })
 })
 

@@ -156,14 +156,15 @@ data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
 #' more convoluted way to get them out and know which level values they apply to.
 #'
 #' @param code_no character obect of the matrix code (e.g. 2300123S)
+#' @param con connection to the database
 #'
 #' @return a dataframe with three columns: series_title, series_code and unit_id as
 #' well as the same number of rows as there are series
 #' @export
 
-prepare_series_table <- function(code_no){
+prepare_series_table <- function(code_no, con){
   get_table_id(code_no, con) -> tbl_id
-  get_time_dimension(code_no, con) <- time_dimension
+  get_time_dimension(code_no, con) -> time_dimension
   get_interval_id(time_dimension) -> interval_id
   get_single_unit_from_px(code_no, con) -> unit_id
   expand_to_level_codes(code_no, unit_id, con) -> expanded_level_codes
@@ -177,8 +178,8 @@ prepare_series_table <- function(code_no){
                               units_by_meritve_levels) -> expanded_level_codes
     } else { # if valuenotes exist
       get_valuenotes_from_px(code_no, tbl_id, con) -> units_by_levels
-      get_valuenotes_id(tbl_id, units_by_levels$dim_name[1]) -> valuenotes_dim_id
-      get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1]) -> valuenotes_dim_no
+      get_valuenotes_id(tbl_id, units_by_levels$dim_name[1], con) -> valuenotes_dim_id
+      get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1], con) -> valuenotes_dim_no
       if(length(valuenotes_dim_id) == 1){
         add_valuenotes_level_units(expanded_level_codes, valuenotes_dim_no,
                                    units_by_levels) -> expanded_level_codes}

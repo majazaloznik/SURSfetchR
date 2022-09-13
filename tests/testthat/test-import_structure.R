@@ -25,10 +25,12 @@ dittodb::with_mock_db({
     x <- prepare_dimension_levels_table("1700104S", con)
     expect_true(all(dim(x) == c(8,4)))
     expect_true(max(x$values) == 6)
-    x <- SURSfetchR:::prepare_units_table("1700104S", con)
+    x <- prepare_units_table("1700104S", con)
     expect_true(all(dim(x) == c(2,1)))
     expect_true(length(unique(x[,1])) == 2)
-
+    x <- prepare_series_table("1700104S", con)
+    expect_true(all(dim(x) == c(12,5)))
+    expect_true("SURS--1700104S--1--1--Q" %in% x$series_code)
   })
 })
 
