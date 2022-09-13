@@ -218,6 +218,42 @@ write_row_dimension_levels <- function(code_no, con, sql_statement, counter, ...
   return(counter)
 }
 
+#' Write units into to the `units` table
+#'
+#' Helper function that extracts the units for each table from the px metadata and
+#' insterts into database unit lookup table. So mainly doesn't do anything after the
+#' initial database setup.
+#'
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
+  tmp <- prepare_units_table(code_no, con)
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      dbExecute(con, sql_statement, list(tmp[i,1]))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new units inserted for matrix ", code_no))
+  return(counter)
+}
 #' Write series into to the `series` table
 #'
 #' Helper function that extracts the individual series = combinations of dimension
@@ -258,6 +294,12 @@ write_row_series <- function(code_no, con, sql_statement, counter, ...) {
   message(paste(counter_i, "new series inserted from matrix ", code_no))
   return(counter)
 }
+
+
+
+
+
+
 
 
 #' Umbrella function to write multiple rows into the a postgres table

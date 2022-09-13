@@ -37,6 +37,12 @@ dittodb::with_mock_db({
                                                           "VALUES",
                                                           "($1, $2, $3)"), 0)
     expect_equal(x, 8)
+    x <- write_row_unit("1700104S", con, paste("INSERT INTO unit",
+                                               "(name)",
+                                               "VALUES",
+                                               "($1)"), 0)
+    expect_equal(x, 2)
+
 
   })
 })

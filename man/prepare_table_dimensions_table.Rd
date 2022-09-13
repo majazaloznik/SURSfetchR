@@ -9,8 +9,7 @@ prepare_table_dimensions_table(code_no, con)
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
 
-\item{con}{connection to the database
-\link[SURSfetchR]{get_full_structure}}
+\item{con}{connection to the database}
 }
 \value{
 a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns

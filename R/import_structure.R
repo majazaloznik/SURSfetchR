@@ -83,7 +83,6 @@ prepare_category_table_table <- function(code_no, full, con) {
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' \link[SURSfetchR]{get_full_structure}
 #' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 #' for this table.
 #' @export
@@ -102,7 +101,6 @@ prepare_table_dimensions_table <- function(code_no, con) {
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' \link[SURSfetchR]{get_full_structure}
 #' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
 #' for this table.
 #' @export
@@ -123,42 +121,22 @@ prepare_dimension_levels_table <- function(code_no, con) {
 }
 
 
-
-
-#' Write units into to the `units` table
+#' Prepare table to insert into `units` table
 #'
 #' Helper function that extracts the units for each table from the px metadata.
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
+#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' for this table.
 #' @export
-write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
-    mutate_all(tolower)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,1]))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new units inserted for matrix ", code_no))
-  return(counter)
+#'
+prepare_units_table <- function(code_no, con) {
+data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
+    dplyr::mutate_all(tolower)
 }
+
+
 
 
 
