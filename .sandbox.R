@@ -88,16 +88,27 @@ insert_table <- bind_rows(insert_table,
 
 full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
 
-code_no <- "0300230S" # meritve, tri enote
-code_no <- "1701106S" # indeks, ena enota
-code_no <- "1700104S"
+
 
 system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
-                           write_multiple_rows(master_list_surs[1,], con, .x, .y, full)))
+                           write_multiple_rows(master_list_surs, con, .x, .y, full)))
+
+#
+#
+#
+# code_no <- "0300230S" # meritve, tri enote
+# code_no <- "1701106S" # indeks, ena enota
+# code_no <- "1700104S" # valuenotes, dve enoti
+
+x <- SURSfetchR:::get_valuenotes_from_px("1700104S", con)
+x <- get_px_metadata("1700104S")$valuenotes[[1]][1]
 
 
-
-sql_statement <- paste("INSERT INTO series",
-      "(table_id, name_long,  code, interval_id, unit_id)",
-      "VALUES",
-      "($1, $2, $3, $4, $5)")
+qry <-  dplyr::tbl(con, "table_dimensions") %>%
+  dplyr::filter(table_id == tbl_id,
+                time != TRUE) %>%
+  dplyr::mutate(poz = dplyr::row_number()) %>%
+  dplyr::filter(dimension == "MERITVE") %>%
+  dplyr::mutate(poz = as.numeric(poz)) %>%
+  select(poz)
+dbplyr::sql_render(qry)

@@ -28,8 +28,6 @@ dittodb::with_mock_db({
     expect_equal(x, 1)
 
 
-
-
   })
 })
 

@@ -145,6 +145,43 @@ write_row_category_table <- function(code_no, con, sql_statement, counter, full)
   return(counter)
 }
 
+#' Write categories for a single table to the `table_dimensions` table
+#'
+#' Helper function that extracts the dimensions for each table and their "time" status.
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...) {
+  tmp <- prepare_table_dimensions_table
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      DBI::dbExecute(con, sql_statement, list(tmp[i,]$table_id,
+                                              tmp[i,]$dimension_name,
+                                              tmp[i,]$time))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
+  return(counter)
+}
+
+
 
 #' Write series into to the `series` table
 #'
