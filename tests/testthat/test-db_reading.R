@@ -5,7 +5,7 @@ dittodb::with_mock_db({
                         port = 5432,
                         user = "mzaloznik",
                         password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbSendQuery(con, "set search_path to test_platform")
+  DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("mock tests for get_table", {
     out <- get_table_id("0300230S", con)

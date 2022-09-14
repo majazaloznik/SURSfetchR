@@ -29,7 +29,7 @@ dittodb::with_mock_db({
                         port = 5432,
                         user = "mzaloznik",
                         password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbSendQuery(con, "set search_path to test_platform")
+  DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("single unit from px metadata", {
   x <- get_single_unit_from_px("0300230S", con)
@@ -61,7 +61,7 @@ dittodb::with_mock_db({
                         port = 5432,
                         user = "mzaloznik",
                         password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbSendQuery(con, "set search_path to test_platform")
+  DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("extraction from valuenotes works", {
     x <- get_valuenotes_from_px("1700104S", 15, con)

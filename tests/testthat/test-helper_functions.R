@@ -5,7 +5,7 @@ dittodb::with_mock_db({
                         port = 5432,
                         user = "mzaloznik",
                         password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbSendQuery(con, "set search_path to test_platform")
+  DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("expanding level codes", {
     out1 <- expand_to_level_codes("1912002S", NA, con)

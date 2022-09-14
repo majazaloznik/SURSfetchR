@@ -20,7 +20,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_table_id("0300230S", con)
 # stop_db_capturing()
 #
@@ -33,7 +33,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_table_id("1700104S", con)
 # stop_db_capturing()
 #
@@ -46,7 +46,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_table_id("x", con)
 # stop_db_capturing()
 #
@@ -60,7 +60,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("%", con)
 # stop_db_capturing()
 #
@@ -74,7 +74,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("%", con)
 # stop_db_capturing()
 #
@@ -87,7 +87,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_tab_dim_id(2, "MERITVE", con)
 # stop_db_capturing()
 #
@@ -100,7 +100,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(2, "Tekoče cene (mio EUR)", con)
 # stop_db_capturing()
 #
@@ -114,7 +114,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_time_dimension("0300230S", con)
 # stop_db_capturing()
 #
@@ -127,7 +127,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_time_dimension("1700104S", con)
 # stop_db_capturing()
 #
@@ -140,7 +140,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_id(2, con)
 # stop_db_capturing()
 
@@ -153,7 +153,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_id(1, con)
 # stop_db_capturing()
 
@@ -166,7 +166,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_id(15, con)
 # stop_db_capturing()
 #
@@ -179,7 +179,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_no(2, con)
 #
 # stop_db_capturing()
@@ -193,7 +193,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_no(15, con)
 #
 # start_db_capturing()
@@ -205,7 +205,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_meritve_no(15, con)
 #
 # stop_db_capturing()
@@ -219,7 +219,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_text_from_meritve(2, con)
 # stop_db_capturing()
 
@@ -232,7 +232,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_text_from_meritve(1, con)
 # stop_db_capturing()
 
@@ -245,7 +245,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # level_text <- SURSfetchR:::get_level_text_from_meritve(2, con)
 # SURSfetchR:::get_unit_levels_from_meritve(level_text[1,], con)
 # stop_db_capturing()
@@ -259,7 +259,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("mio EUR", con)
 # stop_db_capturing()
 #
@@ -272,7 +272,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("indeks", con)
 # stop_db_capturing()
 #
@@ -285,7 +285,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("ravnotežje v odstotnih točkah", con)
 # stop_db_capturing()
 #
@@ -298,7 +298,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("odstotne točke", con)
 # stop_db_capturing()
 #
@@ -311,7 +311,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_valuenotes_id(14, "EKONOMSKI KAZALNIK", con)
 # stop_db_capturing()
 #
@@ -324,7 +324,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_valuenotes_id(15, "EKONOMSKI KAZALNIKI", con)
 # stop_db_capturing()
 #
@@ -337,7 +337,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_valuenotes_no(14, "EKONOMSKI KAZALNIK", con)
 # stop_db_capturing()
 #
@@ -350,7 +350,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_valuenotes_no(15, "EKONOMSKI KAZALNIKI", con)
 # stop_db_capturing()
 #
@@ -363,7 +363,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_tab_dim_id(15, "EKONOMSKI KAZALNIKI", con)
 # stop_db_capturing()
 #
@@ -377,7 +377,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Izkoriščdenost proizvodnih zmogljivosti", con)
 # stop_db_capturing()
 #
@@ -390,7 +390,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Ustreznost proizvodnih zmogljivosti", con)
 # stop_db_capturing()
 #
@@ -403,7 +403,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Konkurenčni položaj na domačem trgu", con)
 # stop_db_capturing()
 #
@@ -416,7 +416,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Konkurenčni položaj na trgih držav EU", con)
 # stop_db_capturing()
 #
@@ -429,7 +429,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Konkurenčni položaj na trgih zunaj EU", con)
 # stop_db_capturing()
 #
@@ -442,7 +442,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_level_value(48, "Obseg novih naročil", con)
 # stop_db_capturing()
 #
@@ -456,7 +456,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 #
 # x <- SURSfetchR:::write_row_table("0300230S", con, paste("INSERT INTO \"table\"",
 #                                         "(code, name, source_id, url, notes)",
@@ -473,7 +473,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 #
 # dplyr::tbl(con, "table_dimensions") %>%
 #   dplyr::filter(table_id == 15) %>%
@@ -491,7 +491,7 @@ library(testthat)
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
 # on.exit(dbDisconnect)
-# dbSendQuery(con, "set search_path to test_platform")
+# dbExecute(con, "set search_path to test_platform")
 #
 # prepare_series_levels_table("1700104S", con)
 # stop_db_capturing()
@@ -505,7 +505,7 @@ con <- dbConnect(RPostgres::Postgres(),
                  password = Sys.getenv("PG_local_MAJA_PSW"))
 
 on.exit(dbDisconnect)
-dbSendQuery(con, "set search_path to test_platform")
+dbExecute(con, "set search_path to test_platform")
 full <- readRDS(test_path("testdata", "full_h.rds"))
 insert_table <- readRDS(test_path("testdata", "insert_table.rds"))
 x <- purrr::walk2(insert_table$table, insert_table$sql, ~
