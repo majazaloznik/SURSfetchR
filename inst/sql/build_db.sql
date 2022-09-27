@@ -124,9 +124,8 @@ CREATE TABLE test_platform.vintage
 (
     id integer NOT NULL,
     series_id integer NOT NULL  REFERENCES test_platform.series (id),
-    inserted timestamp with time zone NOT NULL,
+    validity timestamp with time zone default current_timestamp,
     published date NOT NULL,
-    latest boolean NOT NULL,
 	UNIQUE (series_id, published),
     PRIMARY KEY (id)
 );
@@ -193,6 +192,5 @@ VALUES ('M', 'manj zanesljiva ocena'),
 ('s', 'eurostat estimate'),
 ('u', 'low reliability'),
 ('z', 'not applicable');
-
 
 GRANT ALL ON ALL TABLES IN SCHEMA test_platform TO mzaloznik;
