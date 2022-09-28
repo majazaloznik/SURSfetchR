@@ -1,4 +1,3 @@
-begin;
 drop table if exists test_platform.source cascade;
 CREATE TABLE test_platform.source
 (
@@ -122,11 +121,11 @@ CREATE TABLE test_platform.series_levels
 drop table if exists test_platform.vintage cascade;
 CREATE TABLE test_platform.vintage
 (
-    id integer NOT NULL,
+    id int GENERATED ALWAYS AS IDENTITY,
     series_id integer NOT NULL  REFERENCES test_platform.series (id),
     validity timestamp with time zone default current_timestamp,
     published date NOT NULL,
-	UNIQUE (series_id, published),
+	UNIQUE (series_id, validity),
     PRIMARY KEY (id)
 );
 
