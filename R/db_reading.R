@@ -173,3 +173,14 @@ get_series_id <- function(series_code, con){
     dplyr::filter(code %in% series_code) %>%
     dplyr::pull(id)
 }
+
+#' Helper fun to get series id given a table id
+#'
+#' @rdname get_stuff
+#' @return numeric code from db table series
+#' @keywords internal
+get_series_id_from_table <- function(tbl_id, con){
+  dplyr::tbl(con, "series") %>%
+    dplyr::filter(table_id == tbl_id) %>%
+    dplyr::pull(id)
+}

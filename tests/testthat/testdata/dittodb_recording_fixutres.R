@@ -495,36 +495,48 @@ library(testthat)
 #
 # prepare_series_levels_table("1700104S", con)
 # stop_db_capturing()
-
-start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-full <- readRDS(test_path("testdata", "full_h.rds"))
-insert_table <- readRDS(test_path("testdata", "insert_table.rds"))
-x <- purrr::walk2(insert_table$table, insert_table$sql, ~
-                    write_multiple_rows(data.frame(code = "1700104S"),
-                                        con, .x, .y, full))
-stop_db_capturing()
-
-
-dittodb::start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-get_series_id("SURS--1700104S--1--1--Q", con)
-dittodb::stop_db_capturing()
-
-
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# full <- readRDS(test_path("testdata", "full_h.rds"))
+# insert_table <- readRDS(test_path("testdata", "insert_table.rds"))
+# x <- purrr::walk2(insert_table$table, insert_table$sql, ~
+#                     write_multiple_rows(data.frame(code = "1700104S"),
+#                                         con, .x, .y, full))
+# stop_db_capturing()
+#
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# get_series_id("SURS--1700104S--1--1--Q", con)
+# dittodb::stop_db_capturing()
+#
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# prepare_vintage_table("1700104S", con)
+# dittodb::stop_db_capturing()

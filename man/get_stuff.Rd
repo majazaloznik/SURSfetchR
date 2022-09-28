@@ -13,6 +13,7 @@
 \alias{get_valuenotes_id}
 \alias{get_valuenotes_no}
 \alias{get_series_id}
+\alias{get_series_id_from_table}
 \title{Helper functions to get stuff out of db tables}
 \usage{
 get_table_id(code_no, con)
@@ -38,6 +39,8 @@ get_valuenotes_id(tbl_id, dim_name, con)
 get_valuenotes_no(tbl_id, dim_name, con)
 
 get_series_id(series_code, con)
+
+get_series_id_from_table(tbl_id, con)
 }
 \arguments{
 \item{code_no}{px. code e.g. 0300230S}
@@ -78,6 +81,8 @@ tibble with 4 cols including `level_value` and `unit_id`
 numeric id of valuenotes dimension if it exists, else integer64(0)
 
 numeric position of valuenotes dimension if it exists, else integer64(0)
+
+numeric code from db table series
 
 numeric code from db table series
 }
