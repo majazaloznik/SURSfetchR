@@ -65,3 +65,17 @@ add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
     dplyr::rename(!!(paste0("Var", valuenotes_dim_no)) := "level_value") %>%
     dplyr::select(-dim_name, -level_text, -tab_dim_id)
 }
+
+
+#' Wrapper for database identifier construction
+#'
+#' Wraps `Id` to a default schema and without requiring named args.
+#'
+#' @param table character name of table
+#' @param schema character name of schema, default currently `test_platform`
+#'
+#' @return Id object
+#' @export
+Id2 <- function(table, schema = "test_platform") {
+  Id(schema = schema, table = table)
+}

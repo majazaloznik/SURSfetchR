@@ -9,11 +9,9 @@ build_db_tables(con, schema = "test_platform")
 \arguments{
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
-\item{schema}{character schema name, defaults to 'timeseries'.}
-
-\item{prnt}{function log printing function}
+\item{schema}{character schema name, default is test_platform}
 }
 \description{
 Creats all the tables required to run the database in a given schema.
-Inspiration from `timeseriesdb` package.
+Inspiration from `timeseriesdb` package by Matt Bannert.
 }
