@@ -5,6 +5,8 @@
 \title{Prepare table to insert into `series_levels` table}
 \usage{
 prepare_series_levels_table(code_no, con)
+
+prepare_series_levels_table(code_no, con)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
@@ -14,8 +16,17 @@ prepare_series_levels_table(code_no, con)
 \value{
 a dataframe with the `series_id`, `tab_dim_id`, `value` columns
 all the series-level combinatins for this table.
+
+a dataframe with the `series_id`, `tab_dim_id`, `value` columns
+all the series-level combinatins for this table.
 }
 \description{
+Helper function that extracts the individual levels for each series and
+gets the correct dimension id for each one and the correct series id to
+keep with the constraints.
+Returns table ready to insert into the `series_levels`table with the
+db_writing family of functions.
+
 Helper function that extracts the individual levels for each series and
 gets the correct dimension id for each one and the correct series id to
 keep with the constraints.
