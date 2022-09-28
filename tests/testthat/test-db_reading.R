@@ -71,6 +71,12 @@ dittodb::with_mock_db({
     expect_true(out == 2)
   })
 
+  test_that("mock tests for get_series_id", {
+    out <- get_series_id("SURS--1700104S--1--1--Q", con)
+    expect_true(length(out) == 1)
+    expect_true(out == 1895)
+  })
+
   dbDisconnect(con)
 })
 

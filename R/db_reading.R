@@ -162,3 +162,14 @@ get_interval_id <- function(interval_text) {
                         getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
   interval_id
 }
+
+#' Helper fun to get series id given a series code
+#'
+#' @rdname get_stuff
+#' @return numeric code from db table series
+#' @keywords internal
+get_series_id <- function(series_code, con){
+  dplyr::tbl(con, "series") %>%
+    dplyr::filter(code %in% series_code) %>%
+    dplyr::pull(id)
+}
