@@ -5,11 +5,8 @@
 #' also by expanding the non-time dimensions and getting all the codes for the
 #' series and looking them up like that. This way we can catch if the dimensions
 #' of the tables have changed in any way, and they are in fact different series. In
-#' such a case the function doens't return a table, but a descriptive error.
+#' such a case the function doesn't return a table, but a descriptive error.
 #'
-#' extracts the individual levels for each series and
-#' gets the correct dimension id for each one and the correct series id to
-#' keep with the constraints.
 #'
 #' Returns table ready to insert into the `vintage`table with the
 #' db_writing family of functions.
@@ -38,9 +35,7 @@ prepare_vintage_table <- function(code_no, con){
       dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
                                          series_code, "--",interval_id)) -> x
     get_series_id(x$series_code, con) -> series_ids
-    print(series_ids)
     get_series_id_from_table(tbl_id, con) -> double_check
-    print(double_check)
     if(all.equal(series_ids, double_check)){
       data.frame(series_id = series_ids,
                  published = published) } else {

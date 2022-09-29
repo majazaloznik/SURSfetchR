@@ -156,7 +156,7 @@ get_valuenotes_no <-function(tbl_id, dim_name, con) {
 #' @return character code of interval id
 #' @keywords internal
 get_interval_id <- function(interval_text) {
-  interval_lookupV <- setNames(c("Q", "M", "Y", "Q", "Q"),
+  interval_lookupV <- setNames(c("Q", "M", "A", "Q", "Q"),
                                c("\\u010cETRTLETJE", "MESEC", "LETO", "?ETRTLETJE",
                                  "\\u00c4\\u015aETRTLETJE"))
   interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),

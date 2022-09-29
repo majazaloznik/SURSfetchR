@@ -1,10 +1,10 @@
 library(dittodb)
 # # this is a setup file that is supposed to be run before all the tests.
 # # have now moved the object to the testdata folder cuz it was taking too long
-# rsp <- get_API_response()
-# out <- parse_structAPI_response(rsp)
-# full <- get_full_structure(out)
-# mat_h <- get_matrix_hierarchy(full)
+rsp <- get_API_response()
+out <- parse_structAPI_response(rsp)
+full <- get_full_structure(out)
+mat_h <- get_matrix_hierarchy(full)
 #
 # api_list <- pxweb::pxweb_get("https://pxweb.stat.si/SiStatData/api/v1/sl/Data")
 # set.seed(42)

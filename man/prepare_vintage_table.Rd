@@ -21,13 +21,9 @@ the series id's in two ways: getting all the series ids for a single table, but
 also by expanding the non-time dimensions and getting all the codes for the
 series and looking them up like that. This way we can catch if the dimensions
 of the tables have changed in any way, and they are in fact different series. In
-such a case the function doens't return a table, but a descriptive error.
+such a case the function doesn't return a table, but a descriptive error.
 }
 \details{
-extracts the individual levels for each series and
-gets the correct dimension id for each one and the correct series id to
-keep with the constraints.
-
 Returns table ready to insert into the `vintage`table with the
 db_writing family of functions.
 }
