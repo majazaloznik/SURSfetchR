@@ -46,6 +46,7 @@ expand_to_series_titles <- function(code_no, con){
 add_meritve_level_units <- function(expanded_level_codes, meritve_dim_no,
                                     units_by_meritve_levels){
   expanded_level_codes %>%
+    dplyr::select(-unit_id) %>%
     dplyr::rename("level_value" := !!(paste0("Var", meritve_dim_no))) %>%
     dplyr::left_join(units_by_meritve_levels, by = c("level_value" = "level_value")) %>%
     dplyr::rename(!!(paste0("Var", meritve_dim_no)) := "level_value") %>%
@@ -57,6 +58,7 @@ add_meritve_level_units <- function(expanded_level_codes, meritve_dim_no,
 add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
                                        units_by_levels){
   expanded_level_codes %>%
+    dplyr::select(-unit_id) %>%
     dplyr::rename("level_value" := !!(paste0("Var", valuenotes_dim_no))) %>%
     dplyr::left_join(units_by_levels, by = c("level_value" = "level_value")) %>%
     dplyr::rename(!!(paste0("Var", valuenotes_dim_no)) := "level_value") %>%
