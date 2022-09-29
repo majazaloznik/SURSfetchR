@@ -7,7 +7,7 @@ test_that("Metadata is properly parsed", {
   expect_true(inherits(mtdt_tbl$notes, "json"))
   expect_equal(mtdt_tbl, get_px_metadata("2221702S.px"))
   expect_equal(mtdt_tbl, get_px_metadata("2221702S.PX"))
-  checkmate::expect_posixct(mtdt_tbl$created)
+  checkmate::expect_posixct(mtdt_tbl$updated)
   expect_true(ncol(mtdt_tbl)== 8)
 })
 

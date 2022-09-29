@@ -1,7 +1,7 @@
 #' Build all database tables
 #'
 #' Creats all the tables required to run the database in a given schema.
-#' Inspiration from `timeseriesdb` package by Matt Bar.
+#' Inspiration from `timeseriesdb` package by Matt Bannert.
 #'
 #' @param con PostgreSQL connection object created by the RPostgres package.
 #' @param schema character schema name, default is test_platform

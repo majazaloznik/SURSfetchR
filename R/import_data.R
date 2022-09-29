@@ -34,7 +34,7 @@ prepare_vintage_table <- function(code_no, con){
   get_series_id(x$series_code, con) -> series_ids
   get_series_id_from_table(tbl_id, con) -> double_check
   if(all.equal(series_ids, double_check)){
-    get_px_metadata(code_no)$created -> published
+    get_px_metadata(code_no)$updated -> published
     data.frame(series_id = series_ids,
                published = published) } else {
                  stop(paste("The newly published data in table", code_no,

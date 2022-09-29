@@ -12,7 +12,7 @@
 #' @export
 prepare_table_table <- function(code_no) {
   get_px_metadata(code_no) %>%
-    dplyr::select(-created, -valuenotes)
+    dplyr::select(-updated, -valuenotes)
 }
 
 #' Prepare table to insert into `category` table

@@ -22,7 +22,7 @@ get_px_metadata <- function(id) {
   )
   df <- data.frame(code = unlist(l$MATRIX),
                    name = unlist(l$DESCRIPTION),
-                   created = as.POSIXct(l$CREATION.DATE[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
+                   updated = as.POSIXct(l$LAST.UPDATED[[1]],format="%Y%m%d %H:%M",tz=Sys.timezone()),
                    units = l$UNITS[[1]],
                    notes = I(list(c(l$NOTE, l$NOTEX))),
                    valuenotes =I(list(l$VALUENOTE))) %>%

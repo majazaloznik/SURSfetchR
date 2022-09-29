@@ -184,3 +184,16 @@ get_series_id_from_table <- function(tbl_id, con){
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::pull(id)
 }
+
+#' Helper fun to get most recent publication date for given table
+#'
+#' @rdname get_stuff
+#' @return numeric code from db table series
+#' @keywords internal
+get_last_publication_date <- function(tbl_id, con){
+  get_series_id_from_table(tbl_id, con) -> series_ids
+  dplyr::tbl(con, "vintage") %>%
+    dplyr::filter(series_id %in% c(1)) %>%
+    dplyr::distinct(published) %>%
+    dplyr::pull(published)
+}
