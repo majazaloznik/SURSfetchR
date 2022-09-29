@@ -123,9 +123,8 @@ CREATE TABLE test_platform.vintage
 (
     id int GENERATED ALWAYS AS IDENTITY,
     series_id integer NOT NULL  REFERENCES test_platform.series (id),
-    validity timestamp with time zone default current_timestamp,
-    published date NOT NULL,
-	UNIQUE (series_id, validity),
+    published timestamp NOT NULL,
+	  UNIQUE (series_id, published),
     PRIMARY KEY (id)
 );
 

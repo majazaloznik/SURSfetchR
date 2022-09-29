@@ -30,7 +30,6 @@ dittodb::with_mock_db({
     expect_true(nrow(out6) == 12)
     expect_true(ncol(out6) == 3)
     expect_true(all(unique(out6$unit_id) == c(2,17)))
-
   })
 })
 
