@@ -24,21 +24,26 @@
 
 prepare_vintage_table <- function(code_no, con){
   get_table_id(code_no, con) -> tbl_id
-  get_time_dimension(code_no, con) -> time_dimension
-  get_interval_id(time_dimension) -> interval_id
-  expand_to_level_codes(code_no, con) -> expanded_level_codes
-  expanded_level_codes %>%
-    tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
-                                       series_code, "--",interval_id)) -> x
-  get_series_id(x$series_code, con) -> series_ids
-  get_series_id_from_table(tbl_id, con) -> double_check
-  if(all.equal(series_ids, double_check)){
-    get_px_metadata(code_no)$updated -> published
-    data.frame(series_id = series_ids,
-               published = published) } else {
-                 stop(paste("The newly published data in table", code_no,
-                       "seems to have a different structure to the series already",
-                       "in the database. The vintages were not imported, update",
-                       "the series table first.")) }
+  get_px_metadata(code_no)$updated -> published
+  get_last_publication_date(tbl_id, con) -> last_published
+  if(identical(published, last_published)) {
+    stop(paste0("These vintages are not new, they will not be inserted again."))
+  } else {
+    get_time_dimension(code_no, con) -> time_dimension
+    get_interval_id(time_dimension) -> interval_id
+    expand_to_level_codes(code_no, con) -> expanded_level_codes
+    expanded_level_codes %>%
+      tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
+      dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
+                                         series_code, "--",interval_id)) -> x
+    get_series_id(x$series_code, con) -> series_ids
+    get_series_id_from_table(tbl_id, con) -> double_check
+    if(all.equal(series_ids, double_check)){
+      data.frame(series_id = series_ids,
+                 published = published) } else {
+                   paste("The newly published data in table", code_no,
+                         "seems to have a different structure to the series already",
+                         "in the database. The vintages were not imported, update",
+                         "the series table first.")}
+  }
 }
