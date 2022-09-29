@@ -27,7 +27,8 @@ prepare_vintage_table <- function(code_no, con){
   get_px_metadata(code_no)$updated -> published
   get_last_publication_date(tbl_id, con) -> last_published
   if(identical(published, last_published)) {
-    stop(paste0("These vintages are not new, they will not be inserted again."))
+    stop(paste0("These vintages for table ", code_no,
+                "are not new, they will not be inserted again."))
   } else {
     get_time_dimension(code_no, con) -> time_dimension
     get_interval_id(time_dimension) -> interval_id
@@ -37,7 +38,9 @@ prepare_vintage_table <- function(code_no, con){
       dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
                                          series_code, "--",interval_id)) -> x
     get_series_id(x$series_code, con) -> series_ids
+    print(series_ids)
     get_series_id_from_table(tbl_id, con) -> double_check
+    print(double_check)
     if(all.equal(series_ids, double_check)){
       data.frame(series_id = series_ids,
                  published = published) } else {

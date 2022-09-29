@@ -334,6 +334,42 @@ write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
 }
 
 
+#' Write vintages into to the `vintage` table
+#'
+#' Helper function that writes the vintages to the database. .
+#'
+#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#'
+#' @param code_no the matrix code (e.g. 2300123S)
+#' @param con connection to the database
+#' @param sql_statement the sql statement to insert the values
+#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
+#' to count how many successful rows were inserted.
+#' @param ...  just here, because other funs in this family have extra parameters
+#' passed to them and i cannot use map unless this one also has this option.
+#'
+#' @return incremented counter, side effect is writing to the database.
+#'
+#' @export
+write_row_vintage <- function(code_no, con, sql_statement, counter, ...) {
+  tmp <- prepare_vintage_table(code_no, con)
+  counter_i = 0
+  for (i in seq_len(nrow(tmp))){
+    tryCatch({
+      dbExecute(con, sql_statement, list(tmp[i,]$series_id,
+                                         tmp[i,]$published))
+      counter_i <- counter_i + 1
+      counter <- counter + 1
+    },
+    error = function(cnd) {
+      print(cnd)
+    }
+    )
+  }
+  message(paste(counter_i, "new vintages inserted for matrix ", code_no))
+  return(counter)
+}
+
 
 #' Umbrella function to write multiple rows into the a postgres table
 #'

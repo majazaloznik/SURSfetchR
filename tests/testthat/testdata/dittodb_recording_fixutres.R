@@ -528,18 +528,6 @@ library(testthat)
 # dittodb::stop_db_capturing()
 #
 #
-dittodb::start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-prepare_vintage_table("1700104S", con)
-dittodb::stop_db_capturing()
 #
 # dittodb::start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
@@ -551,8 +539,77 @@ dittodb::stop_db_capturing()
 #
 # on.exit(dbDisconnect)
 # dbExecute(con, "set search_path to test_platform")
-# get_last_publication_date(1, con)
+# get_last_publication_date(15, con)
 # dittodb::stop_db_capturing()
 #
 #
 #
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# get_px_metadata("1700104S")$updated
+# dittodb::stop_db_capturing()
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# get_last_publication_date(15, con)
+# dittodb::stop_db_capturing()
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
+# insert_table <- readRDS("M:/analysis/SURSfetchR/tests/testthat/testdata/insert_table.rds")
+# purrr::walk2(insert_table$table, insert_table$sql, ~
+#                write_multiple_rows(data.frame(code = "1700104S"),
+#                                    con, .x, .y, full))
+# dittodb::stop_db_capturing()
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# dittodb::stop_db_capturing()
+# get_series_id(x$series_code, con)
+# dittodb::stop_db_capturing()
+#
+dittodb::start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+get_series_id_from_table(15, con)
+dittodb::stop_db_capturing()

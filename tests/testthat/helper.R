@@ -80,6 +80,13 @@ library(dittodb)
 #                                          "(series_id, tab_dim_id,  level_value)",
 #                                          "VALUES",
 #                                          "($1, $2, $3)")))
+# insert_table <- bind_rows(insert_table,
+#                           c(table = "vintage",
+#                             sql =  paste("INSERT INTO vintage",
+#                                          "(series_id, published)",
+#                                          "VALUES",
+#                                          "($1, $2)")))
+#
+#
 # saveRDS(insert_table, "tests/testthat/testdata/insert_table.rds")
-#
-#
+# insert_table <- readRDS("tests/testthat/testdata/insert_table.rds")

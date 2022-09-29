@@ -77,9 +77,9 @@ dittodb::with_mock_db({
     expect_true(out == 1895)
   })
   test_that("mock tests for latest publication", {
-  x <- get_last_publication_date(1, con)
-  expect_true(inherits(x, "Date"))
-  expect_true(x == "2022-02-02")
+  x <- get_last_publication_date(15, con)
+  expect_true(inherits(x, "POSIXct"))
+  expect_equal(x, structure(1658478600, class = c("POSIXct", "POSIXt"), tzone = "UTC"))
   })
   dbDisconnect(con)
 })

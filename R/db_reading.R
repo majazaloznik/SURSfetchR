@@ -156,8 +156,9 @@ get_valuenotes_no <-function(tbl_id, dim_name, con) {
 #' @return character code of interval id
 #' @keywords internal
 get_interval_id <- function(interval_text) {
-  interval_lookupV <- setNames(c("Q", "M", "Y", "Q"),
-                               c("\\u010cETRTLETJE", "MESEC", "LETO", "?ETRTLETJE"))
+  interval_lookupV <- setNames(c("Q", "M", "Y", "Q", "Q"),
+                               c("\\u010cETRTLETJE", "MESEC", "LETO", "?ETRTLETJE",
+                                 "\\u00c4\\u015aETRTLETJE"))
   interval_id <- ifelse(stringi::stri_escape_unicode(interval_text) %in% names(interval_lookupV),
                         getElement(interval_lookupV, stringi::stri_escape_unicode(interval_text)), NA)
   interval_id
@@ -193,7 +194,7 @@ get_series_id_from_table <- function(tbl_id, con){
 get_last_publication_date <- function(tbl_id, con){
   get_series_id_from_table(tbl_id, con) -> series_ids
   dplyr::tbl(con, "vintage") %>%
-    dplyr::filter(series_id %in% c(1)) %>%
+    dplyr::filter(series_id %in% series_ids) %>%
     dplyr::distinct(published) %>%
     dplyr::pull(published)
 }
