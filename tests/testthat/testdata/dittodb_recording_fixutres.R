@@ -601,15 +601,54 @@ library(testthat)
 # get_series_id(x$series_code, con)
 # dittodb::stop_db_capturing()
 #
-dittodb::start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# get_series_id_from_table(15, con)
+# dittodb::stop_db_capturing()
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# execute_sql_functions_file(con, file =system.file("sql/pl-pgsql_sandbox.sql",
+#                                        package = "SURSfetchR"))
+# dittodb::stop_db_capturing()
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# dbGetQuery(con, "SELECT Sum(10, 10)")
+# dittodb::stop_db_capturing()
+#
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# execute_sql_file(con, file = test_path("testdata", "sql_nofun_test.sql"))
+# dittodb::stop_db_capturing()
 
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-get_series_id_from_table(15, con)
-dittodb::stop_db_capturing()
