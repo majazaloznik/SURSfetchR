@@ -93,6 +93,6 @@ test_that("mock tests for get_valuenotes_no", {
   expect_true(out == "M")
   out <- get_interval_id("LETO")
   expect_true(length(out) == 1)
-  expect_true(out == "Y")
+  expect_true(out == "A")
 })
 
