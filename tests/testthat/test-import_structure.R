@@ -11,7 +11,7 @@ dittodb::with_mock_db({
 
   test_that("preparing tables", {
     x <- prepare_table_table("1700104S")
-    expect_true(all(dim(x) == c(1,6)))
+    expect_true(all(dim(x) == c(1,5)))
     x <- prepare_category_table("1700104S", full)
     expect_true(all(dim(x) == c(6,3)))
     x <- prepare_category_relationship_table("1700104S", full)

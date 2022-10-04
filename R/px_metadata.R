@@ -27,7 +27,7 @@ get_px_metadata <- function(id) {
                    notes = I(list(c(l$NOTE, l$NOTEX))),
                    valuenotes =I(list(l$VALUENOTE))) %>%
     dplyr::mutate(notes = jsonlite::toJSON(notes),
-                  source = 1,
+                  source_id = 1,
                   url = paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", code, ".px"))
   df
 }

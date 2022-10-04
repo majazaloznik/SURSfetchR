@@ -19,12 +19,12 @@ execute_sql_file <- function(con, file,
   sql <- readLines(file)
   sql <- gsub("test_platform\\.", sprintf("%s.", schema), sql)
   DBI::dbBegin(con)
+  on.exit(  DBI::dbCommit(con))
   # split up SQL into a new statement for every ";"
   lapply(split(sql, cumsum(c(1,grepl(";",sql)[-length(sql)]))),
          function(x){
            DBI::dbExecute(con, paste(x, collapse = "\n"))
          })
-  DBI::dbCommit(con)
 }
 
 #' Generic run sql file function
@@ -44,13 +44,14 @@ execute_sql_functions_file <- function(con, file,
                                        schema = "test_platform"){
   sql <- readLines(file)
   sql <- gsub("test_platform\\.", sprintf("%s.", schema), sql)
+
   DBI::dbBegin(con)
+  on.exit(DBI::dbCommit(con))
   # split up SQL into a new statement for every ";"
   lapply(split(sql, cumsum(c(1,grepl("plpgsql;",sql)[-length(sql)]))),
          function(x){
            DBI::dbExecute(con, paste(x, collapse = "\n"))
          })
-  DBI::dbCommit(con)
 }
 
 
@@ -69,3 +70,6 @@ build_db_tables <- function(con, schema = "test_platform"){
                                package = "SURSfetchR"),
                    schema = schema)
 }
+
+
+

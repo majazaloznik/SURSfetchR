@@ -7,12 +7,12 @@
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #'
-#' @return a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+#' @return a dataframe with the `code`, `name`, `source_id`, `url`, and `notes` columns
 #' for this table.
 #' @export
 prepare_table_table <- function(code_no) {
   get_px_metadata(code_no) %>%
-    dplyr::select(-updated, -valuenotes)
+    dplyr::select(-updated, -valuenotes, -units)
 }
 
 #' Prepare table to insert into `category` table

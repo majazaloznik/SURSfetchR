@@ -1,13 +1,11 @@
 
-
 # sandboxing db import stuff
-
+devtools::install_github("majazaloznik/SURSfetchR")
 library(SURSfetchR)
-master_list_surs <- readRDS("../mesecni_kazalniki/data/master_list_surs.rds")
-
 library(DBI)
 library(RPostgres)
 library(dplyr)
+library(dittodb)
 
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = "sandbox",
@@ -18,79 +16,16 @@ con <- dbConnect(RPostgres::Postgres(),
 
 
 # set schema search path
-dbSendQuery(con, "set search_path to test_platform")
+DBI::dbExecute(con, "set search_path to test_platform")
 
 # prepare sql statements for each table.
-insert_table <- data.frame(table = character(),
-                           sql = character())
-insert_table <- bind_rows(insert_table,
-                          c(table = "table",
-                            sql = paste("INSERT INTO \"table\"",
-                                        "(code, name, source_id, url, notes)",
-                                        "VALUES",
-                                        "($1, $2, $3, $4, $5)")))
+master_list_surs <- readRDS("../mesecni_kazalniki/data/master_list_surs.rds")
 
-insert_table <- bind_rows(insert_table,
-                          c(table = "category",
-                            sql = paste("INSERT INTO category",
-                                        "(id, name, source_id)",
-                                        "VALUES",
-                                        "($1, $2, $3)")))
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "category_relationship",
-                            sql = paste("INSERT INTO category_relationship",
-                                        "(category_id, parent_id, source_id)",
-                                        "VALUES",
-                                        "($1, $2, $3)")))
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "category_table",
-                            sql = paste("INSERT INTO category_table",
-                                        "(table_id, category_id, source_id)",
-                                        "VALUES",
-                                        "($1, $2, $3)")))
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "table_dimensions",
-                            sql = paste("INSERT INTO table_dimensions",
-                                        "(table_id, dimension, time)",
-                                        "VALUES",
-                                        "($1, $2, $3)")))
-
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "dimension_levels",
-                            sql = paste("INSERT INTO dimension_levels",
-                                        "(tab_dim_id, level_value, level_text)",
-                                        "VALUES",
-                                        "($1, $2, $3)")))
-insert_table <- bind_rows(insert_table,
-                          c(table = "unit",
-                            sql =  paste("INSERT INTO unit",
-                                         "(name)",
-                                         "VALUES",
-                                         "($1)")))
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "series",
-                            sql =  paste("INSERT INTO series",
-                                         "(table_id, name_long,  code, interval_id, unit_id)",
-                                         "VALUES",
-                                         "($1, $2, $3, $4, $5)")))
-
-insert_table <- bind_rows(insert_table,
-                          c(table = "series_levels",
-                            sql =  paste("INSERT INTO series_levels",
-                                         "(series_id, tab_dim_id,  level_value)",
-                                         "VALUES",
-                                         "($1, $2, $3)")))
+insert_table <- readRDS("M:/analysis/SURSfetchR/tests/testthat/testdata/insert_table.rds")
 
 full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
 
-
-
-system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
+system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
                            write_multiple_rows(master_list_surs, con, .x, .y, full)))
 
 #
@@ -100,15 +35,64 @@ system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
 # code_no <- "1701106S" # indeks, ena enota
 # code_no <- "1700104S" # valuenotes, dve enoti
 
-x <- SURSfetchR:::get_valuenotes_from_px("1700104S", con)
-x <- get_px_metadata("1700104S")$valuenotes[[1]][1]
+
+# rebuild databsae as postgres
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "postgres",
+                 password = Sys.getenv("PG_local_PG_PSW"))
+# set schema search path
+DBI::dbExecute(con, "set search_path to test_platform")
+
+# build_db_tables(con)
+
+tbl( con, "series") %>%
+  summarise(n = n())
+
+system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
+                           write_multiple_rows(data.frame(code = "2771104S"), con, .x, .y, full)))
 
 
-qry <-  dplyr::tbl(con, "table_dimensions") %>%
-  dplyr::filter(table_id == tbl_id,
-                time != TRUE) %>%
-  dplyr::mutate(poz = dplyr::row_number()) %>%
-  dplyr::filter(dimension == "MERITVE") %>%
-  dplyr::mutate(poz = as.numeric(poz)) %>%
-  select(poz)
-dbplyr::sql_render(qry)
+
+## function call function
+sql_function_call <- function(con,
+                              fun_name,
+                              args) {
+  args_pattern <- ""
+  if(!is.null(args)) {
+    args[sapply(args, is.null)] <- NA
+    args_pattern <- sprintf("$%d", seq(length(args)))
+
+    if(!is.null(names(args))) {
+      args_pattern <- paste(
+        sprintf("%s :=", names(args)),
+        args_pattern
+      )
+    }
+    args_pattern <- paste(args_pattern, collapse = ", ")
+  }
+
+  query <- sprintf("SELECT * FROM %s.%s(%s)",
+                   dbQuoteIdentifier(con, schema),
+                   dbQuoteIdentifier(con, fun_name),
+                   args_pattern)
+
+  res <- dbGetQuery(con, query, unname(args))
+
+  res
+}
+
+execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
+
+
+sql_function_call(con,
+                  "insert_new_table",
+                  as.list(prepare_table_table("0700942S")))
+
+
+sql_function_call(con,
+                  "insert_new_category",
+                  as.list(prepare_category_table("0700942S", full)))
+

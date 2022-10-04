@@ -10,7 +10,7 @@ prepare_table_table(code_no)
 \item{code_no}{the matrix code (e.g. 2300123S)}
 }
 \value{
-a dataframe with the `code`, `name`, `source`, `url`, and `notes` columns
+a dataframe with the `code`, `name`, `source_id`, `url`, and `notes` columns
 for this table.
 }
 \description{

@@ -6,4 +6,4 @@ RETURNS int AS $$
 */
   RETURN a + b;
 END;
-$$ LANGUAGE plpgsql IMMUTABLE STRICT;
+$$ LANGUAGE plpgsql;
