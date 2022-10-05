@@ -9,7 +9,9 @@ sql_function_call(con, fun_name, args, schema = "test_platform")
 \arguments{
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
-\item{args}{}
+\item{fun_name}{character name of SQL function to call}
+
+\item{args}{list of arguments, can be named (but then all of them have to be)}
 
 \item{schema}{character schema name, default is "test_platform"}
 }

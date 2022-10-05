@@ -81,7 +81,8 @@ build_db_tables <- function(con, schema = "test_platform"){
 #' @inheritParams common_parameters
 #' @export
 #'
-#' @examples
+#' @return value of `dbGetQuery(con, "SELECT * FROM schema.fun_name($args)")$fun_name`
+
 sql_function_call <- function(con,
                               fun_name,
                               args,

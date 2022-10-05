@@ -11,8 +11,7 @@ execute_sql_file(con, file, schema = "test_platform")
 
 \item{file}{path to sql file}
 
-\item{schema}{character string of schema name, default is test_platform, subbed out
-of the sql if need be}
+\item{schema}{character schema name, default is "test_platform"}
 }
 \description{
 Executes an sql file. Uses dbExecute, which requires single statements to

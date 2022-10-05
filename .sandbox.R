@@ -56,7 +56,7 @@ system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
 
 
 
-
+# add sql functions to the database
 execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 
 
