@@ -33,7 +33,18 @@ BEGIN
     INSERT INTO test_platform.category (id, name, source_id)
     VALUES (id, name, source_id)
     ON CONFLICT DO NOTHING;
-    GET DIAGNOSTICS count = ROW_COUNT;  
+    GET DIAGNOSTICS count = ROW_COUNT;
   return count;
-END;    
+END;
+$$ LANGUAGE plpgsql;
+
+
+create or replace function test_platform.sum(int, int)
+returns int as $$
+declare
+res int;
+begin
+res := $1 + $2;
+return res;
+end;
 $$ LANGUAGE plpgsql;

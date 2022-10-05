@@ -652,3 +652,19 @@ library(testthat)
 # execute_sql_file(con, file = test_path("testdata", "sql_nofun_test.sql"))
 # dittodb::stop_db_capturing()
 
+dittodb::start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+sql_function_call(con, "sum", list(10,10))
+dittodb::stop_db_capturing()
+
+
+
+

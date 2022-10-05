@@ -14,6 +14,8 @@ dittodb::with_mock_db({
     expect_equal(out, data.frame(sum = 20))
     out <- execute_sql_file(con, file = test_path("testdata", "sql_nofun_test.sql"))
     expect_equal(out[[1]], 0)
+    out <- sql_function_call(con, "sum", list(10,10))
+    expect_equal(out, data.frame(sum = 20))
   })
 
   dbDisconnect(con)

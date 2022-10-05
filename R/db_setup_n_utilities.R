@@ -8,10 +8,8 @@
 #'
 #' Inspiration from `timeseriesdb` package by Matt Bannert.
 #'
-#' @param con PostgreSQL connection object created by the RPostgres package.
 #' @param file path to sql file
-#' @param schema character string of schema name, default is test_platform, subbed out
-#' of the sql if need be
+#' @inheritParams common_parameters
 #'
 #' @export
 execute_sql_file <- function(con, file,
@@ -34,10 +32,8 @@ execute_sql_file <- function(con, file,
 #' on `;`. Potentially not safe.
 #' Inspiration from `timeseriesdb` package by Matt Bannert.
 #'
-#' @param con PostgreSQL connection object created by the RPostgres package.
 #' @param file path to sql file
-#' @param schema character string of schema name, default is test_platform, subbed out
-#' of the sql if need be
+#' @inheritParams common_parameters
 #'
 #' @export
 execute_sql_functions_file <- function(con, file,
@@ -60,9 +56,7 @@ execute_sql_functions_file <- function(con, file,
 #' Creates all the tables required to run the database in a given schema by
 #' running the appropriate sql file. (Excluded from testing).
 #'
-#' @param con PostgreSQL connection object created by the RPostgres package.
-#' @param schema character schema name, default is test_platform
-#'
+#' @inheritParams common_parameters
 #' @export
 build_db_tables <- function(con, schema = "test_platform"){
   execute_sql_file(con,
@@ -73,3 +67,45 @@ build_db_tables <- function(con, schema = "test_platform"){
 
 
 
+
+#' Construct and execute an SQL function call
+#'
+#' Constructs the call for the funciton `schema`.`fun_name` fro the database
+#' with the arguments `args` and returns the result.
+#'
+#' Inspiration from `timeseriesdb` package by Matt Bannert.
+#'
+#' @param fun_name character name of SQL function to call
+#' @param args list of arguments, can be named (but then all of them have to be)
+#'
+#' @inheritParams common_parameters
+#' @export
+#'
+#' @examples
+sql_function_call <- function(con,
+                              fun_name,
+                              args,
+                              schema = "test_platform") {
+  args_pattern <- ""
+  if(!is.null(args)) {
+    args[sapply(args, is.null)] <- NA
+    args_pattern <- sprintf("$%d", seq(length(args)))
+
+    if(!is.null(names(args))) {
+      args_pattern <- paste(
+        sprintf("%s :=", names(args)),
+        args_pattern
+      )
+    }
+    args_pattern <- paste(args_pattern, collapse = ", ")
+  }
+
+  query <- sprintf("SELECT * FROM %s.%s(%s)",
+                   DBI::dbQuoteIdentifier(con, schema),
+                   DBI::dbQuoteIdentifier(con, fun_name),
+                   args_pattern)
+
+  res <- dbGetQuery(con, query, unname(args))
+
+  res
+}

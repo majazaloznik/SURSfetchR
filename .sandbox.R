@@ -56,33 +56,6 @@ system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
 
 
 
-## function call function
-sql_function_call <- function(con,
-                              fun_name,
-                              args) {
-  args_pattern <- ""
-  if(!is.null(args)) {
-    args[sapply(args, is.null)] <- NA
-    args_pattern <- sprintf("$%d", seq(length(args)))
-
-    if(!is.null(names(args))) {
-      args_pattern <- paste(
-        sprintf("%s :=", names(args)),
-        args_pattern
-      )
-    }
-    args_pattern <- paste(args_pattern, collapse = ", ")
-  }
-
-  query <- sprintf("SELECT * FROM %s.%s(%s)",
-                   dbQuoteIdentifier(con, schema),
-                   dbQuoteIdentifier(con, fun_name),
-                   args_pattern)
-
-  res <- dbGetQuery(con, query, unname(args))
-
-  res
-}
 
 execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 

@@ -9,7 +9,7 @@ build_db_tables(con, schema = "test_platform")
 \arguments{
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
-\item{schema}{character schema name, default is test_platform}
+\item{schema}{character schema name, default is "test_platform"}
 }
 \description{
 Creates all the tables required to run the database in a given schema by
