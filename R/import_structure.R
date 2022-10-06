@@ -214,7 +214,8 @@ prepare_series_table <- function(code_no, con){
     dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
     cbind(expand_to_series_titles(code_no, con)) %>%
     dplyr::mutate(table_id = tbl_id,
-                  interval_id = interval_id)
+                  interval_id = interval_id) %>%
+    dplyr::select(table_id, series_title, unit_id, series_code, interval_id)
 }
 
 

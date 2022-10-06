@@ -104,3 +104,72 @@ BEGIN
     GET DIAGNOSTICS count = ROW_COUNT;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Add new unit row
+--
+-- Insert new row into the `unit` table.
+--
+CREATE OR REPLACE FUNCTION test_platform.insert_new_unit(name TEXT,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO test_platform.unit ( name)
+    VALUES (name)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add new series row
+--
+-- Insert new row into the `series` table.
+--
+CREATE OR REPLACE FUNCTION test_platform.insert_new_series(table_id INTEGER,
+                                            name_long TEXT,
+                                            unit_id INTEGER,
+                                            code TEXT,
+                                            interval_id TEXT,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO test_platform.series (table_id, name_long, unit_id, code, interval_id)
+    VALUES (table_id, name_long, unit_id, code, interval_id)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Add new series level row
+--
+-- Insert new row into the `series_level` table.
+--
+CREATE OR REPLACE FUNCTION test_platform.insert_new_series_levels(series_id INTEGER,
+                                            tab_dim_id INTEGER,
+                                            level_value TEXT,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO test_platform.series_levels (series_id, tab_dim_id, level_value)
+    VALUES (series_id, tab_dim_id, level_value)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add new vintage row
+-- 
+-- Insert new row into the `vintage` table.
+--
+CREATE OR REPLACE FUNCTION test_platform.insert_new_vintage(series_id INTEGER,
+                                            published TIMESTAMP,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO test_platform.vintage (series_id, published)
+    VALUES (series_id, published)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
