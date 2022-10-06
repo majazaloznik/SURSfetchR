@@ -56,7 +56,7 @@ dittodb::with_mock_db({
     out <- SURSfetchR:::get_level_text_from_meritve(2, con)
     expect_true(all(dim(out) == c(6,3)))
     out <- SURSfetchR:::get_unit_levels_from_meritve(out, con)
-    expect_true(all(dim(out) == c(6,4)))
+    expect_true(all(dim(out) == c(6,5)))
   })
 
   test_that("mock tests for get_valuenotes_id", {

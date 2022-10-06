@@ -21,7 +21,7 @@ dittodb::with_mock_db({
     units <- get_unit_levels_from_meritve(x, con)
     out4 <- add_meritve_level_units(out3, 2, units)
     expect_true(nrow(out4) == 360)
-    expect_true(ncol(out4) == 4)
+    expect_true(ncol(out4) == 5)
     expect_equal(unique(out4$unit_id), c(1,2,3))
     out5 <- expand_to_level_codes("1700104S", con) %>%
       dplyr::mutate(unit_id = NA)
