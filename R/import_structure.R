@@ -54,7 +54,8 @@ prepare_category_relationship_table <- function(code_no, full) {
   id_no <- unique(full$id[full$name == code_no])
   get_row(id_no, full) %>%
     dplyr::mutate(parent_id = as.numeric(parent_id)) %>%
-    dplyr::arrange(parent_id)
+    dplyr::arrange(parent_id) %>%
+    dplyr::select(-name)
 }
 
 
@@ -100,7 +101,9 @@ prepare_table_dimensions_table <- function(code_no, con) {
   get_table_id(code_no, con) -> tbl_id
   get_table_levels(code_no) %>%
     dplyr::mutate(table_id = tbl_id) %>%
-    dplyr::select(table_id, dimension_name, time)
+    dplyr::select(table_id, dimension_name, time) %>%
+    dplyr::rename(is_time = time,
+                  dimension = dimension_name)
 }
 
 #' Prepare table to insert into `dimension_levels` table
@@ -120,7 +123,7 @@ prepare_dimension_levels_table <- function(code_no, con) {
   get_table_id(code_no, con) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
-    dplyr::filter(time == FALSE) %>%
+    dplyr::filter(is_time == FALSE) %>%
     dplyr::select(dimension, id) %>%
     dplyr::collect() -> dim_ids
 
@@ -128,7 +131,11 @@ prepare_dimension_levels_table <- function(code_no, con) {
     tidyr::unnest(levels) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%
-    dplyr::inner_join(dim_ids, by = c("dimension_name" = "dimension"))
+    dplyr::inner_join(dim_ids, by = c("dimension_name" = "dimension")) %>%
+    dplyr::select(-dimension_name) %>%
+    dplyr::rename(tab_dim_id = id,
+                  level_value = values,
+                  level_text = valueTexts)
 }
 
 
@@ -231,7 +238,7 @@ prepare_series_levels_table <- function(code_no, con) {
   get_table_id(code_no, con) -> tbl_id
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
-                  time != TRUE) %>%
+                  is_time != TRUE) %>%
     dplyr::pull(id) -> dimz
 
   dplyr::tbl(con, "series") %>%

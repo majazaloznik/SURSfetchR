@@ -69,7 +69,7 @@ get_time_dimension <- function(code_no, con) {
   tbl_id <- get_table_id(code_no, con)
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
-    dplyr::filter(time) %>%
+    dplyr::filter(is_time) %>%
     dplyr::pull(dimension)
 }
 
@@ -91,7 +91,7 @@ get_meritve_id <- function(tbl_id, con) {
 get_meritve_no <-function(tbl_id, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
-                  time != TRUE) %>%
+                  is_time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
     dplyr::mutate(poz = as.numeric(poz)) %>%
@@ -137,7 +137,7 @@ get_valuenotes_id <- function(tbl_id, dim_name, con) {
 get_valuenotes_no <-function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
-                  time != TRUE) %>%
+                  is_time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == dim_name) %>%
     dplyr::mutate(poz = as.numeric(poz)) %>%

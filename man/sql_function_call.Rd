@@ -15,6 +15,9 @@ sql_function_call(con, fun_name, args, schema = "test_platform")
 
 \item{schema}{character schema name, default is "test_platform"}
 }
+\value{
+value of `dbGetQuery(con, "SELECT * FROM schema.fun_name($args)")$fun_name`
+}
 \description{
 Constructs the call for the funciton `schema`.`fun_name` fro the database
 with the arguments `args` and returns the result.

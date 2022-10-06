@@ -69,3 +69,24 @@ sql_function_call(con,
                   "insert_new_category",
                   as.list(prepare_category_table("0700942S", full)))
 
+
+sql_function_call(con,
+                  "insert_new_category_relationship",
+                  as.list(prepare_category_relationship_table("0700942S", full)))
+
+
+sql_function_call(con,
+                  "insert_new_category_table",
+                  as.list(prepare_category_table_table("0700942S", full, con)))
+
+sql_function_call(con,
+                  "insert_new_table_dimensions",
+                  as.list(prepare_table_dimensions_table("0700942S",con)))
+
+
+sql_function_call(con,
+                  "insert_new_dimension_levels",
+                  as.list(prepare_dimension_levels_table("0700942S",con)))
+
+prepare_series_table("1700104S", con)
+
