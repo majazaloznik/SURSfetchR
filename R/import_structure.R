@@ -151,7 +151,7 @@ prepare_dimension_levels_table <- function(code_no, con) {
 #' in this table.
 #' @export
 #'
-prepare_units_table <- function(code_no, con) {
+prepare_unit_table <- function(code_no, con) {
 data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
     dplyr::mutate_all(tolower)
 }
@@ -201,11 +201,13 @@ prepare_series_table <- function(code_no, con){
                               units_by_meritve_levels) -> expanded_level_codes
     } else { # if valuenotes exist
       get_valuenotes_from_px(code_no, tbl_id, con) -> units_by_levels
-      get_valuenotes_id(tbl_id, units_by_levels$dim_name[1], con) -> valuenotes_dim_id
-      get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1], con) -> valuenotes_dim_no
-      if(length(valuenotes_dim_id) == 1){
-        add_valuenotes_level_units(expanded_level_codes, valuenotes_dim_no,
-                                   units_by_levels) -> expanded_level_codes}
+      if(!is.null(units_by_levels)){
+        get_valuenotes_id(tbl_id, units_by_levels$dim_name[1], con) -> valuenotes_dim_id
+        get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1], con) -> valuenotes_dim_no
+        if(length(valuenotes_dim_id) == 1){
+          add_valuenotes_level_units(expanded_level_codes, valuenotes_dim_no,
+                                     units_by_levels) -> expanded_level_codes}
+      }
     }
   }
 

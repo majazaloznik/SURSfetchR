@@ -33,9 +33,10 @@ get_table_id <- function(code_no, con) {
 #' @keywords internal
 get_unit_id <- function(unit, con){
   unit <- tolower(unit)
+  if(is.na(unit)) NA else  {
   dplyr::tbl(con, "unit") %>%
     dplyr::filter(name == unit) %>%
-    dplyr::pull(id)
+    dplyr::pull(id)}
 }
 
 #' @rdname get_stuff
@@ -112,8 +113,10 @@ get_level_text_from_meritve <- function(meritve_dim_id, con){
 #' @keywords internal
 get_unit_levels_from_meritve <- function(meritve_level_text, con){
   meritve_level_text %>%
-    dplyr::mutate(unit = regmatches(level_text, regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
-                                                        level_text, perl = TRUE))) %>%
+    dplyr::mutate(tmp = regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
+                                level_text, perl = TRUE)) %>%
+    dplyr::mutate(unit = ifelse(tmp == -1, NA, regmatches(level_text, tmp))) %>%
+    dplyr::mutate(unit = gsub("^v ", "", unit)) %>%
     dplyr::select(-level_text) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(unit_id = get_unit_id(unit, con))

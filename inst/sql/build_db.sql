@@ -81,7 +81,7 @@ CREATE TABLE test_platform.table_dimensions
     id bigint GENERATED ALWAYS AS IDENTITY,
     table_id integer NOT NULL REFERENCES test_platform."table" (id),
     dimension character varying NOT NULL,
-	time boolean NOT NULL,
+	  is_time boolean NOT NULL,
     PRIMARY KEY (id),
     UNIQUE (table_id, dimension)
 );
@@ -190,5 +190,9 @@ VALUES ('M', 'manj zanesljiva ocena'),
 ('s', 'eurostat estimate'),
 ('u', 'low reliability'),
 ('z', 'not applicable');
+
+INSERT INTO test_platform."unit"(
+  name)
+VALUES ('1000');
 
 GRANT ALL ON ALL TABLES IN SCHEMA test_platform TO mzaloznik;

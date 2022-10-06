@@ -7,13 +7,13 @@ CREATE OR REPLACE FUNCTION test_platform.insert_new_table(code TEXT,
                                         source_id INTEGER,
                                         url TEXT,
                                         notes JSONB,
-                                        OUT bool BOOLEAN)
+                                        OUT count INTEGER)
 AS $$
 BEGIN
     INSERT INTO test_platform.table (code, name, source_id, url, notes)
     VALUES (code, name, source_id, url, notes)
     ON CONFLICT DO NOTHING;
-    bool := FOUND;
+    GET DIAGNOSTICS count = ROW_COUNT;
 END;
 $$ LANGUAGE plpgsql;
 
