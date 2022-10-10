@@ -692,3 +692,31 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # get_meritve_no(1, con)
 # dittodb::stop_db_capturing()
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# out <- insert_new_table_structures("1817902S", con, full)
+# stop_db_capturing()
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# insert_new_data("1817902S", con)
+# stop_db_capturing()
+
+

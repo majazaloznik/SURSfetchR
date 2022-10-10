@@ -1,403 +1,77 @@
-#' Write a single row to the `table` table for SURS
+#' Insert table structure data for a new table
 #'
-#' Helper function that extracts metadata from the API and inserts it into the
-#' sql statement and then gets written to the `table` table in the connection.
+#' When a new table (in SURS speak 'matrix") is added, a set of nine
+#' tables need to be populated with apropriate metadata about that table.
+#' This umbrella function calls the respective SQL functions for each
+#' of the nine tables.
 #'
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ... just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return side effect is writing to the database.
-#' @export
-
-write_row_table <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_table_table(code_no)
-  tryCatch({
-    DBI::dbExecute(con, sql_statement, list(tmp$code,
-                                            tmp$name,
-                                            tmp$source,
-                                            tmp$url,
-                                            tmp$notes))
-    counter <- counter + 1
-    message(paste("new row inserted into `table` for matrix ", code_no))
-  },
-  error = function(cnd) {
-    print(cnd)
-  }
-  )
-  return(counter)
-}
-
-#' Write a single row to the `category` table for SURS
-#'
-#' Helper function that extracts all the parent categories from the full
-#' hierarchy data.frame, and fills up the category table with field ids and
-#' their names. Gets run from \link[SURSfetchR]{write_multiple_rows}. Uses original
-#' id's from SURS, keeping them unique by adding the source_id to the constraint.
-#'#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
+#' @inheritParams common_parameters
 #' @param full full field hierarchy with parent_ids et al, output from
-#' \link[SURSfetchR]{get_full_structure}
+#'  \link[SURSfetchR]{get_full_structure}
 #'
-#' @return incremented counter, side effect is writing to the database.
+#' @return list of tables with counts for each inserted row.
 #' @export
-write_row_category <- function(code_no, con, sql_statement, counter, full) {
-  tmp <- prepare_category_table(code_no, full)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
+#'
+#' @examples
+#' \dontrun{
+#' purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
+#' }
 
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$id,
-                                              tmp[i,]$name,
-                                              tmp[i,]$source_id))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-    }
-    )
-  }
-  message(paste(counter_i, "new categories inserted for matrix ", code_no))
-  return(counter)
+insert_new_table_structures <- function(code_no, con, full) {
+  res <- list()
+  res[[1]] <- sql_function_call(con,
+                                "insert_new_table",
+                                as.list(prepare_table_table(code_no)))
+  res[[2]] <- sql_function_call(con,
+                                "insert_new_category",
+                                as.list(prepare_category_table(code_no, full)))
+  res[[3]] <- sql_function_call(con,
+                                "insert_new_category_relationship",
+                                as.list(prepare_category_relationship_table(code_no, full)))
+
+  res[[4]] <- sql_function_call(con,
+                                "insert_new_category_table",
+                                as.list(prepare_category_table_table(code_no, full, con)))
+  res[[5]] <- sql_function_call(con,
+                                "insert_new_table_dimensions",
+                                as.list(prepare_table_dimensions_table(code_no, con)))
+  res[[6]] <- sql_function_call(con,
+                                "insert_new_dimension_levels",
+                                as.list(prepare_dimension_levels_table(code_no, con)))
+  res[[7]] <- sql_function_call(con,
+                                "insert_new_unit",
+                                as.list(unname(prepare_unit_table(code_no, con))))
+
+  res[[8]] <-  sql_function_call(con,
+                                 "insert_new_series",
+                                 as.list(unname(prepare_series_table(code_no, con))))
+  res[[9]] <- sql_function_call(con,
+                                "insert_new_series_levels",
+                                as.list(unname(prepare_series_levels_table(code_no, con))))
+  res
 }
 
 
-#' Write categories for a single table to the `category_relationship` table
+#' Insert new data for a table i.e. a vintage
 #'
-#' Helper function that extracts the field hierarchy from the full
-#' hierarchy data.frame, and fills up the category table with field ids and
-#' their parents. Gets run from \link[SURSfetchR]{write_multiple_rows}.
+#' When new data for a table (in SURS speak 'matrix") is added, these are new
+#' vintages. This function adds a set of new vintages and their corresponding
+#' data points and flags to the database, by calling the respective SQL functions
+#' for each of these tables.
 #'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param full full field hierarchy with parent_ids et al, output from
-#' \link[SURSfetchR]{get_full_structure}
+#' @inheritParams common_parameters
 #'
-#' @return incremented counter, side effect is writing to the database.
-#' @export
-
-write_row_category_relationship <- function(code_no, con, sql_statement, counter, full) {
-  tmp <- prepare_category_relationship_table(code_no, full)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$id,
-                                              tmp[i,]$parent_id,
-                                              tmp[i,]$source_id))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-    }
-    )
-  }
-  message(paste(counter_i, "new category relationships inserted for matrix ", code_no))
-  return(counter)
-}
-
-#' Write categories for a single table to the `category_table` table
-#'
-#' Helper function that extracts the parent category for each table from the full
-#' hierarchy data.frame, and fills up the category_table table with the table ids and
-#' their categories (parents). Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param full full field hierarchy with parent_ids et al, output from
-#' \link[SURSfetchR]{get_full_structure}
-#'
-#' @return incremented counter, side effect is writing to the database.
+#' @return list of tables with counts for each inserted row.
 #' @export
 #'
-write_row_category_table <- function(code_no, con, sql_statement, counter, full) {
-  tmp <- prepare_category_table_table(code_no, full, con)
-   counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$table_id,
-                                              tmp[i,]$category_id,
-                                              1))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
-  return(counter)
-}
-
-#' Write categories for a single table to the `table_dimensions` table
-#'
-#' Helper function that extracts the dimensions for each table and their "time" status.
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_table_dimensions <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_table_dimensions_table(code_no, con)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$table_id,
-                                              tmp[i,]$dimension_name,
-                                              tmp[i,]$time))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new category-table rows inserted for matrix ", code_no))
-  return(counter)
-}
-
-#' Write dimension levels for a single table to the `dimension_levels` table
-#'
-#' Helper function that extracts the levels for all the dimensions for each
-#' table and get their code and text and writes to the dimension_levels table.
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_dimension_levels <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_dimension_levels_table(code_no, con)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      DBI::dbExecute(con, sql_statement, list(tmp[i,]$id,
-                                              tmp[i,]$values,
-                                              tmp[i,]$valueTexts))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new dimension-level rows inserted for matrix ", code_no))
-  return(counter)
-}
-
-#' Write units into to the `units` table
-#'
-#' Helper function that extracts the units for each table from the px metadata and
-#' insterts into database unit lookup table. So mainly doesn't do anything after the
-#' initial database setup.
-#'
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_unit <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_unit_table(code_no, con)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,1]))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new units inserted for matrix ", code_no))
-  return(counter)
-}
-#' Write series into to the `series` table
-#'
-#' Helper function that extracts the individual series = combinations of dimension
-#' levels from the API levels tables. .
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_series <- function(code_no, con, sql_statement, counter, ...) {
-
-  prepare_series_table(code_no, con) -> tmp
-
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,]$table_id,
-                                         tmp[i,]$series_title,
-                                         tmp[i,]$series_code,
-                                         tmp[i,]$interval_id,
-                                         tmp[i,]$unit_id))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new series inserted from matrix ", code_no))
-  return(counter)
-}
-
-
-#' Write series-level combinations into to the `series_levels` table
-#'
-#' Helper function that writes the series levels to the database. .
-#'
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_series_levels <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_series_levels_table(code_no, con)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,]$series_id,
-                                         tmp[i,]$tab_dim_id,
-                                         tmp[i,]$value))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new series-level combos inserted for matrix ", code_no))
-  return(counter)
-}
-
-
-#' Write vintages into to the `vintage` table
-#'
-#' Helper function that writes the vintages to the database. .
-#'
-#' Gets run from \link[SURSfetchR]{write_multiple_rows}.
-#'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
-#' @param sql_statement the sql statement to insert the values
-#' @param counter integer counter used in  \link[SURSfetchR]{write_multiple_rows}
-#' to count how many successful rows were inserted.
-#' @param ...  just here, because other funs in this family have extra parameters
-#' passed to them and i cannot use map unless this one also has this option.
-#'
-#' @return incremented counter, side effect is writing to the database.
-#'
-#' @export
-write_row_vintage <- function(code_no, con, sql_statement, counter, ...) {
-  tmp <- prepare_vintage_table(code_no, con)
-  counter_i = 0
-  for (i in seq_len(nrow(tmp))){
-    tryCatch({
-      dbExecute(con, sql_statement, list(tmp[i,]$series_id,
-                                         tmp[i,]$published))
-      counter_i <- counter_i + 1
-      counter <- counter + 1
-    },
-    error = function(cnd) {
-      print(cnd)
-    }
-    )
-  }
-  message(paste(counter_i, "new vintages inserted for matrix ", code_no))
-  return(counter)
-}
-
-
-#' Umbrella function to write multiple rows into the a postgres table
-#'
-#' Takes a column of SURS codes from the master_list_code and for each row
-#' gets the metadata and writes it to the appropriate table  using the
-#' passed sql statement and the appropriate function from the `write_row`
-#' family of functions for each single row.
-#'
-#' @param master_list_surs dataframe with at minimum a "code" column with
-#' the SURS matrix code for each table to be inserted.
-#'
-#' @param con a connection to a postgres database with an approproate `table`
-#' table.
-#' @param table_name character name of table in db, also used to get the
-#' relevant function to write a single row.
-#' @param sql_statement character string to write single row to the database.
-#' @param ... other parameters that get passed on to the `write_row_` type
-#' function.
-#'
-#' @return nothing - side effect is writing to the database, and outputing message
-#' to say how many rows were inserted.
-#' @export
-#'
-write_multiple_rows <- function(master_list_surs, con, table_name, sql_statement, ...) {
-
-  counter <- 0
-  for (i in seq(nrow(master_list_surs))){
-    counter <- get(paste0("write_row_", table_name))(master_list_surs$code[i], con, sql_statement, counter, ...)
-  }
-  message(paste(counter, "new rows inserted into table ", table_name, "\n"))
+#' @examples
+#' \dontrun{
+#' purrr::walk(master_list_surs$code, ~insert_new_data(.x, con))
+#' }
+insert_new_data <- function(code_no, con) {
+  res <- list()
+  res[[1]] <- sql_function_call(con,
+                                "insert_new_vintage",
+                                as.list(unname(prepare_vintage_table(code_no ,con))))
+  res
 }
