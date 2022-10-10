@@ -10,7 +10,12 @@ test_that("Metadata is properly parsed", {
   checkmate::expect_posixct(mtdt_tbl$updated)
   expect_true(ncol(mtdt_tbl)== 8)
 })
-
+test_that("Data is downloaded ok. ", {
+  expect_error(get_px_data("222"))
+  dt_tbl <- get_px_data("0811602S")
+  checkmate::expect_data_frame(dt_tbl)
+  expect_true(all(dim(dt_tbl) == c(534,4)))
+})
 
 test_that("Categories are properly parsed", {
   x <- get_row(12964, full)

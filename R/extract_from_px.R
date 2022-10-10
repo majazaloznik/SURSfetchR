@@ -31,6 +31,30 @@ get_px_metadata <- function(id) {
                   url = paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", code, ".px"))
   df
 }
+
+#' Get the data for an individual table
+#'
+#' Get the full data table for each SURS table (matrix).
+#'
+#' @param id character vector of length 1 with code of matrix. Can be with or
+#' without the .px extension.
+#'
+#' @return A long data.frame with all the data
+#' @export
+#'
+get_px_data <- function(id) {
+  checkmate::qassert(id, "S[5,11]")
+  id <- sub(".PX$", "", id)
+  id <- sub(".px$", "", id)
+  url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
+  l <- pxR::read.px(url,
+                    encoding = "CP1250",
+                    na.strings = c('"."', '".."', '"..."', '"...."')
+  )
+ l$DATA$value
+}
+
+
 #' Helper function to get parent category from full hierarchy
 #'
 #' This is a recursive function to be used inside another semi-recursive
