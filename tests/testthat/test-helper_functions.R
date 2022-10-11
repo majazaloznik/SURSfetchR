@@ -30,6 +30,12 @@ dittodb::with_mock_db({
     expect_true(nrow(out6) == 12)
     expect_true(ncol(out6) == 3)
     expect_true(all(unique(out6$unit_id) == c(2,17)))
+    codes <- list(A = 1)
+    labels <- list(A = "text")
+    time_dim <- "MESEC"
+    df <- data.frame(A = "text", value = 23, MESEC = "2022M02")
+    out7 <- recode_labels(1)
+    expect_equal(out7$A, 1)
   })
 })
 

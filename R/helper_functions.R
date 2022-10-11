@@ -79,3 +79,24 @@ add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
 Id2 <- function(table, schema = "test_platform") {
   Id(schema = schema, table = table)
 }
+
+
+
+#' Helper for recoding dimension levels
+#'
+#' Recodes dimension level labels into dimension level codes. Both
+#' labels and codes are extracted inside the  \link[SURSfetchR]{prepare_data_table}
+#' function, which is where this helper is also called.
+#'
+#' @param i numeric index for mapping over the dimensions
+#'
+#' @return
+recode_labels <- function(i, codes, labels, df, time_dim) {
+  # create lookup list
+  lst <- as.list(codes[[i]])
+  lst <- setNames(lst, labels[[i]])
+  # recode and remove other dim columns
+  df %>%
+    dplyr::mutate(!!names(codes[i]) := dplyr::recode(!!sym(names(codes[i])), !!!lst)) %>%
+    dplyr::select(!!names(codes[i]), value, !!time_dim)
+}

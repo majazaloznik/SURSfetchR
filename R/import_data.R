@@ -12,8 +12,8 @@
 #' db_writing family of functions.
 #'
 #'
-#' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
+#' @inheritParams common_parameters
+#'
 #' @return a dataframe with the `series_id` and `published` columns
 #' for all the series in this table.
 #' @export
@@ -44,4 +44,38 @@ prepare_vintage_table <- function(code_no, con){
                          "in the database. The vintages were not imported, update",
                          "the series table first.")}
   }
+}
+
+
+
+#' Get and prepare data for import
+#'
+#' Downloads and prepares the timeseries data for importing into the database.
+#' Because the original dataformat has the full labels of the levels, these
+#' are recoded into the alphanumeric codes.
+#'
+#' @inheritParams common_parameters
+#'
+#' @return a dataframe the same size as was downloaded from the .px file, but
+#' with recoded dimension levels.
+#' @export
+#'
+prepare_data_table <- function(code_no, con){
+  tbl_id <- get_table_id(code_no, con)
+  time_dim <- get_time_dimension(code_no, con)
+  px <- get_px_data(code_no)
+  df <- px[[1]]
+
+  # remove time dimension from lists
+  px[[2]] %>%
+    purrr::list_modify(!! time_dim := NULL) -> labels
+  px[[3]] %>%
+    purrr::list_modify(!! time_dim := NULL) -> codes
+  non_time_dims <- names(codes)
+
+  # map recoding on list of non/time dimensions and join together.
+  purrr::map(seq(length(non_time_dims)),
+             ~recode_labels(.x, codes, labels, df, time_dim)) %>%
+    purrr::reduce(cbind) %>%
+    dplyr::select(unique(colnames(.)))
 }

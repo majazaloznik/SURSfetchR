@@ -7,9 +7,9 @@
 prepare_vintage_table(code_no, con)
 }
 \arguments{
-\item{code_no}{the matrix code (e.g. 2300123S)}
+\item{code_no}{character SURS px. code e.g. 0300230S}
 
-\item{con}{connection to the database}
+\item{con}{PostgreSQL connection object created by the RPostgres package.}
 }
 \value{
 a dataframe with the `series_id` and `published` columns

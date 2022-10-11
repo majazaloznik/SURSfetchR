@@ -719,4 +719,16 @@ library(testthat)
 # insert_new_data("1817902S", con)
 # stop_db_capturing()
 
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+prepare_data_table("1817902S", con)
+stop_db_capturing()
 

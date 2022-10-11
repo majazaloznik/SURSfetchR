@@ -54,7 +54,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- Add new category-table row   
+-- Add new category-table row
 --
 -- Insert new row into the `category-table` table.
 --
@@ -158,7 +158,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Add new vintage row
--- 
+--
 -- Insert new row into the `vintage` table.
 --
 CREATE OR REPLACE FUNCTION test_platform.insert_new_vintage(series_id INTEGER,
@@ -172,4 +172,3 @@ BEGIN
     GET DIAGNOSTICS count = ROW_COUNT;
 END;
 $$ LANGUAGE plpgsql;
-

@@ -51,7 +51,7 @@ get_px_data <- function(id) {
                     encoding = "CP1250",
                     na.strings = c('"."', '".."', '"..."', '"...."')
   )
- l$DATA$value
+ list(l$DATA$value, l$VALUES, l$CODES)
 }
 
 
