@@ -1,6 +1,6 @@
 
 # sandboxing db import stuff
-# devtools::install_github("majazaloznik/SURSfetchR")
+devtools::install_github("majazaloznik/SURSfetchR")
 library(SURSfetchR)
 library(DBI)
 library(RPostgres)
@@ -59,59 +59,105 @@ build_db_tables(con)
 # add sql functions to the database
 execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 
+# insert tbl structures for single table
+res <- insert_new_table_structures("0714621S", con)
+
+# insert table structures for whole list of tables.
+purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
+
+# insert table structures for whole list of tables.
+purrr::walk(master_list_surs$code, ~insert_new_data(.x, con))
+
+out <- insert_new_table_structures("1817902S", con, full)
 
 
+id <- "0811602S"
+url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
+l <- pxR::read.px(url,
+                  encoding = "CP1250",
+                  na.strings = c('"."', '".."', '"..."', '"...."')
+)
 
 
+# dbExecute(con, "CREATE EXTENSION tablefunc;")
 
-insert_new_table_structures <- function(code_no, con, full) {
-  res <- list()
-  res[[1]] <- sql_function_call(con,
-                    "insert_new_table",
-                    as.list(prepare_table_table(code_no)))
 
-  res[[2]] <- sql_function_call(con,
-                    "insert_new_category",
-                    as.list(prepare_category_table(code_no, full)))
+code_no <- "2080005S"
 
-  res[[3]] <- sql_function_call(con,
-                    "insert_new_category_relationship",
-                    as.list(prepare_category_relationship_table(code_no, full)))
+df <- prepare_data_table(code_no, con)
 
-  res[[4]] <- sql_function_call(con,
-                    "insert_new_category_table",
-                    as.list(prepare_category_table_table(code_no, full, con)))
 
-  res[[5]] <- sql_function_call(con,
-                    "insert_new_table_dimensions",
-                    as.list(prepare_table_dimensions_table(code_no, con)))
-
-  res[[6]] <- sql_function_call(con,
-                    "insert_new_dimension_levels",
-                    as.list(prepare_dimension_levels_table(code_no, con)))
-
-  res[[7]] <- sql_function_call(con,
-                    "insert_new_unit",
-                    as.list(unname(prepare_unit_table(code_no, con))))
-
-  res[[8]] <-  sql_function_call(con,
-                    "insert_new_series",
-                    as.list(unname(prepare_series_table(code_no, con))))
-
-  res[[9]] <- sql_function_call(con,
-                    "insert_new_series_levels",
-                    as.list(unname(prepare_series_levels_table(code_no, con))))
-  res
+write_to_temp_table <- function(con, name, df) {
+  dbWriteTable(con,
+               name,
+               df,
+               temporary = TRUE,
+               overwrite = TRUE)
+  # on.exit(tryCatch(
+  #   dbRemoveTable(con, name),
+  #   warning = function(w) {
+  #     suppressWarnings(dbRemoveTable(con, name, fail_if_missing = FALSE))
+  #     if(grepl("Closing open result set", w)) {
+  #       NULL
+  #     } else {
+  #       warning(w)
+  #     }
+  #   })
+  # )
 }
 
+colnames(df)[3] <- "CETRTLETJE"
+write_to_temp_table(con,
+                    "test",
+                    df)
 
-res <- insert_new_table_structures("0714621S", con, full)
+dbGetQuery(con, "SELECT * FROM test limit 10")
+tbl_id <- dbGetQuery(con, sprintf("SELECT id FROM test_platform.table where code = '%s'"
+                     , code_no))
+dim_id <- dbGetQuery(con,
+           sprintf("SELECT id FROM test_platform.table_dimensions where
+           table_id = %s and is_time is not true", bit64::as.integer64(tbl_id$id)))
 
-purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
-code_no <- "0714621S"
+dim_id_str <- toString(sprintf("%s", bit64::as.integer64(dim_id$id)))
 
-sql_function_call(con,
-                  "insert_new_vintage",
-                  as.list(unname(prepare_vintage_table("1817902S",con))))
+
+tbl_dims <- dbGetQuery(con,
+                       sprintf("SELECT replace(dimension, ' ', '.') as dimension
+                               FROM test_platform.table_dimensions
+                               where id in (%s)
+                               order by 1",
+                               dim_id_str))
+
+tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', tbl_dims$dimension), "text"))
+tbl_dims_str <- toString(paste(sprintf('"%s"', tbl_dims$dimension)))
+
+# series_levels <- dbGetQuery(con,
+#                             sprintf("SELECT series_id, level_value, j.dimension FROM test_platform.series_levels left join
+#                                     (SELECT id, dimension FROM test_platform.table_dimensions
+#                                      where id in (%s)) as j
+#                                     on tab_dim_id = j.id
+#                                     where tab_dim_id in (%s) ",
+#                                     dim_id_str, dim_id_str))
+
+
+series_levels_wide <- dbGetQuery(con,
+                            sprintf("select * from test
+                                    left join
+                                    (select *
+                                    from crosstab(
+                                    'SELECT series_id,  j.dimension, level_value FROM test_platform.series_levels left join
+                                    (SELECT id, dimension FROM test_platform.table_dimensions
+                                     where id in (%s)) as j
+                                    on tab_dim_id = j.id
+                                    where tab_dim_id in (%s)
+                                    ORDER BY 1,2',
+                                    'select distinct j.dimension from
+                                    (SELECT id, dimension FROM test_platform.table_dimensions
+                                     where id in (%s)) as j')
+                                    as t(series_id int, %s )) i using(%s)
+                                    ",
+                                    dim_id_str, dim_id_str, dim_id_str, tbl_dims_str_w_types,tbl_dims_str ))
+
+
 
 
