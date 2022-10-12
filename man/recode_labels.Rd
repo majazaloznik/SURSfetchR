@@ -9,8 +9,12 @@ recode_labels(i, codes, labels, df, time_dim)
 \arguments{
 \item{i}{numeric index for mapping over the dimensions}
 }
+\value{
+df with the ith dimension recoded from labels to codes.
+}
 \description{
 Recodes dimension level labels into dimension level codes. Both
 labels and codes are extracted inside the  \link[SURSfetchR]{prepare_data_table}
 function, which is where this helper is also called.
 }
+\keyword{internal}

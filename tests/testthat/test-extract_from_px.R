@@ -13,7 +13,7 @@ test_that("Metadata is properly parsed", {
 test_that("Data is downloaded ok. ", {
   expect_error(get_px_data("222"))
   dt_tbl <- get_px_data("0811602S")
-  checkmate::expect_data_frame(dt_tbl)
+  checkmate::expect_list(dt_tbl)
   expect_true(length(dt_tbl) == 3)
   expect_true(all(dim(dt_tbl[[1]]) == c(534,4)))
 })
