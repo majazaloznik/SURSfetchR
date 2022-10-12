@@ -9,9 +9,7 @@ dittodb::with_mock_db({
   DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("mock tests for insert table structures", {
-    expect_warning(
-      expect_warning(
-        expect_warning(out <- insert_new_table_structures("1817902S", con, full))))
+  out <- insert_new_table_structures("1817902S", con, full)
     expect_equal(length(out), 9)
   })
   dbDisconnect(con)
