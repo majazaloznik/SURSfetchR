@@ -40,14 +40,14 @@ insert_new_table_structures <- function(code_no, con, full) {
                                 as.list(prepare_dimension_levels_table(code_no, con)))
   res[[7]] <- sql_function_call(con,
                                 "insert_new_unit",
-                                as.list(unname(prepare_unit_table(code_no, con))))
+                                unname(as.list(prepare_unit_table(code_no, con))))
 
   res[[8]] <-  sql_function_call(con,
                                  "insert_new_series",
-                                 as.list(unname(prepare_series_table(code_no, con))))
+                                 unname(as.list(prepare_series_table(code_no, con))))
   res[[9]] <- sql_function_call(con,
                                 "insert_new_series_levels",
-                                as.list(unname(prepare_series_levels_table(code_no, con))))
+                                unname(as.list(prepare_series_levels_table(code_no, con))))
   res
 }
 
