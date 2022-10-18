@@ -33,10 +33,19 @@ get_table_id <- function(code_no, con) {
 #' @keywords internal
 get_unit_id <- function(unit, con){
   unit <- tolower(unit)
-  if(is.na(unit)) NA else  {
-  dplyr::tbl(con, "unit") %>%
-    dplyr::filter(name == unit) %>%
-    dplyr::pull(id)}
+  if(is.na(unit)) unit_id <- NA else  {
+    unit_id <- dplyr::tbl(con, "unit") %>%
+      dplyr::filter(name == unit) %>%
+      dplyr::pull(id)}
+  if (length(unit_id) == 0) {
+    sql_function_call(con,
+                      "insert_new_unit",
+                      list(unit))
+    unit_id <- dplyr::tbl(con, "unit") %>%
+      dplyr::filter(name == unit) %>%
+      dplyr::pull(id)
+  }
+  unit_id
 }
 
 #' @rdname get_stuff

@@ -72,6 +72,6 @@ insert_new_data <- function(code_no, con) {
   res <- list()
   res[[1]] <- sql_function_call(con,
                                 "insert_new_vintage",
-                                as.list(unname(prepare_vintage_table(code_no ,con))))
+                                unname(as.list(prepare_vintage_table(code_no ,con))))
   res
 }
