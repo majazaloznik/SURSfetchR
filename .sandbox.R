@@ -65,13 +65,13 @@ res <- insert_new_table_structures("0714621S", con)
 # insert table structures for whole list of tables.
 purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
 
-# insert table structures for whole list of tables.
+# insert data for whole list of tables.
 purrr::walk(master_list_surs$code, ~insert_new_data(.x, con))
 
-out <- insert_new_table_structures("1817902S", con, full)
+out <- insert_new_table_structures("1505000S", con, full)
 
 
-id <- "0811602S"
+id <- "1505000S"
 url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
 l <- pxR::read.px(url,
                   encoding = "CP1250",
@@ -115,6 +115,8 @@ write_to_temp_table(con,
                     df)
 
 dbGetQuery(con, "SELECT * FROM test limit 10")
+
+
 tbl_id <- dbGetQuery(con, sprintf("SELECT id FROM test_platform.table where code = '%s'"
                      , code_no))
 dim_id <- dbGetQuery(con,
@@ -133,42 +135,83 @@ tbl_dims <- dbGetQuery(con,
 
 tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', tbl_dims$dimension), "text"))
 tbl_dims_str <- toString(paste(sprintf('"%s"', tbl_dims$dimension)))
+dbExecute(con, "DROP TABLE tmp")
 
-# series_levels <- dbGetQuery(con,
-#                             sprintf("SELECT series_id, level_value, j.dimension FROM test_platform.series_levels left join
-#                                     (SELECT id, dimension FROM test_platform.table_dimensions
-#                                      where id in (%s)) as j
-#                                     on tab_dim_id = j.id
-#                                     where tab_dim_id in (%s) ",
-#                                     dim_id_str, dim_id_str))
-
-
-series_levels_wide <- dbGetQuery(con,
-                            sprintf("select * from test
+series_levels_wide <- dbExecute(con,
+                            sprintf("CREATE TEMP TABLE tmp AS
+                                    select * from test
                                     left join
                                     (select *
                                     from crosstab(
-                                    'SELECT series_id,  j.dimension, level_value FROM test_platform.series_levels
+                                    'SELECT series_id,  j.dimension, level_value
+                                    FROM test_platform.series_levels
                                     left join
-                                    (SELECT id, dimension FROM test_platform.table_dimensions
-                                     where id in (%s)) as j
+                                    (SELECT id, dimension
+                                    FROM test_platform.table_dimensions
+                                    where id in (%s)) as j
                                     on tab_dim_id = j.id
                                     where tab_dim_id in (%s)
                                     ORDER BY 1,2',
                                     'select distinct dimz.dimension from
                                     (SELECT id, dimension FROM test_platform.table_dimensions
                                      where id in (%s)) as dimz')
-                                    as t(series_id int, %s )) i using(%s)
+                                    as t(series_id int, %s )) i using (%s)
                                     left join
                                     (select distinct on (series_id)
-                                    id series_id from
+                                    id as vintage_id, series_id from
                                     test_platform.vintage
                                     order by series_id, published) as vinz using (series_id)
                                     ",
-                                    dim_id_str, dim_id_str, dim_id_str, tbl_dims_str_w_types, tbl_dims_str ))
+                                    dim_id_str,
+                                    dim_id_str,
+                                    dim_id_str,
+                                    tbl_dims_str_w_types,
+                                    tbl_dims_str ))
+
+tmp <- dbGetQuery(con, "SELECT * FROM tmp")
+time <- SURSfetchR:::get_time_dimension(code_no, con)
 
 
-head(series_levels_wide)
+# get rows with spaces in time dim.
+dbGetQuery(con, sprintf("SELECT %s FROM tmp
+           where %s ~ '[ ]+'",
+           dbQuoteIdentifier(con,time),
+           dbQuoteIdentifier(con,time)))
+
+
+dbGetQuery(con, sprintf("SELECT %s FROM tmp
+           where %s ~ '%% %%'",
+           dbQuoteIdentifier(con,time),
+           dbQuoteIdentifier(con,time)))
+
+interval_id <- SURSfetchR:::get_interval_id(time)
+
+dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
+dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
+dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
+
+dbExecute(con, sprintf("UPDATE \"tmp\" SET
+                        \"time\" = split_part(%s, ' ', 1),
+                        \"flag\" = substring(\"MESEC\",
+                        (length(split_part(\"MESEC\",' ',1)))+1,
+                        (length(\"MESEC\")) - (length(split_part(\"MESEC\",' ',1)))),
+                       \"interval_id\" = %s",
+                        dbQuoteIdentifier(con,time),
+                       dbQuoteLiteral(con, interval_id)))
+
+dbExecute(con, sprintf("insert into %s.period
+                       select distinct on (\"time\") \"time\", tmp.interval_id from tmp
+                       left join %s.period on \"time\" = id",
+                       dbQuoteIdentifier(con, "test_platform"),
+                       dbQuoteIdentifier(con, "test_platform")))
+
+dbExecute(con, sprintf("insert into %s.data_points
+                       select vintage_id, time, value from tmp",
+                       dbQuoteIdentifier(con, "test_platform")))
+
+tmp <- dbGetQuery(con, sprintf("SELECT * FROM tmp"))
+
+
 
 dbWriteTable(con,
              "tmp_data_points",
@@ -188,3 +231,4 @@ sql_function_call(con,
                   schema = "test_platform")
 
 
+SURSfetchR:::get_unit_levels_from_meritve(level_text_from_meritve, con)
