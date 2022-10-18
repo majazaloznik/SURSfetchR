@@ -250,5 +250,6 @@ prepare_series_levels_table <- function(code_no, con) {
     dplyr::select(table_id, id, code) %>%
     tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") %>%
     dplyr::select(series_id = id,  paste0(dimz)) %>%
-    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id" )
+    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") %>%
+    as.data.frame()
 }
