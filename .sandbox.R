@@ -79,12 +79,11 @@ l <- pxR::read.px(url,
 )
 
 
+# # need this for the crosstabs function which is kinda like pivot_wide
 # dbExecute(con, "CREATE EXTENSION tablefunc;")
 
 
-code_no <- "2080005S"
 
-df <- prepare_data_table(code_no, con)
 
 
 write_to_temp_table <- function(con, name, df) {
@@ -106,7 +105,11 @@ write_to_temp_table <- function(con, name, df) {
   # )
 }
 
-colnames(df)[3] <- "CETRTLETJE"
+#colnames(df)[3] <- "CETRTLETJE"
+code_no <- "2080005S"
+
+df <- prepare_data_table(code_no, con)
+
 write_to_temp_table(con,
                     "test",
                     df)
@@ -145,19 +148,43 @@ series_levels_wide <- dbGetQuery(con,
                                     left join
                                     (select *
                                     from crosstab(
-                                    'SELECT series_id,  j.dimension, level_value FROM test_platform.series_levels left join
+                                    'SELECT series_id,  j.dimension, level_value FROM test_platform.series_levels
+                                    left join
                                     (SELECT id, dimension FROM test_platform.table_dimensions
                                      where id in (%s)) as j
                                     on tab_dim_id = j.id
                                     where tab_dim_id in (%s)
                                     ORDER BY 1,2',
-                                    'select distinct j.dimension from
+                                    'select distinct dimz.dimension from
                                     (SELECT id, dimension FROM test_platform.table_dimensions
-                                     where id in (%s)) as j')
+                                     where id in (%s)) as dimz')
                                     as t(series_id int, %s )) i using(%s)
+                                    left join
+                                    (select distinct on (series_id)
+                                    id series_id from
+                                    test_platform.vintage
+                                    order by series_id, published) as vinz using (series_id)
                                     ",
-                                    dim_id_str, dim_id_str, dim_id_str, tbl_dims_str_w_types,tbl_dims_str ))
+                                    dim_id_str, dim_id_str, dim_id_str, tbl_dims_str_w_types, tbl_dims_str ))
 
 
+head(series_levels_wide)
+
+dbWriteTable(con,
+             "tmp_data_points",
+             df)
+
+
+dbWriteTable(con,
+             "tmp_data_points",
+             df,
+             overwrite = TRUE)
+
+execute_sql_functions_file(con, "inst/sql/prepare_data_points.sql")
+
+sql_function_call(con,
+                  "prepare_data_points",
+                  args = list("1817902S"),
+                  schema = "test_platform")
 
 
