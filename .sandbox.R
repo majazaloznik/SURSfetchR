@@ -172,23 +172,13 @@ tmp <- dbGetQuery(con, "SELECT * FROM tmp")
 time <- SURSfetchR:::get_time_dimension(code_no, con)
 
 
-# get rows with spaces in time dim.
-dbGetQuery(con, sprintf("SELECT %s FROM tmp
-           where %s ~ '[ ]+'",
-           dbQuoteIdentifier(con,time),
-           dbQuoteIdentifier(con,time)))
-
-
-dbGetQuery(con, sprintf("SELECT %s FROM tmp
-           where %s ~ '%% %%'",
-           dbQuoteIdentifier(con,time),
-           dbQuoteIdentifier(con,time)))
 
 interval_id <- SURSfetchR:::get_interval_id(time)
 
 dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
 dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
 dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
+dbExecute(con, sprintf("alter table \"tmp\" add \"previosus_vintage\" varchar"))
 
 dbExecute(con, sprintf("UPDATE \"tmp\" SET
                         \"time\" = split_part(%s, ' ', 1),
@@ -201,15 +191,69 @@ dbExecute(con, sprintf("UPDATE \"tmp\" SET
 
 dbExecute(con, sprintf("insert into %s.period
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp
-                       left join %s.period on \"time\" = id",
+                       left join %s.period on \"time\" = id
+                       on conflict do nothing",
                        dbQuoteIdentifier(con, "test_platform"),
                        dbQuoteIdentifier(con, "test_platform")))
 
 dbExecute(con, sprintf("insert into %s.data_points
-                       select vintage_id, time, value from tmp",
+                       select vintage_id, time, value from tmp
+                       on conflict do nothing",
                        dbQuoteIdentifier(con, "test_platform")))
 
+# test data
+dbExecute(con, sprintf("insert into %s.vintage (series_id, published)
+                       values (1862, '2022-06-10 10:20:00'),
+                       (1862,  '2022-06-10 10:22:00')",
+                       dbQuoteIdentifier(con, "test_platform")))
+
+dbExecute(con, sprintf("insert into %s.vintage (series_id, published)
+                       values (1862, '2022-06-10 10:20:00'),
+                       (1862,  '2022-06-10 10:22:00')",
+                       dbQuoteIdentifier(con, "test_platform")))
+
+
+# # don't know what this is, not working rn.
+# dbExecute(con, sprintf("delete from %s.data_points
+#                        where vintage_id in (select vintage_id, time, value from tmp)",
+#                        dbQuoteIdentifier(con, "test_platform")))
+
+
+x <- dbGetQuery(con, sprintf("SELECT * FROM vintage
+                        where series_id in (select series_id from \"tmp\")"))
+
 tmp <- dbGetQuery(con, sprintf("SELECT * FROM tmp"))
+
+# # get last two vintages for each series in the table
+x <- dbGetQuery(con, sprintf("SELECT v.* from (select distinct series_id from tmp) t
+                             cross join lateral (
+                             select * from vintage
+                             where series_id = t.series_id
+                             order by published desc
+                             limit 2
+                             ) v;"))
+
+# # get list of new vintages in the table
+# y <- dbGetQuery(con, sprintf("SELECT t.* from (select distinct tmp.vintage_id from tmp) t
+#                              left join (
+#                              select * from vintage) v on t.vintage_id = v.id"))
+
+
+# get previous vintage of any new vintage if exists.
+xy <- dbGetQuery(con, sprintf("SELECT v.* from (select distinct series_id from tmp) t
+                             cross join lateral (
+                             select * from vintage
+                             where series_id = t.series_id
+                             order by published desc
+                             limit 2
+                             ) v
+                             left join
+                             (SELECT t.* from (select distinct tmp.vintage_id from tmp) t
+                             left join (
+                             select * from vintage) v on t.vintage_id = v.id) b
+                             on v.id = b.vintage_id where b.vintage_id is null"))
+
+
 
 
 
