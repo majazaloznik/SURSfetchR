@@ -177,8 +177,9 @@ VALUES ('D', 'daily'),
 INSERT INTO test_platform.flag(
   id, name)
 VALUES ('M', 'manj zanesljiva ocena'),
+('T', 'začasni podatki'),
 ('Z', 'zaupno'),
-('N', 'a objavo premalo zanesljiva ocena'),
+('N', 'za objavo premalo zanesljiva ocena'),
 ('b', 'break in time series'),
 ('c', 'confidential'),
 ('d', 'definition differs, see metadata'),
