@@ -1,41 +1,19 @@
 
 # sandboxing db import stuff
-devtools::install_github("majazaloznik/SURSfetchR")
-library(SURSfetchR)
+# devtools::install_github("majazaloznik/SURSfetchR")
+# library(SURSfetchR)
 library(DBI)
 library(RPostgres)
 library(dplyr)
 library(dittodb)
 
-# con <- dbConnect(RPostgres::Postgres(),
-#                  dbname = "sandbox",
-#                  host = "localhost",
-#                  port = 5432,
-#                  user = "mzaloznik",
-#                  password = Sys.getenv("PG_local_MAJA_PSW"))
-#
-# # set schema search path
-# DBI::dbExecute(con, "set search_path to test_platform")
-
 # get list of table codes we want in the database
 # not sure when this df was created, it has unused columns, which is whack.
 master_list_surs <- readRDS("../mesecni_kazalniki/data/master_list_surs.rds")
 
-# deprecated when str table building was moved to sql.
-# insert_table <- readRDS("M:/analysis/SURSfetchR/tests/testthat/testdata/insert_table.rds")
-
 # full hierarchy of matrices and tables, needed when inserting structure tables
 # for a new matrix (because of parent fields and stuff)
 full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
-
-## deprecated when str table building was moved to sql.
-## first option wrote one table, eg 10, second wrote all of them in insert_table for a single matrix.
-# system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
-#                            write_multiple_rows(master_list_surs, con, .x, .y, full)))
-# system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
-#                            write_multiple_rows(data.frame(code = "2771104S"), con, .x, .y, full)))
-
-
 
 # logging in as  postgres - required to rebuild from scratch.
 con <- dbConnect(RPostgres::Postgres(),
@@ -109,6 +87,7 @@ code_no <- "0400600S"
 
 insert_data_points <- function(code_no, con){
   df <- prepare_data_table(code_no, con)
+  # THIS TAKES OUT NON ASCII CHARACTERS
   names(df) <- gsub("[^\x01-\x7F]+", "", names(df))
   dbWriteTable(con,
                "new_vintages",
@@ -131,7 +110,7 @@ insert_data_points <- function(code_no, con){
   tbl_dims_str <- toString(paste(sprintf('"%s"', tbl_dims$dimension)))
   time <- SURSfetchR:::get_time_dimension(code_no, con)
   interval_id <- SURSfetchR:::get_interval_id(time)
-
+  # prepares the tmp table with data_points with correct series id-s
   series_levels_wide <- dbExecute(con,
                                   sprintf("CREATE TEMP TABLE tmp AS
                                     select * from new_vintages
@@ -207,6 +186,9 @@ insert_data_points <- function(code_no, con){
   dbExecute(con, sprintf("drop table tmp"))
 }
 
+tbl( con, "tmp") %>%
+  head(10) %>%
+  collect()
 
 tbl(con, "new_vintages") %>%
   collect()
