@@ -15,7 +15,8 @@ test_that("Data is downloaded ok. ", {
   dt_tbl <- get_px_data("0811602S")
   checkmate::expect_list(dt_tbl)
   expect_true(length(dt_tbl) == 3)
-  expect_true(all(dim(dt_tbl[[1]]) == c(534,4)))
+  expect_true(ncol(dt_tbl[[1]]) == 4)
+  expect_true(nrow(dt_tbl[[1]]) >= 540)
 })
 
 test_that("Categories are properly parsed", {

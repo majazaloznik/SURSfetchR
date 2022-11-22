@@ -44,7 +44,7 @@ execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 
 
 # insert table structures for a single matrix
-out <- insert_new_table_structures("0714621S", con, full)
+out <- insert_new_table_structures("0457201S", con, full)
 
 # insert table structures for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full)))
@@ -52,8 +52,8 @@ system.time(purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, 
 # insert data for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_data(.x, con)))
 
-# insert table structures for a single matrix
-out <- insert_new_data("0714621S", con)
+# insert data (well, vintages for now) for a single matrix
+out <- insert_new_data("0457201S", con)
 
 # simple read.px for a single matrix
 id <- "1505000S"
@@ -83,14 +83,14 @@ write_to_temp_table <- function(con, name, df) {
   # )
 }
 
-code_no <- "0400600S"
+code_no <- "0457201S"
 
 insert_data_points <- function(code_no, con){
   df <- prepare_data_table(code_no, con)
   # THIS TAKES OUT NON ASCII CHARACTERS
   names(df) <- gsub("[^\x01-\x7F]+", "", names(df))
   dbWriteTable(con,
-               "new_vintages",
+               "new_data_points",
                df,
                temporary = TRUE,
                overwrite = TRUE)
@@ -113,7 +113,7 @@ insert_data_points <- function(code_no, con){
   # prepares the tmp table with data_points with correct series id-s
   series_levels_wide <- dbExecute(con,
                                   sprintf("CREATE TEMP TABLE tmp AS
-                                    select * from new_vintages
+                                    select * from new_data_points
                                     left join
                                     (select *
                                     from crosstab(
@@ -146,6 +146,8 @@ insert_data_points <- function(code_no, con){
   dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
   dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
 
+  # time is stripped of everything after first space
+  # flags after sthe space in time are split off too.
   dbExecute(con, sprintf("UPDATE \"tmp\" SET
                         \"time\" = split_part(%s, ' ', 1),
                         \"flag\" = substring(%s,
@@ -162,7 +164,7 @@ insert_data_points <- function(code_no, con){
   # change "zacasni podatki" to flag "T"
   dbExecute(con, sprintf("UPDATE \"tmp\" SET
                        flag = 'T' where flag = '(začasni podatki)'"))
-
+  # insert flags into flag_datapoint table
   x <- dbExecute(con, sprintf("insert into %s.flag_datapoint
                        select vintage_id, \"time\", flag from
                        tmp where tmp.flag <> ''
@@ -170,6 +172,7 @@ insert_data_points <- function(code_no, con){
                        dbQuoteIdentifier(con, "test_platform")))
   print(paste(x, "new rows intserted into the flag_datapoint table"))
 
+  # insert into period table periods that are not already in there.
   x <- dbExecute(con, sprintf("insert into %s.period
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp
                        left join %s.period on \"time\" = id
@@ -177,7 +180,7 @@ insert_data_points <- function(code_no, con){
                        dbQuoteIdentifier(con, "test_platform"),
                        dbQuoteIdentifier(con, "test_platform")))
   print(paste(x, "new rows intserted into the period table"))
-
+  # insert data into main data_point table
   x <- dbExecute(con, sprintf("insert into %s.data_points
                        select vintage_id, time, value from tmp
                        on conflict do nothing",
@@ -187,8 +190,8 @@ insert_data_points <- function(code_no, con){
 }
 
 tbl( con, "tmp") %>%
-  head(10) %>%
-  collect()
+  filter(is.null(value)) %>%
+  collect() -> df
 
 tbl(con, "new_vintages") %>%
   collect()
@@ -197,7 +200,7 @@ insert_data_points("0400600S", con)
 
 
 # 0457201S ima zaupno oznako
-
+#
 
 
 df <- data.frame(čaj = 1)

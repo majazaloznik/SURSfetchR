@@ -15,7 +15,7 @@ test_that("check API response is appropriate and the parsing works", {
 test_that("node helper functions", {
   expect_equal(node_name(out$`1`), "Socialna zaščita")
   expect_equal(node_id(out$`1`), 45)
-  expect_equal(node_file_id(out$`1`$childPodrocja$`1`$matrixList$`1`),753518)
+  expect_true(node_file_id(out$`1`$childPodrocja$`1`$matrixList$`1`) >= 753518)
   expect_true(grepl("letno",node_matrix_name(out$`1`$childPodrocja$`1`$matrixList$`1`)))
   expect_true(grepl("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$",
                     node_updated(out$`1`$childPodrocja$`1`$matrixList$`1`)))
