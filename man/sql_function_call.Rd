@@ -19,7 +19,7 @@ sql_function_call(con, fun_name, args, schema = "test_platform")
 value of `dbGetQuery(con, "SELECT * FROM schema.fun_name($args)")$fun_name`
 }
 \description{
-Constructs the call for the funciton `schema`.`fun_name` fro the database
+Constructs the call for the funciton `schema`.`fun_name` from the database
 with the arguments `args` and returns the result.
 }
 \details{

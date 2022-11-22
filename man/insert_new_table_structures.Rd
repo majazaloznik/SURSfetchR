@@ -19,7 +19,7 @@ list of tables with counts for each inserted row.
 }
 \description{
 When a new table (in SURS speak 'matrix") is added, a set of nine
-tables need to be populated with apropriate metadata about that table.
+tables need to be populated with appropriate metadata about that table.
 This umbrella function calls the respective SQL functions for each
 of the nine tables.
 }

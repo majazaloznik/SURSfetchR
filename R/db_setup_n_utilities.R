@@ -43,7 +43,8 @@ execute_sql_functions_file <- function(con, file,
 
   DBI::dbBegin(con)
   on.exit(DBI::dbCommit(con))
-  # split up SQL into a new statement for every ";"
+  # split up SQL into a new statement for every "plpgsql", which is at the end
+  # of each function.
   lapply(split(sql, cumsum(c(1,grepl("plpgsql;",sql)[-length(sql)]))),
          function(x){
            DBI::dbExecute(con, paste(x, collapse = "\n"))
@@ -60,7 +61,7 @@ execute_sql_functions_file <- function(con, file,
 #' @export
 build_db_tables <- function(con, schema = "test_platform"){
   execute_sql_file(con,
-                   file =system.file("sql/build_db.sql",
+                   file =system.file("inst/sql/build_db.sql",
                                package = "SURSfetchR"),
                    schema = schema)
 }
@@ -70,7 +71,7 @@ build_db_tables <- function(con, schema = "test_platform"){
 
 #' Construct and execute an SQL function call
 #'
-#' Constructs the call for the funciton `schema`.`fun_name` fro the database
+#' Constructs the call for the funciton `schema`.`fun_name` from the database
 #' with the arguments `args` and returns the result.
 #'
 #' Inspiration from `timeseriesdb` package by Matt Bannert.

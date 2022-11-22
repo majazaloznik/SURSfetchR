@@ -51,7 +51,7 @@ prepare_vintage_table <- function(code_no, con){
 #' Get and prepare data for import
 #'
 #' Downloads and prepares the timeseries data for importing into the database.
-#' Because the original dataformat has the full labels of the levels, these
+#' Because the original data format has the full labels of the levels, these
 #' are recoded into the alphanumeric codes.
 #'
 #' @inheritParams common_parameters

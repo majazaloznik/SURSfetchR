@@ -14,29 +14,30 @@ library(dittodb)
 #                  user = "mzaloznik",
 #                  password = Sys.getenv("PG_local_MAJA_PSW"))
 #
-#
 # # set schema search path
 # DBI::dbExecute(con, "set search_path to test_platform")
 
-# prepare sql statements for each table.
+# get list of table codes we want in the database
+# not sure when this df was created, it has unused columns, which is whack.
 master_list_surs <- readRDS("../mesecni_kazalniki/data/master_list_surs.rds")
-#
+
+# deprecated when str table building was moved to sql.
 # insert_table <- readRDS("M:/analysis/SURSfetchR/tests/testthat/testdata/insert_table.rds")
-#
+
+# full hierarchy of matrices and tables, needed when inserting structure tables
+# for a new matrix (because of parent fields and stuff)
 full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
-#
+
+## deprecated when str table building was moved to sql.
+## first option wrote one table, eg 10, second wrote all of them in insert_table for a single matrix.
 # system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
 #                            write_multiple_rows(master_list_surs, con, .x, .y, full)))
-
-#
-#
-#
-# code_no <- "0300230S" # meritve, tri enote
-# code_no <- "1701106S" # indeks, ena enota
-# code_no <- "1700104S" # valuenotes, dve enoti
+# system.time(purrr::walk2(insert_table$table, insert_table$sql, ~
+#                            write_multiple_rows(data.frame(code = "2771104S"), con, .x, .y, full)))
 
 
-# rebuild databsae as postgres
+
+# logging in as  postgres - required to rebuild from scratch.
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = "sandbox",
                  host = "localhost",
@@ -47,44 +48,41 @@ con <- dbConnect(RPostgres::Postgres(),
 # set schema search path
 DBI::dbExecute(con, "set search_path to test_platform")
 
-#
+# check you're connected ok and see how many series are in the series table
+tbl( con, "series") %>%
+  summarise(n = n())
 
-# tbl( con, "series") %>%
-#   summarise(n = n())
-#
-# system.time(purrr::walk2(insert_table$table[10], insert_table$sql[10], ~
-#                            write_multiple_rows(data.frame(code = "2771104S"), con, .x, .y, full)))
-
-# rebuild whole db
+# rebuilding the whole thing from scratch.
+# rebuild whole db - runs build_db.sql
 build_db_tables(con)
+# alternative should work the same:
+execute_sql_file(con, "inst/sql/build_db.sql")
+
+## not sure if i still need this, but it was required in setting up,
+## so the crosstabs function worked, which is kinda like pivot
+# dbExecute(con, "CREATE EXTENSION tablefunc;")
 # add sql functions to the database
 execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 
-# insert tbl structures for single table
-res <- insert_new_table_structures("0714621S", con)
 
-# insert table structures for whole list of tables.
+# insert table structures for a single matrix
+out <- insert_new_table_structures("0714621S", con, full)
 
+# insert table structures for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full)))
 
-# insert data for whole list of tables.
+# insert data for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_data(.x, con)))
 
-out <- insert_new_table_structures("1505000S", con, full)
+# insert table structures for a single matrix
+out <- insert_new_data("0714621S", con)
 
-
+# simple read.px for a single matrix
 id <- "1505000S"
 url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
 l <- pxR::read.px(url,
                   encoding = "CP1250",
-                  na.strings = c('"."', '".."', '"..."', '"...."')
-)
-
-
-# # need this for the crosstabs function which is kinda like pivot_wide
-# dbExecute(con, "CREATE EXTENSION tablefunc;")
-
-
+                  na.strings = c('"."', '".."', '"..."', '"...."'))
 
 
 
@@ -219,3 +217,12 @@ insert_data_points("0400600S", con)
 # 0457201S ima zaupno oznako
 
 
+
+df <- data.frame(čaj = 1)
+dbWriteTable(con,
+             "x1",
+             df,
+             temporary = TRUE,
+             overwrite = TRUE)
+Encoding(names(df))
+Encoding(names(df)) <- "UTF-8"

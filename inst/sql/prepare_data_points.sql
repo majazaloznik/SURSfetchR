@@ -3,18 +3,18 @@
 -- This function prepares data in a temporary table for inserting data_points.
 -- It is passed the code_no and while the data_point values are in a temporary
 -- table called `tmp_data_points`, with columns `value`, one time-dimension column
--- and at least one non-time-dimension column. 
--- The function gets the correct vintages for each series and returns a table
+-- and at least one non-time-dimension column.
+-- The function gets the correct vintage codes for each series and returns a table
 -- ready for insertion into the `data_points` table.
 
-CREATE OR REPLACE FUNCTION test_platform.prepare_data_points(p_code_no TEXT) 
+CREATE OR REPLACE FUNCTION test_platform.prepare_data_points(p_code_no TEXT)
 RETURNS table ( series_id int, level_value varchar, dimension varchar)
-AS $$ 
+AS $$
 DECLARE dim_id bigint[];
 DECLARE tbl_dimz text[];
-BEGIN 
+BEGIN
 -- Get the dimension ids for the non-time dimension
-dim_id := array(SELECT id 
+dim_id := array(SELECT id
 FROM test_platform.table_dimensions
 WHERE table_id = (
         SELECT id
@@ -28,7 +28,7 @@ FROM test_platform.table_dimensions t
 WHERE id = any(dim_id)
 order by 1);
 
-RETURN QUERY 
+RETURN QUERY
 -- Get the levels for the non-time dimensions for each series
 SELECT
     series_levels.series_id,
@@ -96,3 +96,40 @@ $$ LANGUAGE plpgsql;
 --         tbl_dims_str
 --     )
 -- ) head(series_levels_wide)
+
+
+CREATE OR REPLACE FUNCTION test_platform.f_dynamic_copy(_file    text
+                                        , _tbl     text = 'tmp1'
+                                        , _delim   text = E'\t'
+                                        , _nodelim text = chr(127)) -- see below!
+  RETURNS text
+ AS
+$func$
+DECLARE
+   row_ct int;
+BEGIN
+   -- create staging table for 1st row as  single text column
+   CREATE TEMP TABLE tmp0(cols text) ON COMMIT DROP;
+
+   -- fetch 1st row
+   EXECUTE format($$COPY tmp0 FROM PROGRAM 'gc %I | select -first 1' WITH (DELIMITER %L)$$  -- impossible delimiter
+                , _file, _nodelim);
+
+   -- create actual temp table with all columns text
+   EXECUTE (
+      SELECT format('CREATE TEMP TABLE %I(', _tbl)
+          || string_agg(quote_ident(col) || ' text', ',')
+          || ')'
+      FROM  (SELECT cols FROM tmp0 LIMIT 1) t
+           , unnest(string_to_array(t.cols, E'\t')) col
+      );
+
+   -- Import data
+   EXECUTE format($$COPY %I FROM %L WITH (FORMAT csv, HEADER, NULL '\N', DELIMITER %L)$$
+                , _tbl, _file, _delim);
+
+   GET DIAGNOSTICS row_ct = ROW_COUNT;
+   RETURN format('Created table %I with %s rows.', _tbl, row_ct);
+END
+$func$
+LANGUAGE plpgsql;

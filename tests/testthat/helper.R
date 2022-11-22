@@ -16,6 +16,10 @@ mat_h <- get_matrix_hierarchy(full)
 # saveRDS(mat_h, "tests/testthat/testdata/mat_h.rds")
 # saveRDS(full, "tests/testthat/testdata/full_h.rds")
 
+
+## this is code to create the insert_table dataframe, which has the sql insert
+## statement for each of the structure tables. this is deprecated when the
+## str tables were all moved to sql functions.
 # insert_table <- data.frame(table = character(),
 #                            sql = character())
 # insert_table <- bind_rows(insert_table,

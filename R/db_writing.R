@@ -1,7 +1,7 @@
 #' Insert table structure data for a new table
 #'
 #' When a new table (in SURS speak 'matrix") is added, a set of nine
-#' tables need to be populated with apropriate metadata about that table.
+#' tables need to be populated with appropriate metadata about that table.
 #' This umbrella function calls the respective SQL functions for each
 #' of the nine tables.
 #'
@@ -74,6 +74,6 @@ insert_new_data <- function(code_no, con) {
                                 "insert_new_vintage",
                                 unname(as.list(prepare_vintage_table(code_no ,con))))
 
-  insert_data_points(code_no, con)
+  # insert_data_points(code_no, con)
   res
 }

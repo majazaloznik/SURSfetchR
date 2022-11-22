@@ -17,6 +17,6 @@ with recoded dimension levels.
 }
 \description{
 Downloads and prepares the timeseries data for importing into the database.
-Because the original dataformat has the full labels of the levels, these
+Because the original data format has the full labels of the levels, these
 are recoded into the alphanumeric codes.
 }
