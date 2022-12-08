@@ -141,9 +141,12 @@ CREATE TABLE test_platform.data_points
 (
     vintage_id integer NOT NULL REFERENCES test_platform.vintage (id),
     period_id character varying NOT NULL REFERENCES test_platform.period (id),
-    value numeric NOT NULL,
+    value numeric,
     PRIMARY KEY (vintage_id, period_id)
 );
+
+create index ind_vintage_id_period_id on test_platform.data_points
+(vintage_id, period_id);
 
 drop table if exists test_platform.flag cascade;
 CREATE TABLE test_platform.flag
