@@ -55,13 +55,14 @@ execute_sql_functions_file <- function(con, file,
 #' Build all database tables
 #'
 #' Creates all the tables required to run the database in a given schema by
-#' running the appropriate sql file. (Excluded from testing).
+#' running the appropriate sql file. (Excluded from testing). Location of
+#' sql file is in compiled package, hence no "inst/"
 #'
 #' @inheritParams common_parameters
 #' @export
 build_db_tables <- function(con, schema = "test_platform"){
   execute_sql_file(con,
-                   file =system.file("inst/sql/build_db.sql",
+                   file =system.file("sql/build_db.sql",
                                package = "SURSfetchR"),
                    schema = schema)
 }

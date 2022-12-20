@@ -13,5 +13,6 @@ build_db_tables(con, schema = "test_platform")
 }
 \description{
 Creates all the tables required to run the database in a given schema by
-running the appropriate sql file. (Excluded from testing).
+running the appropriate sql file. (Excluded from testing). Location of
+sql file is in compiled package, hence no "inst/"
 }
