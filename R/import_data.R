@@ -63,16 +63,20 @@ prepare_vintage_table <- function(code_no, con){
 prepare_data_table <- function(code_no, con){
   tbl_id <- get_table_id(code_no, con)
   time_dim <- get_time_dimension(code_no, con)
+  print(time_dim)
   px <- get_px_data(code_no)
   df <- px[[1]]
 
   # remove time dimension from lists
+  print(px[[2]])
   px[[2]] %>%
     purrr::list_modify(!! time_dim := NULL) -> labels
+  print(labels)
   px[[3]] %>%
     purrr::list_modify(!! time_dim := NULL) -> codes
+  print(codes)
   non_time_dims <- names(codes)
-
+  print(non_time_dims)
   # map recoding on list of non/time dimensions and join together.
   purrr::map(seq(length(non_time_dims)),
              ~recode_labels(.x, codes, labels, df)) %>%
