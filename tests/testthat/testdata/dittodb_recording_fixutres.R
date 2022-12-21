@@ -729,6 +729,6 @@ con <- dbConnect(RPostgres::Postgres(),
 
 on.exit(dbDisconnect)
 dbExecute(con, "set search_path to test_platform")
-prepare_data_table("1817902S", con)
+prepare_data_table("1700104S", con)
 stop_db_capturing()
 
