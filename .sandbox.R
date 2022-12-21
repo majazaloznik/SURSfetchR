@@ -199,15 +199,5 @@ tbl(con, "new_vintages") %>%
 insert_data_points("0400600S", con)
 
 
-# 0457201S ima zaupno oznako
-#
 
 
-df <- data.frame(čaj = 1)
-dbWriteTable(con,
-             "x1",
-             df,
-             temporary = TRUE,
-             overwrite = TRUE)
-Encoding(names(df))
-Encoding(names(df)) <- "UTF-8"
