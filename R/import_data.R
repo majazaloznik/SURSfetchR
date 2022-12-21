@@ -75,7 +75,7 @@ prepare_data_table <- function(code_no, con){
 
   # map recoding on list of non/time dimensions and join together.
   purrr::map(seq(length(non_time_dims)),
-             ~recode_labels(.x, codes, labels, df, time_dim)) %>%
+             ~recode_labels(.x, codes, labels, df)) %>%
     purrr::reduce(cbind) %>%
     dplyr::select(unique(colnames(.)))
 }

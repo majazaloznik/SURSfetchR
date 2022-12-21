@@ -4,7 +4,7 @@
 \alias{recode_labels}
 \title{Helper for recoding dimension levels}
 \usage{
-recode_labels(i, codes, labels, df, time_dim)
+recode_labels(i, codes, labels, df)
 }
 \arguments{
 \item{i}{numeric index for mapping over the dimensions}

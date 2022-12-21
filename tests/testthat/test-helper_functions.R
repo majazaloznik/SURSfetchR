@@ -30,12 +30,11 @@ dittodb::with_mock_db({
     expect_true(nrow(out6) == 12)
     expect_true(ncol(out6) == 3)
     expect_true(all(unique(out6$unit_id) == c(2,17)))
-    codes <- list(A = 1)
-    labels <- list(A = "lejbl")
-    time_dim <- "MESEC"
-    df <- data.frame(A = "lejbl", value = 23, MESEC = "2022M02")
-    out7 <- SURSfetchR:::recode_labels(1, codes, labels, df, time_dim)
-    expect_equal(out7$A, 1)
+    codes <- list(A = c(1, 2))
+    labels <- list(A =c( "lejbl", "bla"))
+    df <- data.frame(A = "bla", value = 23, MESEC = "2022M02")
+    out7 <- recode_labels(1, codes, labels, df)
+    expect_equal(out7$A, 2)
   })
 })
 

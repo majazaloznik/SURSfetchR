@@ -92,12 +92,14 @@ Id2 <- function(table, schema = "test_platform") {
 #'
 #' @return df with the ith dimension recoded from labels to codes.
 #' @keywords internal
-recode_labels <- function(i, codes, labels, df, time_dim) {
+recode_labels <- function(i, codes, labels, df) {
   # create lookup list
   ls <- as.list(codes[[i]])
   ls <- setNames(ls, labels[[i]])
+  dim <- names(codes)[i]
+  not_dim <- names(codes)[-i]
   # recode and remove other dim columns
   df %>%
-    dplyr::mutate(!!names(codes[i]) := dplyr::recode(!!rlang::sym(names(codes[i])), !!!ls)) %>%
-    dplyr::select(!!names(codes[i]), value, !!time_dim)
+    dplyr::mutate(!!dim := dplyr::recode(!!rlang::sym(dim), !!!ls)) %>%
+    dplyr::select(-!!not_dim)
 }
