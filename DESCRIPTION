@@ -33,7 +33,8 @@ Imports:
     stringi (>= 1.7.6),
     RPostgres (>= 1.4.4),
     dbplyr (>= 2.2.1),
-    rlang (>= 1.0.3)
+    rlang (>= 1.0.3),
+    bit64 (>= 4.0.5)
 RoxygenNote: 7.2.0
 Depends: 
     R (>= 2.10)

@@ -11,6 +11,8 @@ dittodb::with_mock_db({
   test_that("mock tests for insert table structures", {
   out <- insert_new_table_structures("1817902S", con, full)
     expect_equal(length(out), 9)
+  out <- insert_data_points("1700104S", con)
+  expect_true(grepl("0 new rows.*", out))
   })
   dbDisconnect(con)
 })

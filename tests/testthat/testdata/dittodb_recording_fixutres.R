@@ -731,7 +731,6 @@ library(testthat)
 # prepare_data_table("1700104S", con)
 # stop_db_capturing()
 
-
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",
@@ -742,6 +741,19 @@ library(testthat)
 #
 # on.exit(dbDisconnect)
 # dbExecute(con, "set search_path to test_platform")
-# SURSfetchR:::get_time_dimension("1700104S", con)
+# out <- prepare_vintage_table("1700104S", con)
 # stop_db_capturing()
 
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+out <- insert_data_points("1700104S", con)
+stop_db_capturing()
