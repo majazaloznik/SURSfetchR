@@ -20,9 +20,9 @@ should eventually get rewritten like all the other insert functions are in
 PL/pgSQL, but if it ain't broke don't try to fix it, innit?
 }
 \details{
-So, the function donwloads and preps the data with \link[SURSfetchR]{prepare_data_table}
+So, the function downloads and preps the data with \link[SURSfetchR]{prepare_data_table}
 and writes it to a temporary table in the database. Then it gets the table id,
-dimension ids and dimnames. Then with all that in hand, the main bit of the code
+dimension ids and dim names. Then with all that in hand, the main bit of the code
 prepares the temp table by adding the appropriate vintage ids for each series.
 
 Then the function gets the "za?asni podatki", which are inside the fucking time

@@ -61,9 +61,9 @@ prepare_vintage_table <- function(code_no, con){
 #' @export
 #'
 prepare_data_table <- function(code_no, con){
-  tbl_id <- SURSfetchR:::get_table_id(code_no, con)
-  time_dim <- SURSfetchR:::get_time_dimension(code_no, con)
-  px <- SURSfetchR:::get_px_data(code_no)
+  tbl_id <- get_table_id(code_no, con)
+  time_dim <- get_time_dimension(code_no, con)
+  px <- get_px_data(code_no)
   df <- px[[1]]
 
   # remove time dimension from lists
@@ -75,7 +75,7 @@ prepare_data_table <- function(code_no, con){
   non_time_dims <- names(codes)
   # map recoding on list of non/time dimensions and join together.
   purrr::map(seq(length(non_time_dims)),
-             ~SURSfetchR:::recode_labels(.x, codes, labels, df)) %>%
+             ~recode_labels(.x, codes, labels, df)) %>%
     purrr::reduce(cbind) %>%
     dplyr::select(unique(colnames(.)))
 }
