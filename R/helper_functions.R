@@ -25,7 +25,7 @@ expand_to_series_titles <- function(code_no, con){
     dplyr::pull(levels) %>%
     purrr::map("valueTexts") %>%
     expand.grid() %>%
-    tidyr::unite("series_title", dplyr::everything(), sep = " - ")
+    tidyr::unite("series_title", dplyr::everything(), sep = " -- ")
 }
 
 #' Joining the unit tables from either meritve or valuenotes.
