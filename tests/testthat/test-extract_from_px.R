@@ -60,6 +60,11 @@ test_that("valuenotes regex works", {
   expect_true(out == 2)
 })
 
+test_that("newlines are removed from descriptions", {
+  x <- get_px_metadata("2001301S")$name
+  expect_true(nchar(x) < 277)
+
+})
 
 dittodb::with_mock_db({
   con <- DBI::dbConnect(RPostgres::Postgres(),

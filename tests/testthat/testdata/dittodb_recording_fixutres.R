@@ -757,15 +757,15 @@ library(testthat)
 # out <- insert_data_points("1700104S", con)
 # stop_db_capturing()
 
-start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-out <- insert_new_data("1700104S", con)
-stop_db_capturing()
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# out <- insert_new_data("1700104S", con)
+# stop_db_capturing()
