@@ -83,7 +83,7 @@ tibble with 4 cols including `level_value` and `unit_id`
 
 numeric id of valuenotes dimension if it exists,
 
-numeric position of valuenotes dimension if it exists, else integer64(0)
+numeric position of valuenotes dimension if it exists
 
 numeric code from db table series
 

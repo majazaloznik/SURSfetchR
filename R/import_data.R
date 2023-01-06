@@ -36,13 +36,13 @@ prepare_vintage_table <- function(code_no, con){
                                          series_code, "--",interval_id)) -> x
     get_series_id(x$series_code, con) -> series_ids
     get_series_id_from_table(tbl_id, con) -> double_check
-    if(all.equal(series_ids, double_check)){
+    if(isTRUE(all.equal(sort(series_ids), sort(double_check)))){
       data.frame(series_id = series_ids,
                  published = published) } else {
-                   paste("The newly published data in table", code_no,
+                   warning(paste("The newly published data in table", code_no,
                          "seems to have a different structure to the series already",
                          "in the database. The vintages were not imported, update",
-                         "the series table first.")}
+                         "the series table first."))}
   }
 }
 

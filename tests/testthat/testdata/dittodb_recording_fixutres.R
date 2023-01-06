@@ -493,7 +493,6 @@ library(testthat)
 #
 # on.exit(dbDisconnect)
 # dbExecute(con, "set search_path to test_platform")
-#
 # prepare_series_levels_table("1700104S", con)
 # stop_db_capturing()
 #
@@ -612,7 +611,7 @@ library(testthat)
 #
 # on.exit(dbDisconnect)
 # dbExecute(con, "set search_path to test_platform")
-# get_series_id_from_table(15, con)
+# SURSfetchR:::get_series_id_from_table(15, con)
 # dittodb::stop_db_capturing()
 # dittodb::start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
@@ -729,7 +728,7 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # prepare_data_table("1700104S", con)
 # stop_db_capturing()
-
+#
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",
@@ -767,3 +766,42 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # out <- insert_new_data("1700104S", con)
 # stop_db_capturing()
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# SURSfetchR:::get_valuenotes_from_px("1700104S", 15, con)
+# stop_db_capturing()
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# SURSfetchR:::prepare_series_table("1700104S", con)
+# stop_db_capturing()
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# SURSfetchR:::prepare_series_table("0300230S", con)
+# stop_db_capturing()
+
+

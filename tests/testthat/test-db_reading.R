@@ -16,9 +16,9 @@ dittodb::with_mock_db({
 
   test_that("mock tests for get_unit", {
     expect_true(length(get_unit_id("%", con)) == 1)
-    expect_true(get_unit_id("%", con) == 2)
+    expect_true(get_unit_id("%", con) == 3)
     expect_true(length(get_unit_id("odstotne točke", con)) == 1)
-    expect_true(get_unit_id("odstotne točke", con) == 3)
+    expect_true(get_unit_id("odstotne točke", con) == 4)
   })
 
   test_that("mock tests for get_tab_dim_id", {
@@ -79,7 +79,7 @@ dittodb::with_mock_db({
   test_that("mock tests for latest publication", {
   x <- get_last_publication_date(15, con)
   expect_true(inherits(x, "POSIXct"))
-  expect_equal(x, structure(1658478600, class = c("POSIXct", "POSIXt"), tzone = "UTC"))
+  expect_equal(x, structure(1666341000, class = c("POSIXct", "POSIXt"), tzone = "UTC"))
   })
   dbDisconnect(con)
 })

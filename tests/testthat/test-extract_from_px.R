@@ -57,7 +57,7 @@ test_that("valuenotes regex works", {
   out <- get_valuenotes_level(names(x))
   expect_true(grepl(".zmogljivosti", out))
   out <- get_valuenotes_unit(x, con)
-  expect_true(out == 2)
+  expect_true(out == 3)
 })
 
 test_that("newlines are removed from descriptions", {
@@ -78,7 +78,7 @@ dittodb::with_mock_db({
   test_that("extraction from valuenotes works", {
     x <- get_valuenotes_from_px("1700104S", 15, con)
     expect_true(all(dim(x) == c(6,5)))
-    expect_true(all(unique(x$unit_id) == c(2, 17)))
+    expect_equal(unique(x$unit_id), c(3, 18))
   })
 })
 
