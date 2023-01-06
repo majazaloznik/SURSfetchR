@@ -63,7 +63,7 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("%", con)
 # stop_db_capturing()
-#
+
 #
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
@@ -352,7 +352,7 @@ library(testthat)
 #
 # on.exit(dbDisconnect)
 # dbExecute(con, "set search_path to test_platform")
-# get_valuenotes_no(15, "EKONOMSKI KAZALNIKI", con)
+# SURSfetchR:::get_valuenotes_no(15, "EKONOMSKI KAZALNIKI", con)
 # stop_db_capturing()
 #
 # start_db_capturing()
@@ -718,7 +718,6 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # insert_new_data("1817902S", con)
 # stop_db_capturing()
-
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",
@@ -756,7 +755,6 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # out <- insert_data_points("1700104S", con)
 # stop_db_capturing()
-
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",

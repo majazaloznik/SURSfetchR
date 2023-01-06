@@ -22,7 +22,6 @@
 get_table_id <- function(code_no, con) {
   dplyr::tbl(con, "table") %>%
     dplyr::filter(code == code_no) %>%
-    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -56,7 +55,6 @@ get_tab_dim_id <- function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   dimension == dim_name) %>%
-    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
@@ -84,19 +82,18 @@ get_time_dimension <- function(code_no, con) {
 }
 
 #' @rdname get_stuff
-#' @return numeric id of MERITVE dimension if it exists, else integer64(0)
+#' @return numeric id of MERITVE dimension if it exists,
 #' @keywords internal
 get_meritve_id <- function(tbl_id, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
-    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
 #' @rdname get_stuff
-#' @return numeric position of MERITVE dimension if it exists, else integer64(0)
+#' @return numeric position of MERITVE dimension if it exists,
 #' @keywords internal
 get_meritve_no <-function(tbl_id, con) {
   dplyr::tbl(con, "table_dimensions") %>%
@@ -104,7 +101,6 @@ get_meritve_no <-function(tbl_id, con) {
                   is_time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
-    dplyr::mutate(poz = as.numeric(poz)) %>%
     dplyr::pull(poz)
 }
 
@@ -132,19 +128,18 @@ get_unit_levels_from_meritve <- function(meritve_level_text, con){
 }
 
 #' @rdname get_stuff
-#' @return numeric id of valuenotes dimension if it exists, else integer64(0)
+#' @return numeric id of valuenotes dimension if it exists,
 #' @keywords internal
 get_valuenotes_id <- function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id) %>%
     dplyr::mutate(row = dplyr::row_number()) %>%
     dplyr::filter(dimension == dim_name) %>%
-    dplyr::mutate(id = as.numeric(id)) %>%
     dplyr::pull(id)
 }
 
 #' @rdname get_stuff
-#' @return numeric position of valuenotes dimension if it exists, else integer64(0)
+#' @return numeric position of valuenotes dimension if it exists
 #' @keywords internal
 get_valuenotes_no <-function(tbl_id, dim_name, con) {
   dplyr::tbl(con, "table_dimensions") %>%
@@ -152,7 +147,6 @@ get_valuenotes_no <-function(tbl_id, dim_name, con) {
                   is_time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == dim_name) %>%
-    dplyr::mutate(poz = as.numeric(poz)) %>%
     dplyr::pull(poz)
 }
 

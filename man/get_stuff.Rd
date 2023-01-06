@@ -73,15 +73,15 @@ character code from level value code
 
 character text of time dimension from table code
 
-numeric id of MERITVE dimension if it exists, else integer64(0)
+numeric id of MERITVE dimension if it exists,
 
-numeric position of MERITVE dimension if it exists, else integer64(0)
-
-tibble with 4 cols including `level_value` and `unit_id`
+numeric position of MERITVE dimension if it exists,
 
 tibble with 4 cols including `level_value` and `unit_id`
 
-numeric id of valuenotes dimension if it exists, else integer64(0)
+tibble with 4 cols including `level_value` and `unit_id`
+
+numeric id of valuenotes dimension if it exists,
 
 numeric position of valuenotes dimension if it exists, else integer64(0)
 
