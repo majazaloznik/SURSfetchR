@@ -15,14 +15,17 @@ dittodb::with_mock_db({
     out2 <- expand_to_series_titles("1912002S", con)
     expect_true(nrow(out2) == 14)
     expect_true(ncol(out2) == 1)
-    out3 <- expand_to_level_codes("0300230S", con) %>%
+    out3 <- SURSfetchR:::expand_to_level_codes("0300230S", con) %>%
       dplyr::mutate(unit_id = NA)
-    x <- get_level_text_from_meritve(2, con)
-    units <- get_unit_levels_from_meritve(x, con)
-    out4 <- add_meritve_level_units(out3, 2, units)
+    x <- SURSfetchR:::get_level_text_from_meritve(2, con)
+    print(x)
+    units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
+    print(units)
+    out4 <- SURSfetchR:::add_meritve_level_units(out3, 2, units)
     expect_true(nrow(out4) == 360)
     expect_true(ncol(out4) == 5)
-    expect_equal(unique(out4$unit_id), c(2,3))
+    print(out4$unit_id)
+    expect_equal(unique(out4$unit_id), c(2,3, 4))
     out5 <- expand_to_level_codes("1700104S", con) %>%
       dplyr::mutate(unit_id = NA)
     units <- get_valuenotes_from_px("1700104S", 15, con)

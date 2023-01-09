@@ -302,7 +302,7 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::get_unit_id("odstotne točke", con)
 # stop_db_capturing()
-#
+
 # start_db_capturing()
 # con <- dbConnect(RPostgres::Postgres(),
 #                  dbname = "sandbox",
@@ -803,5 +803,20 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::prepare_series_table("0300230S", con)
 # stop_db_capturing()
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+out3 <- SURSfetchR:::expand_to_level_codes("0300230S", con) %>%
+  dplyr::mutate(unit_id = NA)
+x <- SURSfetchR:::get_level_text_from_meritve(2, con)
+units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
+stop_db_capturing()
 
 
