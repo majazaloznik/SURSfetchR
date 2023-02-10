@@ -123,8 +123,8 @@ insert_data_points <- function(code_no, con){
                                where id in (%s)
                                order by 1",
                                dim_id_str))
-  tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', tbl_dims$dimension), "text"))
-  tbl_dims_str <- toString(paste(sprintf('"%s"', tbl_dims$dimension)))
+  tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension)), "text"))
+  tbl_dims_str <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension))))
   time <- get_time_dimension(code_no, con)
   interval_id <- get_interval_id(time)
   # prepares the tmp table with data_points with correct series id-s
@@ -179,8 +179,8 @@ insert_data_points <- function(code_no, con){
                        dbQuoteLiteral(con, interval_id)))
 
   # change "zacasni podatki" to flag "T"
-  dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like '(za%asni podatki)'")
-
+  dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like ' (za%asni podatki)'")
+  # dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like '(za%asni podatki)'")
   # insert into period table periods that are not already in there.
   x <- dbExecute(con, sprintf("insert into %s.period
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp

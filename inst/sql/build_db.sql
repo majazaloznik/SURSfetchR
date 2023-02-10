@@ -10,7 +10,7 @@ CREATE TABLE test_platform.source
 
 INSERT INTO test_platform.source(
   id, name, name_long, url)
-VALUES (1, 'SURS', 'Statistčni urad RS', 'https://pxweb.stat.si/SiStat/sl');
+VALUES (1, 'SURS', 'Statistični urad RS', 'https://pxweb.stat.si/SiStat/sl');
 
 drop table if exists test_platform.category cascade;
 CREATE TABLE test_platform.category

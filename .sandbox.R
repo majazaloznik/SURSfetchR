@@ -6,6 +6,7 @@ library(DBI)
 library(RPostgres)
 library(dplyr)
 library(dittodb)
+library(SURSfetchR)
 
 # get list of table codes we want in the database
 # not sure when this df was created, it has unused columns, which is whack.
@@ -16,7 +17,7 @@ master_list_surs <- readRDS("../mesecni_kazalniki/data/master_list_surs.rds")
 full<- readRDS("M:/analysis/mesecni_kazalniki/data/full_field_hierarchy.rds")
 
 # logging in as  postgres - required to rebuild from scratch.
-con <- dbConnect(RPostgres::Postgres(),
+con <- DBI::dbConnect(RPostgres::Postgres(),
                  dbname = "sandbox",
                  host = "localhost",
                  port = 5432,
@@ -43,8 +44,8 @@ execute_sql_file(con, "inst/sql/build_db.sql")
 execute_sql_functions_file(con, "inst/sql/insert_functions.sql")
 
 
-# insert table structures for a single matrix
-out <- insert_new_table_structures("0457201S", con, full)
+# # insert table structures for a single matrix
+# out <- insert_new_table_structures("1701106S", con, full)
 
 # insert table structures for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full)))
@@ -52,145 +53,12 @@ system.time(purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, 
 # insert data for whole list of matrices
 system.time(purrr::walk(master_list_surs$code, ~insert_new_data(.x, con)))
 
-# insert data (well, vintages for now) for a single matrix
-out <- insert_new_data("0457201S", con)
+# # insert data  for a single matrix
+# debugonce(insert_new_data)
+out <- insert_new_data("1701102S", con)
 
-# simple read.px for a single matrix
-id <- "1505000S"
-url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
-l <- pxR::read.px(url,
-                  encoding = "CP1250",
-                  na.strings = c('"."', '".."', '"..."', '"...."'))
-
-
-
-write_to_temp_table <- function(con, name, df) {
-  dbWriteTable(con,
-               name,
-               df,
-               temporary = TRUE,
-               overwrite = TRUE)
-  # on.exit(tryCatch(
-  #   dbRemoveTable(con, name),
-  #   warning = function(w) {
-  #     suppressWarnings(dbRemoveTable(con, name, fail_if_missing = FALSE))
-  #     if(grepl("Closing open result set", w)) {
-  #       NULL
-  #     } else {
-  #       warning(w)
-  #     }
-  #   })
-  # )
-}
-
-code_no <- "0457201S"
-
-insert_data_points <- function(code_no, con){
-  df <- prepare_data_table(code_no, con)
-  # THIS TAKES OUT NON ASCII CHARACTERS
-  names(df) <- gsub("[^\x01-\x7F]+", "", names(df))
-  dbWriteTable(con,
-               "new_data_points",
-               df,
-               temporary = TRUE,
-               overwrite = TRUE)
-
-  tbl_id <- SURSfetchR:::get_table_id(code_no, con)
-  dim_id <- dbGetQuery(con,
-                       sprintf("SELECT id FROM test_platform.table_dimensions where
-           table_id = %s and is_time is not true", bit64::as.integer64(tbl_id)))
-  dim_id_str <- toString(sprintf("%s", bit64::as.integer64(dim_id$id)))
-  tbl_dims <- dbGetQuery(con,
-                         sprintf("SELECT replace(dimension, ' ', '.') as dimension
-                               FROM test_platform.table_dimensions
-                               where id in (%s)
-                               order by 1",
-                               dim_id_str))
-  tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', tbl_dims$dimension), "text"))
-  tbl_dims_str <- toString(paste(sprintf('"%s"', tbl_dims$dimension)))
-  time <- SURSfetchR:::get_time_dimension(code_no, con)
-  interval_id <- SURSfetchR:::get_interval_id(time)
-  # prepares the tmp table with data_points with correct series id-s
-  series_levels_wide <- dbExecute(con,
-                                  sprintf("CREATE TEMP TABLE tmp AS
-                                    select * from new_data_points
-                                    left join
-                                    (select *
-                                    from crosstab(
-                                    'SELECT series_id,  j.dimension, level_value
-                                    FROM test_platform.series_levels
-                                    left join
-                                    (SELECT id, dimension
-                                    FROM test_platform.table_dimensions
-                                    where id in (%s)) as j
-                                    on tab_dim_id = j.id
-                                    where tab_dim_id in (%s)
-                                    ORDER BY 1,2',
-                                    'select distinct dimz.dimension from
-                                    (SELECT id, dimension FROM test_platform.table_dimensions
-                                     where id in (%s)) as dimz')
-                                    as t(series_id int, %s )) i using (%s)
-                                    left join
-                                    (select distinct on (series_id)
-                                    id as vintage_id, series_id from
-                                    test_platform.vintage
-                                    order by series_id, published) as vinz using (series_id)
-                                    ",
-                                    dim_id_str,
-                                    dim_id_str,
-                                    dim_id_str,
-                                    gsub("[^\x01-\x7F]+", "",tbl_dims_str_w_types),
-                                    gsub("[^\x01-\x7F]+", "",tbl_dims_str)))
-
-  dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
-  dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
-  dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
-
-  # time is stripped of everything after first space
-  # flags after sthe space in time are split off too.
-  dbExecute(con, sprintf("UPDATE \"tmp\" SET
-                        \"time\" = split_part(%s, ' ', 1),
-                        \"flag\" = substring(%s,
-                        (length(split_part(%s,' ',1)))+1,
-                        (length(%s)) - (length(split_part(%s,' ',1)))),
-                       \"interval_id\" = %s",
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteLiteral(con, interval_id)))
-
-  # change "zacasni podatki" to flag "T"
-  dbExecute(con, sprintf("UPDATE \"tmp\" SET
-                       flag = 'T' where flag = '(začasni podatki)'"))
-  # insert flags into flag_datapoint table
-  x <- dbExecute(con, sprintf("insert into %s.flag_datapoint
-                       select vintage_id, \"time\", flag from
-                       tmp where tmp.flag <> ''
-                       on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform")))
-  print(paste(x, "new rows intserted into the flag_datapoint table"))
-
-  # insert into period table periods that are not already in there.
-  x <- dbExecute(con, sprintf("insert into %s.period
-                       select distinct on (\"time\") \"time\", tmp.interval_id from tmp
-                       left join %s.period on \"time\" = id
-                       on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform"),
-                       dbQuoteIdentifier(con, "test_platform")))
-  print(paste(x, "new rows intserted into the period table"))
-  # insert data into main data_point table
-  x <- dbExecute(con, sprintf("insert into %s.data_points
-                       select vintage_id, time, value from tmp
-                       on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform")))
-  print(paste(x, "new rows intserted into the data_points table"))
-  dbExecute(con, sprintf("drop table tmp"))
-}
 
 tbl( con, "tmp") %>%
-  filter(is.null(value)) %>%
   collect() -> df
 
 tbl(con, "new_vintages") %>%
@@ -198,6 +66,57 @@ tbl(con, "new_vintages") %>%
 
 insert_data_points("0400600S", con)
 
+code_no <- "1700104S"
+
+tbl(con, "vint")
+
+library("UMARvisualisR")
+library(UMARaccessR)
+
+univariate_line_pipeline(6626, rolling = TRUE, interval = "M", unit = "%", con = con)
+univariate_line_pipeline(6627, rolling = TRUE, interval = "M", unit = "%", con = con)
+univariate_line_pipeline(6625, rolling = TRUE, interval = "M", unit = "%", con = con)
+
+SURSfetchR:::get_table_id("1700104S", con)
 
 
+get_table_id <- function(code_no, con) {
+  dplyr::tbl(con, "table") %>%
+    dplyr::filter(code == code_no) %>%
+    dplyr::pull(id)
+}
+
+get_table_id("1700104S", con)
+
+
+tbl( con, "series") %>%
+left_join(tbl( con, "table"), by = c("table_id"= "id")) %>%
+  select(-url, -source_id, -description, -notes) %>%
+  left_join(tbl(con, "unit"), by = c("unit_id"="id")) %>%
+  rename(unit = name.y,
+         table_code = code.y,
+         series_code = code.x,
+         table_name = name.x,
+         series_name = name_long) %>%
+  select(table_code, table_name,
+         series_code, series_name,
+         unit, interval_id) %>%
+  arrange(table_code, series_code) %>%
+  collect() -> series_df
+
+nejmz <- c(names(series_df), "chart_no", "rolling_average_periods",
+  "rolling_average_alignment", 	"year_on_year", "xmin",	"xmax")
+
+selection_df <- setNames(data.frame(matrix(ncol = length(nejmz), nrow = 0)), nejmz)
+
+
+wb <- openxlsx::createWorkbook()
+openxlsx::addWorksheet(wb, "series")
+openxlsx::addWorksheet(wb, "selection")
+
+openxlsx::writeData(wb, "series", series_df, startRow = 1, startCol = 1)
+openxlsx::writeData(wb, "selection", selection_df, startRow = 1, startCol = 1)
+openxlsx::freezePane(wb,"series", firstActiveRow = 2)
+openxlsx::freezePane(wb,"selection", firstActiveRow = 2)
+openxlsx::saveWorkbook(wb, file = "../mesecni_kazalniki/data/db_series.xlsx", overwrite = TRUE)
 
