@@ -8,8 +8,8 @@ test_that("check API response is appropriate and the parsing works", {
   expect_true(is.list(out))
   out <- parse_structAPI_response(rsp, output = "df")
   expect_true(is.data.frame(out))
-  out <- parse_structAPI_response(rsp, output = "foobar")
-  expect_true(is.na(out))
+  x <- parse_structAPI_response(rsp, output = "foobar")
+  expect_true(is.na(x))
 })
 
 test_that("node helper functions", {

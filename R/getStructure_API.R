@@ -44,7 +44,9 @@ parse_structAPI_response <- function(res, output = "tree") {
         if(output == "lol") {
           out <- struc_list } else {
             if(output == "df") {
-              out <- parsed_request <- jsonlite::fromJSON(res)}
+              out <- parsed_request <- jsonlite::fromJSON(res)} else {
+                stop()
+              }
           }
       }
       return(out)
