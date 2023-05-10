@@ -1,6 +1,6 @@
 #' Prepare table to insert into `vintage` table
 #'
-#' Helper function that populated the vintage table with the new vintages. It gets
+#' Helper function that populates the vintage table with the new vintages. It gets
 #' the series id's in two ways: getting all the series ids for a single table, but
 #' also by expanding the non-time dimensions and getting all the codes for the
 #' series and looking them up like that. This way we can catch if the dimensions
@@ -59,7 +59,6 @@ prepare_vintage_table <- function(code_no, con){
 #' @return a dataframe the same size as was downloaded from the .px file, but
 #' with recoded dimension levels.
 #' @export
-#'
 prepare_data_table <- function(code_no, con){
   tbl_id <- get_table_id(code_no, con)
   time_dim <- get_time_dimension(code_no, con)

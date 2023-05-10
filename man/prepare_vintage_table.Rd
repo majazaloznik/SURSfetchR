@@ -16,7 +16,7 @@ a dataframe with the `series_id` and `published` columns
 for all the series in this table.
 }
 \description{
-Helper function that populated the vintage table with the new vintages. It gets
+Helper function that populates the vintage table with the new vintages. It gets
 the series id's in two ways: getting all the series ids for a single table, but
 also by expanding the non-time dimensions and getting all the codes for the
 series and looking them up like that. This way we can catch if the dimensions

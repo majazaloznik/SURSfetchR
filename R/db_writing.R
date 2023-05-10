@@ -40,7 +40,6 @@ insert_new_table_structures <- function(code_no, con, full) {
   res[[7]] <- sql_function_call(con,
                                 "insert_new_unit",
                                 unname(as.list(prepare_unit_table(code_no, con))))
-
   res[[8]] <-  sql_function_call(con,
                                  "insert_new_series",
                                  unname(as.list(prepare_series_table(code_no, con))))
@@ -121,7 +120,7 @@ insert_data_points <- function(code_no, con){
                          sprintf("SELECT replace(dimension, ' ', '.') as dimension
                                FROM test_platform.table_dimensions
                                where id in (%s)
-                               order by 1",
+                               order by id",
                                dim_id_str))
   tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension)), "text"))
   tbl_dims_str <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension))))
@@ -143,9 +142,9 @@ insert_data_points <- function(code_no, con){
                                     on tab_dim_id = j.id
                                     where tab_dim_id in (%s)
                                     ORDER BY 1,2',
-                                    'select distinct dimz.dimension from
+                                    'select dimension from (select distinct d.dimension, d.id from
                                     (SELECT id, dimension FROM test_platform.table_dimensions
-                                     where id in (%s)) as dimz')
+                                     where id in (%s)) as d order by d.id) as dimz;')
                                     as t(series_id int, %s )) i using (%s)
                                     left join
                                     (select distinct on (series_id)
