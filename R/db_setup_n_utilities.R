@@ -108,7 +108,7 @@ sql_function_call <- function(con,
                    DBI::dbQuoteIdentifier(con, fun_name),
                    args_pattern)
 
-  res <- dbGetQuery(con, query, unname(args))
+  res <- DBI::dbGetQuery(con, query, unname(args))
 
   res
 }

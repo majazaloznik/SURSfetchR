@@ -1,3 +1,22 @@
+-- Add new source
+--
+-- Insert new source into the `source` table.
+--
+CREATE OR REPLACE FUNCTION test_platform.insert_new_source(
+                                            id INT,
+                                            name TEXT,
+                                            name_long TEXT,
+                                            url TEXT,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO test_platform.source (id, name, name_long, url)
+    VALUES (id, name, name_long, url)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Add new table
 --
 -- Inserts new table into the `table` table.
