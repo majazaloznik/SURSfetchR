@@ -5,7 +5,8 @@ CREATE TABLE test_platform.source
     name character varying NOT NULL,
     name_long character varying,
     url character varying,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE(name)
 );
 
 INSERT INTO test_platform.source(
