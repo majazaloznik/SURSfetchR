@@ -101,22 +101,22 @@ insert_new_data <- function(code_no, con) {
 #' @export
 #'
 insert_data_points <- function(code_no, con){
-  on.exit(dbExecute(con, sprintf("drop table tmp")))
+  on.exit(DBI::dbExecute(con, sprintf("drop table tmp")))
   df <- prepare_data_table(code_no, con)
   # THIS TAKES OUT NON ASCII CHARACTERS
   names(df) <- gsub("[^\x01-\x7F]+", "", names(df))
-  dbWriteTable(con,
+  DBI::dbWriteTable(con,
                "new_data_points",
                df,
                temporary = TRUE,
                overwrite = TRUE)
 
   tbl_id <- get_table_id(code_no, con)
-  dim_id <- dbGetQuery(con,
+  dim_id <- DBI::dbGetQuery(con,
                        sprintf("SELECT id FROM test_platform.table_dimensions where
            table_id = %s and is_time is not true", bit64::as.integer64(tbl_id)))
   dim_id_str <- toString(sprintf("%s", bit64::as.integer64(dim_id$id)))
-  tbl_dims <- dbGetQuery(con,
+  tbl_dims <- DBI::dbGetQuery(con,
                          sprintf("SELECT replace(dimension, ' ', '.') as dimension
                                FROM test_platform.table_dimensions
                                where id in (%s)
@@ -127,7 +127,7 @@ insert_data_points <- function(code_no, con){
   time <- get_time_dimension(code_no, con)
   interval_id <- get_interval_id(time)
   # prepares the tmp table with data_points with correct series id-s
-  series_levels_wide <- dbExecute(con,
+  series_levels_wide <- DBI::dbExecute(con,
                                   sprintf("CREATE TEMP TABLE tmp AS
                                     select * from new_data_points
                                     left join
@@ -158,49 +158,74 @@ insert_data_points <- function(code_no, con){
                                     gsub("[^\x01-\x7F]+", "",tbl_dims_str_w_types),
                                     gsub("[^\x01-\x7F]+", "",tbl_dims_str)))
 
-  dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
-  dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
-  dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
+  DBI::dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
+  DBI::dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
+  DBI::dbExecute(con, sprintf("alter table \"tmp\" add \"interval_id\" varchar"))
 
   # time is stripped of everything after first space
   # flags after the space in time are split off too.
-  dbExecute(con, sprintf("UPDATE \"tmp\" SET
+  DBI::dbExecute(con, sprintf("UPDATE \"tmp\" SET
                         \"time\" = split_part(%s, ' ', 1),
                         \"flag\" = substring(%s,
                         (length(split_part(%s,' ',1)))+1,
                         (length(%s)) - (length(split_part(%s,' ',1)))),
                        \"interval_id\" = %s",
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
-                       dbQuoteLiteral(con, interval_id)))
+                       DBI::dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
+                       DBI::dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
+                       DBI::dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
+                       DBI::dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
+                       DBI::dbQuoteIdentifier(con,gsub("[^\x01-\x7F]+", "",time)),
+                       DBI::dbQuoteLiteral(con, interval_id)))
 
   # change "zacasni podatki" to flag "T"
-  dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like ' (za%asni podatki)'")
+  DBI::dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like ' (za%asni podatki)'")
   # dbExecute(con, "UPDATE \"tmp\" SET flag = 'T' where flag like '(za%asni podatki)'")
   # insert into period table periods that are not already in there.
-  x <- dbExecute(con, sprintf("insert into %s.period
+  x <- DBI::dbExecute(con, sprintf("insert into %s.period
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp
                        left join %s.period on \"time\" = id
                        on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform"),
-                       dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "test_platform"),
+                       DBI::dbQuoteIdentifier(con, "test_platform")))
   print(paste(x, "new rows inserted into the period table"))
 
   # insert data into main data_point table
-  x <- dbExecute(con, sprintf("insert into %s.data_points
+  x <- DBI::dbExecute(con, sprintf("insert into %s.data_points
                        select vintage_id, time, value from tmp
                        on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "test_platform")))
   print(paste(x, "new rows inserted into the data_points table"))
 
   # insert flags into flag_datapoint table
-  x <- dbExecute(con, sprintf("insert into %s.flag_datapoint
+  x <- DBI::dbExecute(con, sprintf("insert into %s.flag_datapoint
                        select vintage_id, \"time\", flag from
                        tmp where tmp.flag <> ''
                        on conflict do nothing",
-                       dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "test_platform")))
   print(paste(x, "new rows inserted into the flag_datapoint table"))
+}
+
+
+#' Umbrella code for adding a new table to the database
+#'
+#' The code gets the new hierarchy from the structAPI to get the category levels
+#' right and then inserts all the required strucutres and finally the data points
+#' for the first set of vintages for these series
+#' @param code character ID of the table e.g. "0714621S"
+#' @param con connection to database
+#'
+#' @return
+#' @export
+#'
+add_new_table <- function(code, con) {
+  # get full hierarchy
+  cont <- get_API_response()
+  tree <- parse_structAPI_response(cont)
+  full <- get_full_structure(tree)
+  out <- list()
+  # insert table structures for a single matrix
+  out[[1]] <- insert_new_table_structures(code, con, full)
+  # insert data  for a single matrix
+  out[[2]] <- insert_new_data(code, con)
+  out
 }
