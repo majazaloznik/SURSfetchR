@@ -4,12 +4,12 @@
 \alias{Id2}
 \title{Wrapper for database identifier construction}
 \usage{
-Id2(table, schema = "test_platform")
+Id2(table, schema = "platform")
 }
 \arguments{
 \item{table}{character name of table}
 
-\item{schema}{character name of schema, default currently `test_platform`}
+\item{schema}{character name of schema, default currently `platform`}
 }
 \value{
 Id object

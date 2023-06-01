@@ -4,7 +4,7 @@
 \alias{sql_function_call}
 \title{Construct and execute an SQL function call}
 \usage{
-sql_function_call(con, fun_name, args, schema = "test_platform")
+sql_function_call(con, fun_name, args, schema = "platform")
 }
 \arguments{
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
@@ -13,7 +13,7 @@ sql_function_call(con, fun_name, args, schema = "test_platform")
 
 \item{args}{list of arguments, can be named (but then all of them have to be)}
 
-\item{schema}{character schema name, default is "test_platform"}
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 value of `dbGetQuery(con, "SELECT * FROM schema.fun_name($args)")$fun_name`

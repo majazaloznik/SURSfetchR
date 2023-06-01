@@ -113,12 +113,12 @@ insert_data_points <- function(code_no, con){
 
   tbl_id <- get_table_id(code_no, con)
   dim_id <- DBI::dbGetQuery(con,
-                       sprintf("SELECT id FROM test_platform.table_dimensions where
+                       sprintf("SELECT id FROM platform.table_dimensions where
            table_id = %s and is_time is not true", bit64::as.integer64(tbl_id)))
   dim_id_str <- toString(sprintf("%s", bit64::as.integer64(dim_id$id)))
   tbl_dims <- DBI::dbGetQuery(con,
                          sprintf("SELECT replace(dimension, ' ', '.') as dimension
-                               FROM test_platform.table_dimensions
+                               FROM platform.table_dimensions
                                where id in (%s)
                                order by id",
                                dim_id_str))
@@ -134,22 +134,22 @@ insert_data_points <- function(code_no, con){
                                     (select *
                                     from crosstab(
                                     'SELECT series_id,  j.dimension, level_value
-                                    FROM test_platform.series_levels
+                                    FROM platform.series_levels
                                     left join
                                     (SELECT id, dimension
-                                    FROM test_platform.table_dimensions
+                                    FROM platform.table_dimensions
                                     where id in (%s)) as j
                                     on tab_dim_id = j.id
                                     where tab_dim_id in (%s)
                                     ORDER BY 1,2',
                                     'select dimension from (select distinct d.dimension, d.id from
-                                    (SELECT id, dimension FROM test_platform.table_dimensions
+                                    (SELECT id, dimension FROM platform.table_dimensions
                                      where id in (%s)) as d order by d.id) as dimz;')
                                     as t(series_id int, %s )) i using (%s)
                                     left join
                                     (select distinct on (series_id)
                                     id as vintage_id, series_id from
-                                    test_platform.vintage
+                                    platform.vintage
                                     order by series_id, published desc) as vinz using (series_id)
                                     ",
                                     dim_id_str,
@@ -185,15 +185,15 @@ insert_data_points <- function(code_no, con){
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp
                        left join %s.period on \"time\" = id
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "test_platform"),
-                       DBI::dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "platform"),
+                       DBI::dbQuoteIdentifier(con, "platform")))
   print(paste(x, "new rows inserted into the period table"))
 
   # insert data into main data_point table
   x <- DBI::dbExecute(con, sprintf("insert into %s.data_points
                        select vintage_id, time, value from tmp
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "platform")))
   print(paste(x, "new rows inserted into the data_points table"))
 
   # insert flags into flag_datapoint table
@@ -201,7 +201,7 @@ insert_data_points <- function(code_no, con){
                        select vintage_id, \"time\", flag from
                        tmp where tmp.flag <> ''
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "test_platform")))
+                       DBI::dbQuoteIdentifier(con, "platform")))
   print(paste(x, "new rows inserted into the flag_datapoint table"))
 }
 

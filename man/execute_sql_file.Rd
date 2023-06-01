@@ -4,14 +4,14 @@
 \alias{execute_sql_file}
 \title{Generic run sql file}
 \usage{
-execute_sql_file(con, file, schema = "test_platform")
+execute_sql_file(con, file, schema = "platform")
 }
 \arguments{
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
 \item{file}{path to sql file}
 
-\item{schema}{character schema name, default is "test_platform"}
+\item{schema}{character schema name, default is "platform"}
 }
 \description{
 Executes an sql file. Uses dbExecute, which requires single statements to

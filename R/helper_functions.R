@@ -72,11 +72,11 @@ add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
 #' Wraps `Id` to a default schema and without requiring named args.
 #'
 #' @param table character name of table
-#' @param schema character name of schema, default currently `test_platform`
+#' @param schema character name of schema, default currently `platform`
 #'
 #' @return Id object
 #' @export
-Id2 <- function(table, schema = "test_platform") {
+Id2 <- function(table, schema = "platform") {
   Id(schema = schema, table = table)
 }
 

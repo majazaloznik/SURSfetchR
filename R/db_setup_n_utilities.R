@@ -13,9 +13,9 @@
 #'
 #' @export
 execute_sql_file <- function(con, file,
-                                       schema = "test_platform"){
+                                       schema = "platform"){
   sql <- readLines(file)
-  sql <- gsub("test_platform\\.", sprintf("%s.", schema), sql)
+  sql <- gsub("platform\\.", sprintf("%s.", schema), sql)
   DBI::dbBegin(con)
   on.exit(  DBI::dbCommit(con))
   # split up SQL into a new statement for every ";"
@@ -37,9 +37,9 @@ execute_sql_file <- function(con, file,
 #'
 #' @export
 execute_sql_functions_file <- function(con, file,
-                                       schema = "test_platform"){
+                                       schema = "platform"){
   sql <- readLines(file)
-  sql <- gsub("test_platform\\.", sprintf("%s.", schema), sql)
+  sql <- gsub("platform\\.", sprintf("%s.", schema), sql)
 
   DBI::dbBegin(con)
   on.exit(DBI::dbCommit(con))
@@ -60,7 +60,7 @@ execute_sql_functions_file <- function(con, file,
 #'
 #' @inheritParams common_parameters
 #' @export
-build_db_tables <- function(con, schema = "test_platform"){
+build_db_tables <- function(con, schema = "platform"){
   execute_sql_file(con,
                    file =system.file("sql/build_db.sql",
                                package = "SURSfetchR"),
@@ -88,7 +88,7 @@ build_db_tables <- function(con, schema = "test_platform"){
 sql_function_call <- function(con,
                               fun_name,
                               args,
-                              schema = "test_platform") {
+                              schema = "platform") {
   args_pattern <- ""
   if(!is.null(args)) {
     args[sapply(args, is.null)] <- NA
