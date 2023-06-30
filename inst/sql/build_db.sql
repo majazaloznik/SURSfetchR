@@ -8,6 +8,8 @@ CREATE TABLE platform.source
     PRIMARY KEY (id),
     UNIQUE(name)
 );
+ALTER TABLE platform.source
+ADD CONSTRAINT no_dash_check CHECK (name NOT LIKE '%%-%%');
 
 INSERT INTO platform.source(
   id, name, name_long, url)
@@ -21,6 +23,9 @@ CREATE TABLE platform.category
     source_id integer NOT NULL REFERENCES platform.source (id),
     PRIMARY KEY (id, source_id)
 );
+ALTER TABLE platform.category
+ADD CONSTRAINT unique_sourceid_name UNIQUE (source_id, name);
+
 INSERT INTO platform.category (id, name, source_id)
                        VALUES (0, 'SiStat', 1);
 
