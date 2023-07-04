@@ -172,6 +172,16 @@ CREATE TABLE platform.flag_datapoint
     FOREIGN KEY (vintage_id, period_id) REFERENCES platform.data_points (vintage_id, period_id)
 );
 
+drop table if exists platform.umar_authors;
+CREATE TABLE platform.umar_authors
+(
+    name character varying NOT NULL,
+    initials character varying NOT NULL,
+    email character varying NOT NULL,
+    folder character varying NOT NULL,
+    PRIMARY KEY (initials)
+);
+
 INSERT INTO platform."interval"(
   id, name)
 VALUES ('D', 'daily'),
