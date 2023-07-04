@@ -37,6 +37,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+-- Add new umar author
+--
+-- Insert new author into the `umar_author` table.
+--
+CREATE OR REPLACE FUNCTION platform.insert_new_author(name TEXT,
+                                            initials TEXT,
+                                            email TEXT,
+                                            folder TEXT,
+                                            OUT count INTEGER)
+AS $$
+BEGIN
+    INSERT INTO platform.umar_authors(name, initials, email, folder)
+    VALUES (name, initials, email, folder)
+    ON CONFLICT DO NOTHING;
+    GET DIAGNOSTICS count = ROW_COUNT;
+END;
+$$ LANGUAGE plpgsql;
+
+
 -- Add new category
 --
 -- Insert new category into the `category` table.
