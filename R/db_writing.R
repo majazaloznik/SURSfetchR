@@ -8,6 +8,7 @@
 #' @inheritParams common_parameters
 #' @param full full field hierarchy with parent_ids et al, output from
 #'  \link[SURSfetchR]{get_full_structure}
+#'  @param schema default schema
 #'
 #' @return list of tables with counts for each inserted row.
 #' @export
@@ -16,36 +17,36 @@
 #' \dontrun{
 #' purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
 #' }
-insert_new_table_structures <- function(code_no, con, full) {
+insert_new_table_structures <- function(code_no, con, full, schema = "platform") {
   res <- list()
   res[[1]] <- sql_function_call(con,
                                 "insert_new_table",
-                                as.list(prepare_table_table(code_no)))
+                                as.list(prepare_table_table(code_no)), schema = schema)
   res[[2]] <- sql_function_call(con,
                                 "insert_new_category",
-                                as.list(prepare_category_table(code_no, full)))
+                                as.list(prepare_category_table(code_no, full)), schema = schema)
   res[[3]] <- sql_function_call(con,
                                 "insert_new_category_relationship",
-                                as.list(prepare_category_relationship_table(code_no, full)))
+                                as.list(prepare_category_relationship_table(code_no, full)), schema = schema)
 
   res[[4]] <- sql_function_call(con,
                                 "insert_new_category_table",
-                                as.list(prepare_category_table_table(code_no, full, con)))
+                                as.list(prepare_category_table_table(code_no, full, con)), schema = schema)
   res[[5]] <- sql_function_call(con,
                                 "insert_new_table_dimensions",
-                                as.list(prepare_table_dimensions_table(code_no, con)))
+                                as.list(prepare_table_dimensions_table(code_no, con)), schema = schema)
   res[[6]] <- sql_function_call(con,
                                 "insert_new_dimension_levels",
-                                as.list(prepare_dimension_levels_table(code_no, con)))
+                                as.list(prepare_dimension_levels_table(code_no, con)), schema = schema)
   res[[7]] <- sql_function_call(con,
                                 "insert_new_unit",
-                                unname(as.list(prepare_unit_table(code_no, con))))
+                                unname(as.list(prepare_unit_table(code_no, con))), schema = schema)
   res[[8]] <-  sql_function_call(con,
                                  "insert_new_series",
-                                 unname(as.list(prepare_series_table(code_no, con))))
+                                 unname(as.list(prepare_series_table(code_no, con))), schema = schema)
   res[[9]] <- sql_function_call(con,
                                 "insert_new_series_levels",
-                                unname(as.list(prepare_series_levels_table(code_no, con))))
+                                unname(as.list(prepare_series_levels_table(code_no, con))), schema = schema)
   res
 }
 
@@ -100,7 +101,7 @@ insert_new_data <- function(code_no, con) {
 #' @return nothing, just some printing along the way
 #' @export
 #'
-insert_data_points <- function(code_no, con){
+insert_data_points <- function(code_no, con, schema = "platform"){
   on.exit(DBI::dbExecute(con, sprintf("drop table tmp")))
   df <- prepare_data_table(code_no, con)
   # THIS TAKES OUT NON ASCII CHARACTERS
@@ -113,15 +114,15 @@ insert_data_points <- function(code_no, con){
 
   tbl_id <- get_table_id(code_no, con)
   dim_id <- DBI::dbGetQuery(con,
-                       sprintf("SELECT id FROM platform.table_dimensions where
-           table_id = %s and is_time is not true", bit64::as.integer64(tbl_id)))
+                       sprintf("SELECT id FROM %s.table_dimensions where
+           table_id = %s and is_time is not true",schema, bit64::as.integer64(tbl_id)))
   dim_id_str <- toString(sprintf("%s", bit64::as.integer64(dim_id$id)))
   tbl_dims <- DBI::dbGetQuery(con,
                          sprintf("SELECT replace(dimension, ' ', '.') as dimension
-                               FROM platform.table_dimensions
+                               FROM %s.table_dimensions
                                where id in (%s)
                                order by id",
-                               dim_id_str))
+                               schema, dim_id_str))
   tbl_dims_str_w_types <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension)), "text"))
   tbl_dims_str <- toString(paste(sprintf('"%s"', make.names(tbl_dims$dimension))))
   time <- get_time_dimension(code_no, con)
@@ -134,29 +135,33 @@ insert_data_points <- function(code_no, con){
                                     (select *
                                     from crosstab(
                                     'SELECT series_id,  j.dimension, level_value
-                                    FROM platform.series_levels
+                                    FROM %s.series_levels
                                     left join
                                     (SELECT id, dimension
-                                    FROM platform.table_dimensions
+                                    FROM %s.table_dimensions
                                     where id in (%s)) as j
                                     on tab_dim_id = j.id
                                     where tab_dim_id in (%s)
                                     ORDER BY 1,2',
                                     'select dimension from (select distinct d.dimension, d.id from
-                                    (SELECT id, dimension FROM platform.table_dimensions
+                                    (SELECT id, dimension FROM %s.table_dimensions
                                      where id in (%s)) as d order by d.id) as dimz;')
                                     as t(series_id int, %s )) i using (%s)
                                     left join
                                     (select distinct on (series_id)
                                     id as vintage_id, series_id from
-                                    platform.vintage
+                                    %s.vintage
                                     order by series_id, published desc) as vinz using (series_id)
                                     ",
+                                    schema,
+                                    schema,
                                     dim_id_str,
                                     dim_id_str,
+                                    schema,
                                     dim_id_str,
                                     gsub("[^\x01-\x7F]+", "",tbl_dims_str_w_types),
-                                    gsub("[^\x01-\x7F]+", "",tbl_dims_str)))
+                                    gsub("[^\x01-\x7F]+", "",tbl_dims_str),
+                                    schema))
 
   DBI::dbExecute(con, sprintf("alter table \"tmp\" add  \"time\" varchar"))
   DBI::dbExecute(con, sprintf("alter table \"tmp\" add \"flag\" varchar"))
@@ -185,15 +190,15 @@ insert_data_points <- function(code_no, con){
                        select distinct on (\"time\") \"time\", tmp.interval_id from tmp
                        left join %s.period on \"time\" = id
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "platform"),
-                       DBI::dbQuoteIdentifier(con, "platform")))
+                       DBI::dbQuoteIdentifier(con, schema),
+                       DBI::dbQuoteIdentifier(con, schema)))
   print(paste(x, "new rows inserted into the period table"))
 
   # insert data into main data_point table
   x <- DBI::dbExecute(con, sprintf("insert into %s.data_points
                        select vintage_id, time, value from tmp
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "platform")))
+                       DBI::dbQuoteIdentifier(con, schema)))
   print(paste(x, "new rows inserted into the data_points table"))
 
   # insert flags into flag_datapoint table
@@ -201,7 +206,7 @@ insert_data_points <- function(code_no, con){
                        select vintage_id, \"time\", flag from
                        tmp where tmp.flag <> ''
                        on conflict do nothing",
-                       DBI::dbQuoteIdentifier(con, "platform")))
+                       DBI::dbQuoteIdentifier(con, schema)))
   print(paste(x, "new rows inserted into the flag_datapoint table"))
 }
 

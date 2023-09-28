@@ -4,12 +4,14 @@
 \alias{insert_data_points}
 \title{Insert datapoints into data_point table}
 \usage{
-insert_data_points(code_no, con)
+insert_data_points(code_no, con, schema = "platform")
 }
 \arguments{
 \item{code_no}{character SURS px. code e.g. 0300230S}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 nothing, just some printing along the way

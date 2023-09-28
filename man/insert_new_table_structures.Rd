@@ -4,7 +4,7 @@
 \alias{insert_new_table_structures}
 \title{Insert table structure data for a new table}
 \usage{
-insert_new_table_structures(code_no, con, full)
+insert_new_table_structures(code_no, con, full, schema = "platform")
 }
 \arguments{
 \item{code_no}{character SURS px. code e.g. 0300230S}
@@ -12,7 +12,10 @@ insert_new_table_structures(code_no, con, full)
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
 \item{full}{full field hierarchy with parent_ids et al, output from
-\link[SURSfetchR]{get_full_structure}}
+\link[SURSfetchR]{get_full_structure}
+@param schema default schema}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 list of tables with counts for each inserted row.

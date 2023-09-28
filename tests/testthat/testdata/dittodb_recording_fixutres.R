@@ -803,9 +803,26 @@ library(testthat)
 # dbExecute(con, "set search_path to test_platform")
 # SURSfetchR:::prepare_series_table("0300230S", con)
 # stop_db_capturing()
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "sandbox",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# out3 <- SURSfetchR:::expand_to_level_codes("0300230S", con) %>%
+#   dplyr::mutate(unit_id = NA)
+# x <- SURSfetchR:::get_level_text_from_meritve(2, con)
+# units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
+# stop_db_capturing()
+
+
 start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "sandbox",
+                 dbname = "platform",
                  host = "localhost",
                  port = 5432,
                  user = "mzaloznik",
@@ -813,10 +830,24 @@ con <- dbConnect(RPostgres::Postgres(),
 
 on.exit(dbDisconnect)
 dbExecute(con, "set search_path to test_platform")
-out3 <- SURSfetchR:::expand_to_level_codes("0300230S", con) %>%
-  dplyr::mutate(unit_id = NA)
-x <- SURSfetchR:::get_level_text_from_meritve(2, con)
-units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
+
+full <- readRDS(test_path("testdata", "full_h.rds"))
+out <- insert_new_table_structures("1817902S", con, full, schema = "test_platform")
+
 stop_db_capturing()
 
+
+start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "platform",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+dbExecute(con, "set search_path to test_platform")
+
+on.exit(dbDisconnect)
+dbExecute(con, "set search_path to test_platform")
+out <- insert_data_points("1700104S", con, schema = "test_platform")
+stop_db_capturing()
 

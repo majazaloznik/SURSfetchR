@@ -178,7 +178,7 @@ CREATE TABLE platform.umar_authors
     name character varying NOT NULL,
     initials character varying NOT NULL,
     email character varying NOT NULL,
-    folder character varying NOT NULL,
+    folder character varying,
     PRIMARY KEY (initials)
 );
 
@@ -215,4 +215,4 @@ INSERT INTO platform."unit"(
   name)
 VALUES ('1000');
 
-GRANT ALL ON ALL TABLES IN SCHEMA platform TO mzaloznik;
+GRANT ALL ON ALL TABLES IN SCHEMA platform TO maintainer;

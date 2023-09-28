@@ -18,7 +18,7 @@ get_px_metadata <- function(id) {
   url <- paste0("https://pxweb.stat.si/SiStatData/Resources/PX/Databases/Data/", id, ".px")
   l <- pxR::read.px(url,
                     encoding = "CP1250",
-                    na.strings = c('"."', '".."', '"..."', '"...."')
+                    na.strings = c('"."', '".."', '"..."', '"...."', '"....."', '"......"')
   )
   df <- data.frame(code = unlist(l$MATRIX),
                    name = gsub('\"\n\"', "", unlist(l$DESCRIPTION)),
