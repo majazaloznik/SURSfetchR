@@ -481,10 +481,10 @@
     },
     "gert": {
       "Package": "gert",
-      "Version": "2.0.0",
+      "Version": "1.9.3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "bbbd21a253d473f4671d7dcbd6d8971f",
+      "Hash": "b544c397820e05a97d391b2d614a921a",
       "Requirements": [
         "askpass",
         "credentials",
