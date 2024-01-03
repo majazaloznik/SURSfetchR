@@ -67,13 +67,24 @@ insert_new_table_structures <- function(code_no, con, full, schema = "platform")
 #' \dontrun{
 #' purrr::walk(master_list_surs$code, ~insert_new_data(.x, con))
 #' }
-insert_new_data <- function(code_no, con) {
+insert_new_data <- function(code_no, con, schema = "platform") {
   res <- list()
   res[[1]] <- sql_function_call(con,
                                 "insert_new_vintage",
-                                unname(as.list(prepare_vintage_table(code_no ,con))))
-  insert_data_points(code_no, con)
-  res
+                                unname(as.list(prepare_vintage_table(code_no ,con))),
+                                schema = schema)
+  print(paste(sum(res[[1]]), "new rows inserted into the vintage table"))
+  tryCatch(
+    {insert_data_points(code_no, con, schema = schema)},
+    error = function(cond){
+      message(paste("The data was not inserted for SURS table", code_no))
+      message("Here's the original error message:")
+      message(conditionMessage(cond))
+      # Choose a return value in case of error
+      NA
+    }
+  )
+
 }
 
 
@@ -197,6 +208,7 @@ insert_data_points <- function(code_no, con, schema = "platform"){
   # insert data into main data_point table
   x <- DBI::dbExecute(con, sprintf("insert into %s.data_points
                        select vintage_id, time, value from tmp
+                       WHERE vintage_id IS NOT NULL
                        on conflict do nothing",
                        DBI::dbQuoteIdentifier(con, schema)))
   print(paste(x, "new rows inserted into the data_points table"))

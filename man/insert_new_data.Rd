@@ -4,12 +4,14 @@
 \alias{insert_new_data}
 \title{Insert new data for a table i.e. a vintage}
 \usage{
-insert_new_data(code_no, con)
+insert_new_data(code_no, con, schema = "platform")
 }
 \arguments{
 \item{code_no}{character SURS px. code e.g. 0300230S}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 list of tables with counts for each inserted row.

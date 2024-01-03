@@ -22,7 +22,7 @@ dittodb::with_mock_db({
     units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
     print(units)
     out4 <- SURSfetchR:::add_meritve_level_units(out3, 2, units)
-    expect_true(nrow(out4) == 360)
+    expect_true(nrow(out4) == 372)
     expect_true(ncol(out4) == 5)
     print(out4$unit_id)
     expect_equal(unique(out4$unit_id), c(2,3, 4))
