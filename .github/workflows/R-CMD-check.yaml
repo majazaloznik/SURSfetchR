@@ -47,11 +47,11 @@ jobs:
       - uses: r-lib/actions/setup-renv@v2
 
       - name: Install stringi for Windows
-          if: runner.os == 'Windows'
-          run: |
-            Rscript -e "install.packages('remotes')"
-            Rscript -e "remotes::install_deps(dependencies = TRUE, type = 'both')"
-            Rscript -e "install.packages('stringi', type = 'both')"
+        if: runner.os == 'Windows'
+        run: |
+          Rscript -e "install.packages('remotes')"
+          Rscript -e "remotes::install_deps(dependencies = TRUE, type = 'both')"
+          Rscript -e "install.packages('stringi', type = 'both')"
 
 
       - uses: r-lib/actions/check-r-package@v2
