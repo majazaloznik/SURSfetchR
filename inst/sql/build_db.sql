@@ -215,4 +215,7 @@ INSERT INTO platform."unit"(
   name)
 VALUES ('1000');
 
+ALTER TABLE test_platform."table"
+ADD COLUMN "update" boolean DEFAULT true NOT NULL;
+
 GRANT ALL ON ALL TABLES IN SCHEMA platform TO maintainer;
