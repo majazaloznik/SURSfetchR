@@ -4,12 +4,12 @@
 #' and expand the grid to get all of their combinations and then either return
 #' a dataframe with columns for each level code, or one where the level texts
 #' have been concatenated into the series titles.
-#' @param code_nopx. code e.g. 0300230S
+#' @param code_no code e.g. 0300230S
 #' @return dataframe with expanded levels, one column per non-time dimension plus
 #' unit_id for the level codes and sinle column with series titles for the other one.
 #' @rdname expanding
 #' @keywords internal
-expand_to_level_codes <- function (code_no, con) {
+expand_to_level_codes <- function (code_no) {
   get_table_levels(code_no) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
@@ -19,7 +19,7 @@ expand_to_level_codes <- function (code_no, con) {
 }
 #' @rdname expanding
 #' @keywords internal
-expand_to_series_titles <- function(code_no, con){
+expand_to_series_titles <- function(code_no){
   get_table_levels(code_no) %>%
     dplyr::filter(!time) %>%
     dplyr::pull(levels) %>%
