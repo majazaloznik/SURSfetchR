@@ -188,7 +188,7 @@ prepare_series_table <- function(code_no, con){
   get_time_dimension(code_no, con) -> time_dimension
   get_interval_id(time_dimension) -> interval_id
   get_single_unit_from_px(code_no, con) -> unit_id
-  expand_to_level_codes(code_no, con) -> expanded_level_codes
+  expand_to_level_codes(code_no) -> expanded_level_codes
   expanded_level_codes %>%
     dplyr::mutate(unit_id = unit_id) -> expanded_level_codes
   if(is.na(unit_id)) {
@@ -214,7 +214,7 @@ prepare_series_table <- function(code_no, con){
   expanded_level_codes %>%
     tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
     dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
-    cbind(expand_to_series_titles(code_no, con)) %>%
+    cbind(expand_to_series_titles(code_no)) %>%
     dplyr::mutate(table_id = tbl_id,
                   interval_id = interval_id) %>%
     dplyr::select(table_id, series_title, unit_id, series_code, interval_id)

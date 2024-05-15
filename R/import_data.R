@@ -29,7 +29,7 @@ prepare_vintage_table <- function(code_no, con){
   } else {
     get_time_dimension(code_no, con) -> time_dimension
     get_interval_id(time_dimension) -> interval_id
-    expand_to_level_codes(code_no, con) -> expanded_level_codes
+    expand_to_level_codes(code_no) -> expanded_level_codes
     expanded_level_codes %>%
       tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
       dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
