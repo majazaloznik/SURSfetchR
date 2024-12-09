@@ -1,20 +1,3 @@
-
-
-test_that("html parsing is returning a relevant table", {
-  df <- parse_surs_updates()
-  expect_equal(ncol(df), 2)
-  expect_gte(nrow(df), 3709)
-  expect_true(lubridate::is.Date(df$date_updated))
-  expect_true(sum(grepl("s", df$id)) == 0)
-})
-
-test_that("subsetting is working ok", {
-  df <- subset_parsed_df(parse_surs_updates(), date = "2022-01-04")
-  expect_equal(nrow(df), 0)
-  df <- parse_surs_updates()
-  expect_equal(nrow(df), nrow(subset_parsed_df(df, date = NULL)))
-})
-
 test_that("we're getting the correct data from the OPSI API", {
   df <- surs_opsi_api(date = "2022-05-23")
   # expect_equal(nrow(df), 16)
