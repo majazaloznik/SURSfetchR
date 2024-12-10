@@ -203,7 +203,7 @@ get_full_structure <- function(tree){
     dplyr::select(id, my_name, parent_id,  pathString,  matrix_name, updated, file_id)  %>%
     dplyr::filter(!is.na(id)) %>%
     (function(df) dplyr::left_join(df, df %>% dplyr::select("my_name", "id"), by= c("parent_id" = "id"),
-                                   suffix = c("", "_parent"))) %>%
+                                   suffix = c("", "_parent"),  relationship = "many-to-many")) %>%
     dplyr::rename(name = my_name, parent_name = my_name_parent) %>%
     dplyr::mutate(parent_name = ifelse(is.na(parent_name), "SiStat", parent_name)) %>%
     dplyr::mutate(published = as.POSIXct(updated,format="%Y-%m-%dT%H:%M:%S",tz=Sys.timezone()),

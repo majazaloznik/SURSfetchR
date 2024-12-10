@@ -231,7 +231,7 @@ insert_data_points <- function(code_no, con, schema = "platform"){
 #' @param code character ID of the table e.g. "0714621S"
 #' @param con connection to database
 #'
-#' @return
+#' @return nothing
 #' @export
 #'
 add_new_table <- function(code, con) {

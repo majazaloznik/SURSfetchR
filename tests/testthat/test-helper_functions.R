@@ -8,25 +8,25 @@ dittodb::with_mock_db({
   DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("expanding level codes", {
-    out1 <- expand_to_level_codes("1912002S", con)
-    expect_true(nrow(out1) == 14)
+    out1 <- expand_to_level_codes("1912002S")
+    expect_true(nrow(out1) == 16)
     expect_true(ncol(out1) == 2)
     expect_true(all(is.na(out1$unit_id)))
-    out2 <- expand_to_series_titles("1912002S", con)
-    expect_true(nrow(out2) == 14)
+    out2 <- expand_to_series_titles("1912002S")
+    expect_true(nrow(out2) == 16)
     expect_true(ncol(out2) == 1)
-    out3 <- SURSfetchR:::expand_to_level_codes("0300230S", con) %>%
+    out3 <- SURSfetchR:::expand_to_level_codes("0300230S") %>%
       dplyr::mutate(unit_id = NA)
     x <- SURSfetchR:::get_level_text_from_meritve(2, con)
     print(x)
     units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
     print(units)
     out4 <- SURSfetchR:::add_meritve_level_units(out3, 2, units)
-    expect_true(nrow(out4) == 372)
+    expect_true(nrow(out4) == 408)
     expect_true(ncol(out4) == 5)
     print(out4$unit_id)
     expect_equal(unique(out4$unit_id), c(2,3, 4))
-    out5 <- expand_to_level_codes("1700104S", con) %>%
+    out5 <- expand_to_level_codes("1700104S") %>%
       dplyr::mutate(unit_id = NA)
     units <- get_valuenotes_from_px("1700104S", 15, con)
     out6 <- add_valuenotes_level_units(out5, 2, units)

@@ -1,3 +1,4 @@
+rm(list = ls())
 rsp <- get_API_response()
 out <- parse_structAPI_response(rsp)
 test_that("check API response is appropriate and the parsing works", {

@@ -32,7 +32,7 @@ dittodb::with_mock_db({
     expect_true(all(dim(x) == c(12,5)))
     expect_true("SURS--1700104S--1--1--Q" %in% x$series_code)
     x <- prepare_series_table("0300230S", con)
-    expect_true(all(dim(x) == c(372,5)))
+    expect_true(all(dim(x) == c(408,5)))
     expect_true("SURS--0300230S--P3_P5--V--N--Q" %in% x$series_code)
     x <- prepare_series_levels_table("1700104S", con)
     expect_true(all(dim(x) == c(24,3)))
