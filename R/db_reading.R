@@ -188,7 +188,7 @@ get_series_id <- function(series_code, con){
 #' @keywords internal
 get_series_id_from_table <- function(tbl_id, con){
   dplyr::tbl(con, "series") %>%
-    dplyr::filter(table_id == tbl_id, live == TRUE) %>%
+    dplyr::filter(table_id == tbl_id) %>%
     dplyr::pull(id)
 }
 
