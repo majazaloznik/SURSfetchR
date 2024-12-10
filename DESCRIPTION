@@ -13,6 +13,7 @@ Suggests:
     checkmate (>= 2.1.0),
     covr,
     dittodb,
+    rcmdcheck,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
