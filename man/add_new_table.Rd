@@ -11,6 +11,9 @@ add_new_table(code, con)
 
 \item{con}{connection to database}
 }
+\value{
+nothing
+}
 \description{
 The code gets the new hierarchy from the structAPI to get the category levels
 right and then inserts all the required strucutres and finally the data points
