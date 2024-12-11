@@ -1,3 +1,4 @@
+library(dittodb)
 dittodb::with_mock_db({
   con <- DBI::dbConnect(RPostgres::Postgres(),
                         dbname = "sandbox",

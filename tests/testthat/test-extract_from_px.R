@@ -1,3 +1,4 @@
+library(dittodb)
 full <- readRDS(test_path("testdata", "full_h.rds"))
 
 test_that("Metadata is properly parsed", {
