@@ -4,12 +4,14 @@
 \alias{add_new_table}
 \title{Umbrella code for adding a new table to the database}
 \usage{
-add_new_table(code, con)
+add_new_table(code, con, keep_vintage = FALSE)
 }
 \arguments{
 \item{code}{character ID of the table e.g. "0714621S"}
 
 \item{con}{connection to database}
+
+\item{keep_vintage}{boolean whether to keep vintages}
 }
 \value{
 nothing

@@ -230,13 +230,13 @@ insert_data_points <- function(code_no, con, schema = "platform"){
 #' right and then inserts all the required strucutres and finally the data points
 #' for the first set of vintages for these series
 #' @param code character ID of the table e.g. "0714621S"
-#' @param keep_vintage boolean whether to keep vintages
 #' @param con connection to database
+#' @param keep_vintage boolean whether to keep vintages
 #'
 #' @return nothing
 #' @export
 #'
-add_new_table <- function(code, keep_vintage = FALSE, con) {
+add_new_table <- function(code, con, keep_vintage = FALSE) {
   # get full hierarchy
   cont <- get_API_response()
   tree <- parse_structAPI_response(cont)

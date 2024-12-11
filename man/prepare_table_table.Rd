@@ -4,7 +4,7 @@
 \alias{prepare_table_table}
 \title{Prepare table to insert into `table` table}
 \usage{
-prepare_table_table(code_no)
+prepare_table_table(code_no, keep_vintage = FALSE)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
