@@ -8,6 +8,8 @@ prepare_table_table(code_no, keep_vintage = FALSE)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
+
+\item{keep_vintage}{boolean whether to keep vintages}
 }
 \value{
 a dataframe with the `code`, `name`, `source_id`, `url`, and `notes` columns

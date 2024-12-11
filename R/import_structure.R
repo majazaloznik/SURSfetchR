@@ -6,6 +6,7 @@
 #' of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
+#' @param keep_vintage boolean whether to keep vintages
 #'
 #' @return a dataframe with the `code`, `name`, `source_id`, `url`, and `notes` columns
 #' for this table.
