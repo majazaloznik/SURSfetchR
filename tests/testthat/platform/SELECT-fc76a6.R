@@ -12,5 +12,6 @@ structure(list(id = unserialize(as.raw(c(0x1.6p+6, 0x1.4p+3,
     0x1.94p+6, 0x1.9cp+6, 0x1.94p+6, 0x1.c8p+6, 0x1.bp+5, 0x1.ap+5, 
     0x0p+0, 0x0p+0, 0x0p+0, 0x1.fcp+7))), code = character(0), 
     name = character(0), source_id = integer(0), url = character(0), 
-    description = character(0), notes = structure(character(0), class = "pq_json")), row.names = c(NA, 
+    description = character(0), notes = structure(character(0), class = "pq_json"), 
+    keep_vintage = logical(0), update = logical(0)), row.names = c(NA, 
 0L), class = "data.frame")
