@@ -26,11 +26,12 @@ CREATE OR REPLACE FUNCTION platform.insert_new_table(code TEXT,
                                         source_id INTEGER,
                                         url TEXT,
                                         notes JSONB,
+                                        keep_vintage BOOL,
                                         OUT count INTEGER)
 AS $$
 BEGIN
-    INSERT INTO platform.table (code, name, source_id, url, notes)
-    VALUES (code, name, source_id, url, notes)
+    INSERT INTO platform.table (code, name, source_id, url, notes, keep_vintage)
+    VALUES (code, name, source_id, url, notes, keep_vintage)
     ON CONFLICT DO NOTHING;
     GET DIAGNOSTICS count = ROW_COUNT;
 END;

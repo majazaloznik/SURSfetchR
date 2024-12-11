@@ -8,7 +8,8 @@
 #' @inheritParams common_parameters
 #' @param full full field hierarchy with parent_ids et al, output from
 #'  \link[SURSfetchR]{get_full_structure}
-#'  @param schema default schema
+#' @param schema default schema
+#' @param keep_vintage boolean whether to keep vintages
 #'
 #' @return list of tables with counts for each inserted row.
 #' @export
@@ -17,11 +18,11 @@
 #' \dontrun{
 #' purrr::walk(master_list_surs$code, ~insert_new_table_structures(.x, con, full))
 #' }
-insert_new_table_structures <- function(code_no, con, full, schema = "platform") {
+insert_new_table_structures <- function(code_no, con, full, schema = "platform", keep_vintage = FALSE) {
   res <- list()
   res[[1]] <- sql_function_call(con,
                                 "insert_new_table",
-                                as.list(prepare_table_table(code_no)), schema = schema)
+                                as.list(prepare_table_table(code_no, keep_vintage)), schema = schema)
   res[[2]] <- sql_function_call(con,
                                 "insert_new_category",
                                 as.list(prepare_category_table(code_no, full)), schema = schema)
@@ -229,19 +230,20 @@ insert_data_points <- function(code_no, con, schema = "platform"){
 #' right and then inserts all the required strucutres and finally the data points
 #' for the first set of vintages for these series
 #' @param code character ID of the table e.g. "0714621S"
+#' @param keep_vintage boolean whether to keep vintages
 #' @param con connection to database
 #'
 #' @return nothing
 #' @export
 #'
-add_new_table <- function(code, con) {
+add_new_table <- function(code, keep_vintage = FALSE, con) {
   # get full hierarchy
   cont <- get_API_response()
   tree <- parse_structAPI_response(cont)
   full <- get_full_structure(tree)
   out <- list()
   # insert table structures for a single matrix
-  out[[1]] <- insert_new_table_structures(code, con, full)
+  out[[1]] <- insert_new_table_structures(code, keep_vintage, con, full)
   # insert data  for a single matrix
   out[[2]] <- insert_new_data(code, con)
   out

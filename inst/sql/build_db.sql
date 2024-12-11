@@ -215,7 +215,10 @@ INSERT INTO platform."unit"(
   name)
 VALUES ('1000');
 
-ALTER TABLE test_platform."table"
+ALTER TABLE platform."table"
 ADD COLUMN "update" boolean DEFAULT true NOT NULL;
+
+ALTER TABLE platform."table"
+ADD COLUMN "keep_vintage" boolean DEFAULT true NOT NULL;
 
 GRANT ALL ON ALL TABLES IN SCHEMA platform TO maintainer;

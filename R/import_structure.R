@@ -10,9 +10,10 @@
 #' @return a dataframe with the `code`, `name`, `source_id`, `url`, and `notes` columns
 #' for this table.
 #' @export
-prepare_table_table <- function(code_no) {
+prepare_table_table <- function(code_no, keep_vintage = FALSE) {
   get_px_metadata(code_no) %>%
-    dplyr::select(-updated, -valuenotes, -units)
+    dplyr::select(-updated, -valuenotes, -units) |>
+    dplyr::mutate(keep_vintage = keep_vintage)
 }
 
 #' Prepare table to insert into `category` table
