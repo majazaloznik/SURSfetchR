@@ -818,36 +818,68 @@ library(testthat)
 # x <- SURSfetchR:::get_level_text_from_meritve(2, con)
 # units <- SURSfetchR:::get_unit_levels_from_meritve(x, con)
 # stop_db_capturing()
-
-
-start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "platform",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-
-full <- readRDS(test_path("testdata", "full_h.rds"))
-out <- insert_new_table_structures("1817902S", con, full, schema = "test_platform")
-
-stop_db_capturing()
-
-
-start_db_capturing()
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = "platform",
-                 host = "localhost",
-                 port = 5432,
-                 user = "mzaloznik",
-                 password = Sys.getenv("PG_local_MAJA_PSW"))
-dbExecute(con, "set search_path to test_platform")
-
-on.exit(dbDisconnect)
-dbExecute(con, "set search_path to test_platform")
-out <- insert_data_points("1700104S", con, schema = "test_platform")
-stop_db_capturing()
-
+#
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "platform",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+#
+# full <- readRDS(test_path("testdata", "full_h.rds"))
+# out <- insert_new_table_structures("1817902S", con, full, schema = "test_platform")
+#
+# stop_db_capturing()
+#
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "platform",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+# dbExecute(con, "set search_path to test_platform")
+#
+# on.exit(dbDisconnect)
+# dbExecute(con, "set search_path to test_platform")
+# out <- insert_data_points("1700104S", con, schema = "test_platform")
+# stop_db_capturing()
+#
+# start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "platform",
+#                  host = "localhost",
+#                  port = 5433,
+#                  user = "postgres",
+#                  password = Sys.getenv("PG_local_15_PG_PSW"))
+# dbExecute(con, "set search_path to test_platform")
+#
+# on.exit(dbDisconnect)
+# # prepare_dimension_levels_table("0427602S", con)
+# out <- add_new_dimension_levels_full("0427602S", 30, con, schema = "test_platform")
+# stop_db_capturing()
+#
+#
+#
+# start_db_capturing()
+# con <- DBI::dbConnect(RPostgres::Postgres(),
+#                       dbname = "platform",
+#                       host = "localhost",
+#                       port = 5433,
+#                       user = "postgres",
+#                       password = Sys.getenv("PG_local_15_PG_PSW"))
+# dbExecute(con, "set search_path to test_platform")
+#
+# # Debug the query generation
+# query <- prepare_dimension_levels_table("0427602S", con) %>%
+#   dplyr::show_query()
+#
+# print(query)  # See what SQL is generated
+#
+# stop_db_capturing()

@@ -248,3 +248,43 @@ add_new_table <- function(code, con, keep_vintage = FALSE) {
   out[[2]] <- insert_new_data(code, con)
   out
 }
+
+
+#' Add new dimension levels to existing table
+#'
+#' Sometimes an existing table will get a new category. In that case you want to
+#' add the levels, series and series levels separately just for the new series
+#' and this function does that. You need to get the code for the new level from
+#' Si-Stat
+#'
+#' @param code surs table code such as 0457102S
+#' @param level level code such as 29
+#' @param con connection to database
+#' @param schema database schema name
+#'
+#' @return nothing
+#' @export
+#'
+add_new_dimension_levels_full <- function(code, level, con, schema = "platform" ){
+  dim_levels <- prepare_dimension_levels_table(code, con)
+  dim_level <- dim_levels |>
+    dplyr::filter(level_value == level)
+  sql_function_call(con,
+                    "insert_new_dimension_levels",
+                    as.list(dim_level), schema = schema)
+
+  new_series <- prepare_series_table(code, con)
+  new_series <- new_series |>
+    dplyr::filter(grepl(paste0("--",level, "--"), series_code))
+  sql_function_call(con,
+                    "insert_new_series",
+                    unname(as.list(new_series)), schema = schema)
+
+  series_levels <- prepare_series_levels_table(code, con)
+  new_series_ids <- purrr::map(new_series$series_code, SURSfetchR:::get_series_id, con = con)
+  new_series_levels <- series_levels |>
+    dplyr::filter(series_id %in% new_series_ids)
+  sql_function_call(con,
+                    "insert_new_series_levels",
+                    unname(as.list(new_series_levels)), schema = schema)
+}

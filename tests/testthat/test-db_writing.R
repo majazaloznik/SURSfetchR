@@ -1,5 +1,3 @@
-library(dittodb)
-full <- readRDS(test_path("testdata", "full_h.rds"))
 dittodb::with_mock_db({
   con <- DBI::dbConnect(RPostgres::Postgres(),
                         dbname = "sandbox",
@@ -18,3 +16,18 @@ dittodb::with_mock_db({
   dbDisconnect(con)
 })
 
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "platform",
+                        host = "localhost",
+                        port = 5433,
+                        user = "postgres",
+                        password = Sys.getenv("PG_local_15_PG_PSW"))
+  DBI::dbExecute(con, "set search_path to test_platform")
+
+  test_that("mock tests for insert new dimension levels", {
+    out <- add_new_dimension_levels_full("0427602S", 30, con, schema = "test_platform")
+    expect_equal(dim(out), c(0,1))
+  })
+  dbDisconnect(con)
+})

@@ -2,6 +2,7 @@
 
 export("%>%")
 export(Id2)
+export(add_new_dimension_levels_full)
 export(add_new_table)
 export(build_db_tables)
 export(email_surs_changes)
