@@ -19,24 +19,25 @@
 #' @export
 #'
 
-prepare_vintage_table <- function(code_no, con){
-  get_table_id(code_no, con) -> tbl_id
-  get_px_metadata(code_no)$updated -> published
-  get_last_publication_date(tbl_id, con) -> last_published
+prepare_vintage_table <- function(code_no, con, schema){
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+
+  published <- get_px_metadata(code_no)$updated
+  last_published <- UMARaccessR::sql_get_last_publication_date_from_table_id(tbl_id, con, schema)
   if(identical(published, last_published)) {
     stop(paste0("These vintages for table ", code_no,
                 "are not new, they will not be inserted again."))
   } else {
-    get_time_dimension(code_no, con) -> time_dimension
-    get_interval_id(time_dimension) -> interval_id
-    expand_to_level_codes(code_no) -> expanded_level_codes
+    time_dimension <- UMARaccessR::sql_get_time_dimension_from_table_code(code_no, con, schema)
+    interval_id <- get_interval_id(time_dimension)
+    expanded_level_codes <- expand_to_level_codes(tbl_id, con, schema)
     expanded_level_codes %>%
       tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
       dplyr::mutate(series_code = paste0("SURS--", code_no, "--",
                                          series_code, "--",interval_id)) -> x
-    get_series_id(x$series_code, con) -> series_ids
-    get_series_id_from_table(tbl_id, con) -> double_check
-    if(isTRUE(all.equal(sort(series_ids), sort(double_check)))){
+    series_ids <- UMARaccessR::sql_get_series_id_from_series_code(x$series_code, con, schema)
+    double_check <- UMARaccessR::sql_get_series_ids_from_table_id(tbl_id, con, schema)
+    if(isTRUE(all.equal(sort(series_ids$id), sort(double_check$id)))){
       data.frame(series_id = series_ids,
                  published = published) } else {
                    warning(paste("The newly published data in table", code_no,
@@ -59,9 +60,9 @@ prepare_vintage_table <- function(code_no, con){
 #' @return a dataframe the same size as was downloaded from the .px file, but
 #' with recoded dimension levels.
 #' @export
-prepare_data_table <- function(code_no, con){
-  tbl_id <- get_table_id(code_no, con)
-  time_dim <- get_time_dimension(code_no, con)
+prepare_data_table <- function(code_no, con, schema){
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+  time_dim <- UMARaccessR::sql_get_time_dimension_from_table_code(code_no, con, schema)
   px <- get_px_data(code_no)
   df <- px[[1]]
 

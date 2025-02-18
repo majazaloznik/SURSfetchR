@@ -1,7 +1,6 @@
 #' Get the metadata for an individual table
 #'
-#' In addition to the  \link[SURSfetchR]{get_table_levels} function, which gets the table's
-#' dimensions and levels, this one gets some other metadata from the .px file, which are
+#' This one gets some metadata from the .px file, which are
 #' not available to the pxweb library but use the pxR library. These are the creation date,
 #' units and notes, which are parsed as json and some other minor things.
 #'
@@ -133,30 +132,34 @@ get_row <- function(id_no, full, output = NULL){
 #' in there
 #' @param code_no character string of px code
 #' @param tbl_id numeric value of table's id in the `table` table
+#' @param schema defaults to platform
 #' @rdname get_px_stuff
 #' @keywords internal
-get_single_unit_from_px <- function(code_no, con){
+get_single_unit_from_px <- function(code_no, con, schema = "platform"){
   units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
   if(length(units_from_px)==1) {
-    unit_id <- get_unit_id(units_from_px, con)} else {
+    unit_id <- UMARaccessR::sql_get_unit_id_from_unit_name(units_from_px, con, schema)} else {
       unit_id <- NA}
   unit_id
 }
 
 #' @rdname get_px_stuff
 #' @keywords internal
-get_valuenotes_from_px <- function(code_no, tbl_id, con) {
+get_valuenotes_from_px <- function(code_no, con, schema = "platform") {
+  DBI::dbExecute(con, paste("set search_path to", schema))
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code( con,code_no, schema)
   as.data.frame(get_px_metadata(code_no)$valuenotes[[1]]) %>%
     tidyr::gather() -> x
   if(nrow(x)>0){
   purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
                      level_text = get_valuenotes_level(.))) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
-           level_value = get_level_value(tab_dim_id, level_text, con)) %>%
+    dplyr::mutate(tab_dim_id = UMARaccessR::sql_get_tab_dim_id_from_table_id_and_dimension(tbl_id, dim_name, con, schema),
+           level_value = UMARaccessR::sql_get_level_value_from_text(tab_dim_id, level_text, con, schema)) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out} else {
+    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con, schema)) -> out} else {
       out <- NULL}
+  out
 }
 
 
@@ -186,9 +189,9 @@ get_valuenotes_level <- function(x){
 
 #' @rdname valuenotes
 #' @keywords internal
-get_valuenotes_unit <- function(x, con){
-  y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
+get_valuenotes_unit <- function(x, con, schema = "platform"){
+  y <- regmatches(x, regexpr("(?<=Enota: ).+?(?=\\.|#)", x, perl = TRUE))
   y <- gsub( "\\.", "", y)
   unit_name <- gsub("\" \"", "", y)
-  as.numeric(get_unit_id(unit_name, con))
+  as.numeric(UMARaccessR::sql_get_unit_id_from_unit_name(unit_name, con, schema))
 }

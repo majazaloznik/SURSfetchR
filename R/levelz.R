@@ -13,7 +13,7 @@
 #' are dimensions in the table
 #'
 #' @export
-get_table_levels <- function(id) {
+get_table_levels_from_px <- function(id) {
   checkmate::qassert(id, "S[5,11]")
   id <- sub(".PX$", "", id)
   id <- sub(".px$", "", id)
@@ -35,7 +35,7 @@ get_table_levels <- function(id) {
 #' Starting out with a data frame with an `id` column of matrix names, the
 #' function loops through them and parses the GET response metadata (mainly levels) into
 #' a tibble that is saved in the `levelz` list-column. Uses
-#' \link[SURSfetchR]{get_table_levels} in the loop.
+#' \link[SURSfetchR]{get_table_levels_from_px} in the loop.
 #'
 #' @param df dataframe with an id column containing the .px codes
 #'
@@ -46,7 +46,7 @@ fill_listcolumn_w_levelz <- function(df) {
   checkmate::assert_data_frame(df)
   levelz <- vector("list", nrow(df))
   for(i in 1:nrow(df)) {
-    levelz[[i]] <- get_table_levels(df$id[i])
+    levelz[[i]] <- get_table_levels_from_px(df$id[i])
     Sys.sleep(0.1)
   }
   df$levelz <- levelz

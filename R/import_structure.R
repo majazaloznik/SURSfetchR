@@ -72,13 +72,14 @@ prepare_category_relationship_table <- function(code_no, full) {
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
 #' @param full full field hierarchy with parent_ids et al, output from
+#' @param schema database schema, defaults to "platform"
 #' \link[SURSfetchR]{get_full_structure}
 #' @return a dataframe with the `category_id` `table_id` and `source_id` columns for
 #' each table-category relationship.
 #' @export
 #'
-prepare_category_table_table <- function(code_no, full, con) {
-  get_table_id(code_no, con) -> tbl_id
+prepare_category_table_table <- function(code_no, full, con, schema = "platform") {
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
   full %>%
     dplyr::filter(name == code_no) %>%
     dplyr::select(category_id = parent_id) %>%
@@ -95,13 +96,14 @@ prepare_category_table_table <- function(code_no, full, con) {
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
 #' @return a dataframe with the `table_id`, `dimension_name`, `time` columns for
 #' each dimension of this table.
 #' @export
 #'
-prepare_table_dimensions_table <- function(code_no, con) {
-  get_table_id(code_no, con) -> tbl_id
-  get_table_levels(code_no) %>%
+prepare_table_dimensions_table <- function(code_no, con, schema = "platform") {
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+  get_table_levels_from_px(code_no) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(table_id, dimension_name, time) %>%
     dplyr::rename(is_time = time,
@@ -117,19 +119,17 @@ prepare_table_dimensions_table <- function(code_no, con) {
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
 #' @return a dataframe with the `dimension_name`, `values`, `valueTexts`, and `id`
 #' columns for this table.
 #' @export
 #'
-prepare_dimension_levels_table <- function(code_no, con) {
-  get_table_id(code_no, con) -> tbl_id
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::filter(is_time == FALSE) %>%
-    dplyr::select(dimension, id) %>%
-    dplyr::collect() -> dim_ids
+prepare_dimension_levels_table <- function(code_no, con, schema = "platform") {
 
-  get_table_levels(code_no) %>%
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+  dim_ids <- UMARaccessR::sql_get_non_time_dimensions_from_table_id( tbl_id, con, schema)
+
+  get_table_levels_from_px(code_no) %>%
     tidyr::unnest(levels) %>%
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%
@@ -148,14 +148,15 @@ prepare_dimension_levels_table <- function(code_no, con) {
 #' db_writing family of functions.
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
-#' @param con connection to the database
 #' @return a dataframe with the single column containing the different units used
 #' in this table.
 #' @export
 #'
-prepare_unit_table <- function(code_no, con) {
-data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
+prepare_unit_table <- function(code_no) {
+  df <- data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
     dplyr::mutate_all(tolower)
+  names(df) <- "name"
+  df
 }
 
 
@@ -177,35 +178,41 @@ data.frame(strsplit(get_px_metadata(code_no)$units, ", ")) %>%
 #' Returns table ready to insert into the `series`table with the
 #' db_writing family of functions.
 #'
-#' @param code_no character obect of the matrix code (e.g. 2300123S)
+#' @param code_no character object of the matrix code (e.g. 2300123S)
 #' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
 #'
 #' @return a dataframe with the following columns: `series_title`, `series_code`,
 #' `unit_id`, `table_id` and `interval_id`for each series in the table
 #' well as the same number of rows as there are series
 #' @export
 
-prepare_series_table <- function(code_no, con){
-  get_table_id(code_no, con) -> tbl_id
-  get_time_dimension(code_no, con) -> time_dimension
-  get_interval_id(time_dimension) -> interval_id
-  get_single_unit_from_px(code_no, con) -> unit_id
-  expand_to_level_codes(code_no) -> expanded_level_codes
+prepare_series_table <- function(code_no, con, schema = "platform"){
+  tbl_id <-  UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+  time_dimension <- UMARaccessR::sql_get_time_dimension_from_table_code(code_no, con, schema)
+  interval_id <- get_interval_id(time_dimension)
+  unit_id <- get_single_unit_from_px(code_no, con)
+
+  expand_to_level_codes(tbl_id, con, schema) -> expanded_level_codes
   expanded_level_codes %>%
     dplyr::mutate(unit_id = unit_id) -> expanded_level_codes
   if(is.na(unit_id)) {
-    get_meritve_id(tbl_id, con) -> meritve_dim_id
-    get_meritve_no(tbl_id, con) -> meritve_dim_no
+    meritve_dim_id <- UMARaccessR::sql_get_dimension_id_from_table_id_and_dimension(
+      tbl_id, "MERITVE", con, schema)
+    get_meritve_no(tbl_id, con, schema) -> meritve_dim_no
     if(length(meritve_dim_id) == 1) {# if MERITVE EXIST
-      get_level_text_from_meritve(meritve_dim_id, con) -> level_text_from_meritve
-      get_unit_levels_from_meritve(level_text_from_meritve, con) -> units_by_meritve_levels
+      UMARaccessR::sql_get_levels_from_dimension_id(meritve_dim_id, con, schema) -> level_text_from_meritve
+      get_unit_levels_from_meritve(level_text_from_meritve, con, schema) -> units_by_meritve_levels
       add_meritve_level_units(expanded_level_codes, meritve_dim_no,
                               units_by_meritve_levels) -> expanded_level_codes
     } else { # if valuenotes exist
-      get_valuenotes_from_px(code_no, tbl_id, con) -> units_by_levels
+      get_valuenotes_from_px(code_no, con, schema) -> units_by_levels
       if(!is.null(units_by_levels)){
-        get_valuenotes_id(tbl_id, units_by_levels$dim_name[1], con) -> valuenotes_dim_id
-        get_valuenotes_no(tbl_id,  units_by_levels$dim_name[1], con) -> valuenotes_dim_no
+        UMARaccessR::sql_get_dimension_id_from_table_id_and_dimension(tbl_id,
+                                                                      units_by_levels$dim_name[1],
+                                                                      con,
+                                                                      schema) -> valuenotes_dim_id
+        UMARaccessR::sql_get_dimension_position_from_table(tbl_id,  units_by_levels$dim_name[1], con, schema) -> valuenotes_dim_no
         if(length(valuenotes_dim_id) == 1){
           add_valuenotes_level_units(expanded_level_codes, valuenotes_dim_no,
                                      units_by_levels) -> expanded_level_codes}
@@ -216,7 +223,7 @@ prepare_series_table <- function(code_no, con){
   expanded_level_codes %>%
     tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
     dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
-    cbind(expand_to_series_titles(code_no)) %>%
+    cbind(expand_to_series_titles(tbl_id, con, schema)) %>%
     dplyr::mutate(table_id = tbl_id,
                   interval_id = interval_id) %>%
     dplyr::select(table_id, series_title, unit_id, series_code, interval_id)
@@ -235,23 +242,23 @@ prepare_series_table <- function(code_no, con){
 #'
 #' @param code_no the matrix code (e.g. 2300123S)
 #' @param con connection to the database
+#' @param schema database schema, defaults to "platform"
 #' @return a dataframe with the `series_id`, `tab_dim_id`, `value` columns
 #' all the series-level combinatins for this table.
 #' @export
 #'
-prepare_series_levels_table <- function(code_no, con) {
-  get_table_id(code_no, con) -> tbl_id
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id,
-                  is_time != TRUE) %>%
-    dplyr::pull(id) -> dimz
+prepare_series_levels_table <- function(code_no, con, schema = "platform") {
+  tbl_id <-  UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
+  dimz <- UMARaccessR::sql_get_dimensions_from_table_id(tbl_id, con, schema) |>
+    dplyr::filter(is_time != TRUE) |>
+    dplyr::pull(id)
 
-  dplyr::tbl(con, "series") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::collect() %>%
-    dplyr::select(table_id, id, code) %>%
-    tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") %>%
-    dplyr::select(series_id = id,  paste0(dimz)) %>%
-    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") %>%
+  UMARaccessR::sql_get_series_from_table_id(tbl_id, con, schema) |>
+    dplyr::filter(table_id == tbl_id) |>
+    dplyr::collect() |>
+    dplyr::select(table_id, id, code)  |>
+    tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") |>
+    dplyr::select(series_id = id,  paste0(dimz)) |>
+    tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") |>
     as.data.frame()
 }

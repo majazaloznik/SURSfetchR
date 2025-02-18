@@ -4,12 +4,14 @@
 \alias{prepare_series_table}
 \title{Prepare table to insert into `series` table}
 \usage{
-prepare_series_table(code_no, con)
+prepare_series_table(code_no, con, schema = "platform")
 }
 \arguments{
-\item{code_no}{character obect of the matrix code (e.g. 2300123S)}
+\item{code_no}{character object of the matrix code (e.g. 2300123S)}
 
 \item{con}{connection to the database}
+
+\item{schema}{database schema, defaults to "platform"}
 }
 \value{
 a dataframe with the following columns: `series_title`, `series_code`,

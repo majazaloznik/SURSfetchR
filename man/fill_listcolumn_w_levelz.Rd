@@ -16,5 +16,5 @@ a dataframe appended with the listcolumn of metadata
 Starting out with a data frame with an `id` column of matrix names, the
 function loops through them and parses the GET response metadata (mainly levels) into
 a tibble that is saved in the `levelz` list-column. Uses
-\link[SURSfetchR]{get_table_levels} in the loop.
+\link[SURSfetchR]{get_table_levels_from_px} in the loop.
 }

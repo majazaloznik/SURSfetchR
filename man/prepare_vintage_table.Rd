@@ -4,12 +4,14 @@
 \alias{prepare_vintage_table}
 \title{Prepare table to insert into `vintage` table}
 \usage{
-prepare_vintage_table(code_no, con)
+prepare_vintage_table(code_no, con, schema)
 }
 \arguments{
 \item{code_no}{character SURS px. code e.g. 0300230S}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 a dataframe with the `series_id` and `published` columns

@@ -4,12 +4,14 @@
 \alias{prepare_data_table}
 \title{Get and prepare data for import}
 \usage{
-prepare_data_table(code_no, con)
+prepare_data_table(code_no, con, schema)
 }
 \arguments{
 \item{code_no}{character SURS px. code e.g. 0300230S}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 a dataframe the same size as was downloaded from the .px file, but

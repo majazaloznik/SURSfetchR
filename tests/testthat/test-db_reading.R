@@ -1,91 +1,22 @@
-library(dittodb)
-dittodb::with_mock_db({
-  con <- DBI::dbConnect(RPostgres::Postgres(),
-                        dbname = "sandbox",
-                        host = "localhost",
-                        port = 5432,
-                        user = "mzaloznik",
-                        password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbExecute(con, "set search_path to test_platform")
-
-  test_that("mock tests for get_table", {
-    out <- get_table_id("0300230S", con)
-    expect_true(length(out) == 1)
-    expect_true(out == 1)
-    expect_true(length(get_table_id("x", con)) == 0)
-  })
-
-  test_that("mock tests for get_unit", {
-    expect_true(length(get_unit_id("%", con)) == 1)
-    expect_true(get_unit_id("%", con) == 3)
-    expect_true(length(get_unit_id("odstotne točke", con)) == 1)
-    expect_true(get_unit_id("odstotne točke", con) == 4)
-  })
-
-  test_that("mock tests for get_tab_dim_id", {
-    out <- get_tab_dim_id(2, "MERITVE", con)
-    expect_true(length(out) == 1)
-    expect_true(out == 6)
-  })
-
-  test_that("mock tests for get_level_value", {
-    out <-   get_level_value(2, "Tekoče cene (mio EUR)", con)
-    expect_true(length(out) == 1)
-    expect_true(out == "V")
-  })
-
-  test_that("mock tests for get_time_dimension", {
-    out <- get_time_dimension("0300230S", con)
-    expect_true(length(out) == 1)
-    expect_true(grepl( ".ETRTLETJE", out))
-  })
-
-  test_that("mock tests for get_meritve_id", {
-    out <-   get_meritve_id(2, con)
-    expect_true(length(out) == 1)
-    expect_true(out == 6)
-  })
-
-  test_that("mock tests for get_meritve_no", {
-    out <-   get_meritve_no(2, con)
-    expect_true(length(out) == 1)
+test_that("mock tests for get_meritve_no", {
+  dittodb::with_mock_db({
+    con <- make_test_connection()
+    out <- SURSfetchR:::get_meritve_no(20, con, schema = "test_platform")
     expect_true(out == 2)
   })
-
-
-  test_that("mock tests for get_level_text_from_meritve", {
-    out <- SURSfetchR:::get_level_text_from_meritve(2, con)
-    expect_true(all(dim(out) == c(6,3)))
-    out <- SURSfetchR:::get_unit_levels_from_meritve(out, con)
-    expect_true(all(dim(out) == c(6,5)))
-  })
-
-  test_that("mock tests for get_valuenotes_id", {
-    out <- get_valuenotes_id(14, "EKONOMSKI KAZALNIK", con)
-    expect_true(length(out) == 1)
-    expect_true(out == 45)
-  })
-
-  test_that("mock tests for get_valuenotes_no", {
-    out <- get_valuenotes_no(14, "EKONOMSKI KAZALNIK", con)
-    expect_true(length(out) == 1)
-    expect_true(out == 2)
-  })
-
-  test_that("mock tests for get_series_id", {
-    out <- get_series_id("SURS--1700104S--1--1--Q", con)
-    expect_true(length(out) == 1)
-    expect_true(out == 1895)
-  })
-  test_that("mock tests for latest publication", {
-  x <- get_last_publication_date(15, con)
-  expect_true(inherits(x, "POSIXct"))
-  expect_equal(x, structure(1666341000, class = c("POSIXct", "POSIXt"), tzone = "UTC"))
-  })
-  dbDisconnect(con)
 })
 
-test_that("mock tests for get_valuenotes_no", {
+test_that("mock tests for get_unit_levels_from_meritve", {
+  dittodb::with_mock_db({
+    con <- make_test_connection()
+    level_text_from_meritve <- UMARaccessR::sql_get_levels_from_dimension_id(63, con, schema = "test_platform")
+    out <- SURSfetchR:::get_unit_levels_from_meritve(level_text_from_meritve, con, schema = "test_platform")
+    expect_true(all(colnames(out) %in% c("tab_dim_id", "level_value", "tmp", "unit", "unit_id")))
+  })
+})
+
+
+test_that("mock tests for get_interval_id", {
   out <- get_interval_id("ČETRTLETJE")
   expect_true(length(out) == 1)
   expect_true(out == "Q")
@@ -96,4 +27,5 @@ test_that("mock tests for get_valuenotes_no", {
   expect_true(length(out) == 1)
   expect_true(out == "A")
 })
+
 

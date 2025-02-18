@@ -4,12 +4,14 @@
 \alias{prepare_table_dimensions_table}
 \title{Prepare table to insert into `table_dimensions` table}
 \usage{
-prepare_table_dimensions_table(code_no, con)
+prepare_table_dimensions_table(code_no, con, schema = "platform")
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
 
 \item{con}{connection to the database}
+
+\item{schema}{database schema, defaults to "platform"}
 }
 \value{
 a dataframe with the `table_id`, `dimension_name`, `time` columns for

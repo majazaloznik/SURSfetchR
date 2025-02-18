@@ -16,145 +16,42 @@
 #' @param tbl_dm_id numeric table-dimension id from that same table
 #' @param lvl_text character text of level label
 #' @param meritve_dim_id numeric dimension id of MERITVE dim
-#' @rdname get_stuff
-#' @return numeric code from the table table
-#' @keywords internal
-get_table_id <- function(code_no, con) {
-  dplyr::tbl(con, "table") %>%
-    dplyr::filter(code == code_no) %>%
-    dplyr::pull(id)
-}
-
-#' Helper fun to get correct code from unit text
-#'
-#' @rdname get_stuff
-#' @return numeric code from db table unit
-#' @keywords internal
-get_unit_id <- function(unit, con){
-  unit <- tolower(unit)
-  if(is.na(unit)) unit_id <- NA else  {
-    unit_id <- dplyr::tbl(con, "unit") %>%
-      dplyr::filter(name == unit) %>%
-      dplyr::pull(id)}
-  if (length(unit_id) == 0) {
-    sql_function_call(con,
-                      "insert_new_unit",
-                      list(unit))
-    unit_id <- dplyr::tbl(con, "unit") %>%
-      dplyr::filter(name == unit) %>%
-      dplyr::pull(id)
-  }
-  unit_id
-}
-
-#' @rdname get_stuff
-
-#' @return numeric code of table-dimension id
-#' @keywords internal
-get_tab_dim_id <- function(tbl_id, dim_name, con) {
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id,
-                  dimension == dim_name) %>%
-    dplyr::pull(id)
-}
-
-
-#' @rdname get_stuff
-#' @return character code from level value code
-#' @keywords internal
-get_level_value <- function(tbl_dm_id, lvl_text, con) {
-  dplyr::tbl(con, "dimension_levels") %>%
-    dplyr::filter(tab_dim_id == tbl_dm_id,
-                  level_text == lvl_text) %>%
-    dplyr::pull(level_value)
-}
-
-
-#' @rdname get_stuff
-#' @return character text of time dimension from table code
-#' @keywords internal
-get_time_dimension <- function(code_no, con) {
-  tbl_id <- get_table_id(code_no, con)
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::filter(is_time) %>%
-    dplyr::pull(dimension)
-}
-
-#' @rdname get_stuff
-#' @return numeric id of MERITVE dimension if it exists,
-#' @keywords internal
-get_meritve_id <- function(tbl_id, con) {
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::mutate(row = dplyr::row_number()) %>%
-    dplyr::filter(dimension == "MERITVE") %>%
-    dplyr::pull(id)
-}
 
 #' @rdname get_stuff
 #' @return numeric position of MERITVE dimension if it exists,
 #' @keywords internal
-get_meritve_no <-function(tbl_id, con) {
+get_meritve_no <-function(tbl_id, con, schema = "platform") {
+  DBI::dbExecute(con, paste("set search_path to", schema ))
   dplyr::tbl(con, "table_dimensions") %>%
     dplyr::filter(table_id == tbl_id,
                   is_time != TRUE) %>%
     dplyr::mutate(poz = dplyr::row_number()) %>%
     dplyr::filter(dimension == "MERITVE") %>%
-    dplyr::pull(poz)
+    dplyr::pull(poz) |>
+    as.numeric()
 }
+
 
 #' @rdname get_stuff
 #' @return tibble with 4 cols including `level_value` and `unit_id`
 #' @keywords internal
-get_level_text_from_meritve <- function(meritve_dim_id, con){
-  dplyr::tbl(con, "dimension_levels") %>%
-    dplyr::filter(tab_dim_id == meritve_dim_id) %>%
-    dplyr::collect()
-}
-
-#' @rdname get_stuff
-#' @return tibble with 4 cols including `level_value` and `unit_id`
-#' @keywords internal
-get_unit_levels_from_meritve <- function(meritve_level_text, con){
+get_unit_levels_from_meritve <- function(meritve_level_text, con, schema = "platform"){
+  DBI::dbExecute(con, paste("set search_path to", schema))
   meritve_level_text %>%
     dplyr::mutate(tmp = regexpr("(?<=[(]{1})([^)]+)(?=[)]{1}$)",
                                 level_text, perl = TRUE)) %>%
-    dplyr::mutate(unit = ifelse(tmp == -1, NA, regmatches(level_text, tmp))) %>%
+    dplyr::mutate(unit = ifelse(tmp == -1, "", regmatches(level_text, tmp))) %>%
     dplyr::mutate(unit = gsub("^v ", "", unit)) %>%
     dplyr::select(-level_text) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(unit_id = get_unit_id(unit, con))
-}
-
-#' @rdname get_stuff
-#' @return numeric id of valuenotes dimension if it exists,
-#' @keywords internal
-get_valuenotes_id <- function(tbl_id, dim_name, con) {
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::mutate(row = dplyr::row_number()) %>%
-    dplyr::filter(dimension == dim_name) %>%
-    dplyr::pull(id)
-}
-
-#' @rdname get_stuff
-#' @return numeric position of valuenotes dimension if it exists
-#' @keywords internal
-get_valuenotes_no <-function(tbl_id, dim_name, con) {
-  dplyr::tbl(con, "table_dimensions") %>%
-    dplyr::filter(table_id == tbl_id,
-                  is_time != TRUE) %>%
-    dplyr::mutate(poz = dplyr::row_number()) %>%
-    dplyr::filter(dimension == dim_name) %>%
-    dplyr::pull(poz)
+    dplyr::mutate(unit_id = UMARaccessR::sql_get_unit_id_from_unit_name(tolower(unit), con, schema))
 }
 
 
 #' Helper to get interval id from lookup vector
 #'
 #' This is not a db reading function, but it kinda fits with them, simply
-#' because i'm using a lookup vector inside the funciton instead of creating
+#' because i'm using a lookup vector inside the function instead of creating
 #' another table in the database to get the interval id.
 #'
 #' @param interval_text text of the time interval name
@@ -170,37 +67,3 @@ get_interval_id <- function(interval_text) {
   interval_id
 }
 
-#' Helper fun to get series id given a series code
-#'
-#' @rdname get_stuff
-#' @return numeric code from db table series
-#' @keywords internal
-get_series_id <- function(series_code, con){
-  dplyr::tbl(con, "series") %>%
-    dplyr::filter(code %in% series_code) %>%
-    dplyr::pull(id)
-}
-
-#' Helper fun to get series id given a table id
-#'
-#' @rdname get_stuff
-#' @return numeric code from db table series
-#' @keywords internal
-get_series_id_from_table <- function(tbl_id, con){
-  dplyr::tbl(con, "series") %>%
-    dplyr::filter(table_id == tbl_id) %>%
-    dplyr::pull(id)
-}
-
-#' Helper fun to get most recent publication date for given table
-#'
-#' @rdname get_stuff
-#' @return numeric code from db table series
-#' @keywords internal
-get_last_publication_date <- function(tbl_id, con){
-  get_series_id_from_table(tbl_id, con) -> series_ids
-  dplyr::tbl(con, "vintage") %>%
-    dplyr::filter(series_id %in% series_ids) %>%
-    dplyr::distinct(published) %>%
-    dplyr::pull(published)
-}

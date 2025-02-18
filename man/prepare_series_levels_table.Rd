@@ -4,12 +4,14 @@
 \alias{prepare_series_levels_table}
 \title{Prepare table to insert into `series_levels` table}
 \usage{
-prepare_series_levels_table(code_no, con)
+prepare_series_levels_table(code_no, con, schema = "platform")
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
 
 \item{con}{connection to the database}
+
+\item{schema}{database schema, defaults to "platform"}
 }
 \value{
 a dataframe with the `series_id`, `tab_dim_id`, `value` columns

@@ -2,12 +2,12 @@ matrixez_w_mtdt <- readRDS(test_path("testdata", "matrixez_w_mtdt.rds"))
 mat_h <- readRDS(test_path("testdata", "mat_h.rds"))
 
 test_that("Metadata is properly parsed from GET", {
-  expect_error(get_table_levels("222"))
-  mtdt_tbl <- get_table_levels("2221702S")
+  expect_error(get_table_levels_from_px("222"))
+  mtdt_tbl <- get_table_levels_from_px("2221702S")
   checkmate::expect_tibble(mtdt_tbl)
   checkmate::expect_list(mtdt_tbl$levels)
-  expect_equal(mtdt_tbl, get_table_levels("2221702S.px"))
-  expect_equal(mtdt_tbl, get_table_levels("2221702S.PX"))
+  expect_equal(mtdt_tbl, get_table_levels_from_px("2221702S.px"))
+  expect_equal(mtdt_tbl, get_table_levels_from_px("2221702S.PX"))
 })
 
 

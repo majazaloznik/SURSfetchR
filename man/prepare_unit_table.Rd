@@ -4,12 +4,10 @@
 \alias{prepare_unit_table}
 \title{Prepare table to insert into `units` table}
 \usage{
-prepare_unit_table(code_no, con)
+prepare_unit_table(code_no)
 }
 \arguments{
 \item{code_no}{the matrix code (e.g. 2300123S)}
-
-\item{con}{connection to the database}
 }
 \value{
 a dataframe with the single column containing the different units used
