@@ -53,6 +53,36 @@ get_px_data <- function(id) {
  list(l$DATA$value, l$VALUES, l$CODES)
 }
 
+#' GET the dimensions and levels for an individual table from the SURS API
+#'
+#' Takes the matrix code of a SURS table (with or without the .px extension)
+#' and uses GET to return the metadata as a tibble. NB: this is a limited set
+#' of metadata, with only dim_names and levels and the elim and time varz.
+#' I think I used it because it had the levels in a nice format. Use XXX instead
+#' to get the richer metadata out.
+#'
+#' @param id character vector of length 1 with code of matrix. Can be with or
+#' without the .px extension.
+#'
+#' @return A tibble with four columns and the same number of rows as there
+#' are dimensions in the table
+#'
+#' @export
+get_table_levels_from_px <- function(id) {
+  checkmate::qassert(id, "S[5,11]")
+  id <- sub(".PX$", "", id)
+  id <- sub(".px$", "", id)
+  url <- paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", id, ".px")
+  res <-httr::GET(url)
+  mtd <- pxweb::pxweb_parse_response(res)
+  mtdt_tbl <- tibble::tibble(
+    dimension_name = sapply(mtd$variables, function(x) x$text),
+    elim = sapply(mtd$variables, function(x) x$elimination),
+    time = sapply(mtd$variables, function(x) x$time),
+    levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4]))) %>%
+    dplyr::mutate(id = sub(".px$", "", id))
+  return(mtdt_tbl)
+}
 
 #' Helper function to get parent category from full hierarchy
 #'

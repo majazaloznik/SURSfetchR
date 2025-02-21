@@ -134,8 +134,8 @@ prepare_dimension_levels_table <- function(code_no, con, schema = "platform") {
     dplyr::mutate(table_id = tbl_id) %>%
     dplyr::select(dimension_name, values, valueTexts) %>%
     dplyr::inner_join(dim_ids, by = c("dimension_name" = "dimension")) %>%
-    dplyr::select(-dimension_name) %>%
     dplyr::rename(tab_dim_id = id,
+                  dimension = dimension_name,
                   level_value = values,
                   level_text = valueTexts)
 }

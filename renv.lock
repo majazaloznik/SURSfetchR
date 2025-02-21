@@ -79,7 +79,7 @@
       "RemoteUsername": "majazaloznik",
       "RemoteRepo": "UMARaccessR",
       "RemoteRef": "main",
-      "RemoteSha": "f8c8f88caeeaec781837f44822a662d6b21ca769",
+      "RemoteSha": "be8d914ded3ba6ec19947cfd96326212f4793d0f",
       "Requirements": [
         "DBI",
         "UMARimportR",
@@ -89,7 +89,7 @@
         "openxlsx",
         "rlang"
       ],
-      "Hash": "c1f090abc6c589401fb7594c66660a3d"
+      "Hash": "8f63e856426b40cdd9f85cffc408288d"
     },
     "UMARimportR": {
       "Package": "UMARimportR",
@@ -100,12 +100,14 @@
       "RemoteUsername": "majazaloznik",
       "RemoteRepo": "UMARimportR",
       "RemoteRef": "main",
-      "RemoteSha": "0cc64a44876cbc1d900e3c539d91adbec5b9b5ed",
+      "RemoteSha": "c3cc7c0ad70a6cab5399afa032eb40ba478b566c",
       "Requirements": [
         "DBI",
-        "RPostgres"
+        "RPostgres",
+        "dplyr",
+        "purrr"
       ],
-      "Hash": "dfaff02cf3b3aa8e955119f66eaddd22"
+      "Hash": "abdf14aa1a9f4555bd4b24b6e9377f83"
     },
     "askpass": {
       "Package": "askpass",
@@ -562,7 +564,7 @@
     },
     "purrr": {
       "Package": "purrr",
-      "Version": "1.0.2",
+      "Version": "1.0.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -573,7 +575,7 @@
         "rlang",
         "vctrs"
       ],
-      "Hash": "1cba04a4e9414bdefc9dcaa99649a8dc"
+      "Hash": "cc8b5d43f90551fa6df0a6be5d640a4f"
     },
     "pxR": {
       "Package": "pxR",

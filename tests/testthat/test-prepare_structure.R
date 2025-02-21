@@ -24,7 +24,7 @@ test_that("mock tests for table prep with db access", {
     expect_true(all(dim(x) == c(3,3)))
     expect_true(x$is_time[1])
     x <- prepare_dimension_levels_table("1700104S", con, schema = "test_platform")
-    expect_true(all(dim(x) == c(8,3)))
+    expect_true(all(dim(x) == c(8,4)))
     expect_true(max(x$level_value) == 6)
     x <- prepare_series_table("1700104S", con, schema = "test_platform")
     expect_true(ncol(x) == 5)

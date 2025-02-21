@@ -21,6 +21,16 @@ test_that("Data is downloaded ok. ", {
   expect_true(nrow(dt_tbl[[1]]) >= 540)
 })
 
+test_that("Metadata is properly parsed from GET", {
+  expect_error(get_table_levels_from_px("222"))
+  mtdt_tbl <- get_table_levels_from_px("2221702S")
+  checkmate::expect_tibble(mtdt_tbl)
+  checkmate::expect_list(mtdt_tbl$levels)
+  expect_equal(mtdt_tbl, get_table_levels_from_px("2221702S.px"))
+  expect_equal(mtdt_tbl, get_table_levels_from_px("2221702S.PX"))
+})
+
+
 test_that("Categories are properly parsed", {
   x <- get_row(12964, full)
   checkmate::expect_data_frame(x)
