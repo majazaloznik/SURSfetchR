@@ -4,9 +4,8 @@ on:
   push:
     branches: [main, master, refactor-umaraccessr]
   pull_request:
-  pull_request:
 
-name: test-coverage.yaml
+name: test-coverage
 
 permissions:
   contents: read
