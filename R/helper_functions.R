@@ -25,7 +25,7 @@ expand_to_series_titles <- function (tbl_id, con, schema = "platform") {
           c(setNames(split(levels$level_text, levels$tab_dim_id),
                      paste0("Var", seq_along(unique(levels$tab_dim_id)))),
             stringsAsFactors = FALSE)) |>
-    tidyr::unite("series_title", dplyr::everything(), sep = " -- ")
+    tidyr::unite("name_long", dplyr::everything(), sep = " -- ")
 }
 
 #' Joining the unit tables from either meritve or valuenotes.

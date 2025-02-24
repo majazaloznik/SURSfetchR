@@ -100,14 +100,14 @@
       "RemoteUsername": "majazaloznik",
       "RemoteRepo": "UMARimportR",
       "RemoteRef": "main",
-      "RemoteSha": "c3cc7c0ad70a6cab5399afa032eb40ba478b566c",
+      "RemoteSha": "e14b5bc82799b0a1d2e9724038c48f7e0f20e005",
       "Requirements": [
         "DBI",
         "RPostgres",
         "dplyr",
         "purrr"
       ],
-      "Hash": "abdf14aa1a9f4555bd4b24b6e9377f83"
+      "Hash": "f689edc498c4cb8a821f321e5f1e4664"
     },
     "askpass": {
       "Package": "askpass",

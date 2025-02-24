@@ -191,7 +191,7 @@ prepare_series_table <- function(code_no, con, schema = "platform"){
   tbl_id <-  UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
   time_dimension <- UMARaccessR::sql_get_time_dimension_from_table_code(code_no, con, schema)
   interval_id <- get_interval_id(time_dimension)
-  unit_id <- get_single_unit_from_px(code_no, con)
+  unit_id <- get_single_unit_from_px(code_no, con, schema)
 
   expand_to_level_codes(tbl_id, con, schema) -> expanded_level_codes
   expanded_level_codes %>%
@@ -221,12 +221,12 @@ prepare_series_table <- function(code_no, con, schema = "platform"){
   }
 
   expanded_level_codes %>%
-    tidyr::unite("series_code", dplyr::starts_with("Var"), sep = "--") %>%
-    dplyr::mutate(series_code = paste0("SURS--", code_no, "--", series_code, "--",interval_id)) %>%
+    tidyr::unite("code", dplyr::starts_with("Var"), sep = "--") %>%
+    dplyr::mutate(code = paste0("SURS--", code_no, "--", code, "--",interval_id)) %>%
     cbind(expand_to_series_titles(tbl_id, con, schema)) %>%
     dplyr::mutate(table_id = tbl_id,
                   interval_id = interval_id) %>%
-    dplyr::select(table_id, series_title, unit_id, series_code, interval_id)
+    dplyr::select(table_id, name_long, unit_id, code, interval_id)
 }
 
 
@@ -260,5 +260,6 @@ prepare_series_levels_table <- function(code_no, con, schema = "platform") {
     tidyr::separate(code, into = c("x1", "x2", paste0(dimz), "x3"), sep = "--") |>
     dplyr::select(series_id = id,  paste0(dimz)) |>
     tidyr::pivot_longer(-series_id, names_to = "tab_dim_id") |>
+    dplyr::rename(level_value = value) |>
     as.data.frame()
 }

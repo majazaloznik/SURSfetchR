@@ -1,4 +1,3 @@
-
 full <- readRDS(test_path("testdata", "full_h.rds"))
 
 test_that("mock tests table prep without db access", {

@@ -86,3 +86,7 @@ source("tests/testthat/helper-connection.R")
 # SURSfetchR:::expand_to_series_titles(14, con, schema = "test_platform")
 # stop_db_capturing()
 
+start_db_capturing()
+con <- make_test_connection()
+SURS_import_structure("2711808S", con, schema = "test_platform")
+stop_db_capturing()
