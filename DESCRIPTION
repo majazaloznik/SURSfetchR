@@ -38,10 +38,12 @@ Imports:
     bit64 (>= 4.0.5),
     here (>= 1.0.1),
     envDocument (>= 2.4.1),
-    UMARaccessR (>= 1.0.0)
+    UMARaccessR (>= 1.0.0),
+    UMARimportR
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 Remotes: 
     rOpenGov/pxweb,
-    majazaloznik/UMARaccessR
+    majazaloznik/UMARaccessR,
+    majazaloznik/UMARimportR

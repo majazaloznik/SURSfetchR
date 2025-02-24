@@ -27,7 +27,7 @@ test_that("mock tests for table prep with db access", {
     expect_true(max(x$level_value) == 6)
     x <- prepare_series_table("1700104S", con, schema = "test_platform")
     expect_true(ncol(x) == 5)
-    expect_true("SURS--1700104S--1--1--Q" %in% x$series_code)
+    expect_true("SURS--1700104S--1--1--Q" %in% x$code)
     x <- prepare_series_levels_table("1700104S", con, "test_platform")
     expect_true(all(dim(x) == c(24,3)))
   })

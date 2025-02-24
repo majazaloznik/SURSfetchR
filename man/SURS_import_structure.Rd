@@ -19,6 +19,9 @@ SURS_import_structure(
 
 \item{schema}{schema name, defaults to platform}
 
+\item{all_levels}{logical whether to let user use dimension selector, default
+is true, which automatically selects all levels in all dimensions}
+
 \item{keep_vintage}{logical indicating whether to keep vintages, defaults to F}
 }
 \value{

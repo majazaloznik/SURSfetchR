@@ -6,6 +6,8 @@
 #' @param code_no SURS code name of the table
 #' @param con connection to database
 #' @param schema schema name, defaults to platform
+#' @param all_levels logical whether to let user use dimension selector, default
+#' is true, which automatically selects all levels in all dimensions
 #' @param keep_vintage logical indicating whether to keep vintages, defaults to F
 #'
 #' @returns nothing
