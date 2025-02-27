@@ -29,5 +29,9 @@ nothing
 }
 \description{
 Umbrella function that prepares and import all the metadata tables into
-the database.
+the database. This function is a bit slow because it downloads and imports
+the full SURS category hierarchy, which takes a while, and i could
+maybe have it already downloaded and stored, but it might change and i don't
+know how often it does, and we don't insert new tables so often so for now
+i'll leave it like this.
 }

@@ -54,10 +54,10 @@ source("tests/testthat/helper-connection.R")
 # prepare_dimension_levels_table("1700104S", con, schema = "test_platform")
 # stop_db_capturing()
 #
-start_db_capturing()
-con <- make_test_connection()
-prepare_series_table("1700104S", con, schema = "test_platform")
-stop_db_capturing()
+# start_db_capturing()
+# con <- make_test_connection()
+# prepare_series_table("1700104S", con, schema = "test_platform")
+# stop_db_capturing()
 #
 # start_db_capturing()
 # con <- make_test_connection()
@@ -80,13 +80,25 @@ stop_db_capturing()
 # SURSfetchR:::expand_to_level_codes(2, con, schema = "test_platform")
 # SURSfetchR:::expand_to_level_codes(15, con, schema = "test_platform")
 # stop_db_capturing()
-
+#
 # start_db_capturing()
 # con <- make_test_connection()
 # SURSfetchR:::expand_to_series_titles(14, con, schema = "test_platform")
 # stop_db_capturing()
+#
+# start_db_capturing()
+# con <- make_test_connection()
+# SURS_import_structure("2711808S", con, schema = "test_platform")
+# stop_db_capturing()
+#
+# start_db_capturing()
+# con <- make_test_connection()
+# x <- prepare_vintage_table("2711808S", con, schema = "test_platform")
+# stop_db_capturing()
 
 start_db_capturing()
 con <- make_test_connection()
-SURS_import_structure("2711808S", con, schema = "test_platform")
+x <- prepare_data_table("1700104S", con, schema = "test_platform")
+prepare_data_table("H240S", con, "test_platform")
 stop_db_capturing()
+

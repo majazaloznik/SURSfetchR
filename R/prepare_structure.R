@@ -263,3 +263,5 @@ prepare_series_levels_table <- function(code_no, con, schema = "platform") {
     dplyr::rename(level_value = value) |>
     as.data.frame()
 }
+
+
