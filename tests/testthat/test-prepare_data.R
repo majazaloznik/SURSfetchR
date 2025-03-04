@@ -7,5 +7,13 @@ test_that("mock tests table prep without db access", {
     expect_equal(dim(x), c(1404 ,4))
     x <- prepare_data_table("H240S", con, "test_platform")
     expect_equal(dim(x), c(20 ,4))
+    x <- prepare_surs_data_for_insert("H240S", con, "test_platform")
+    expect_true(is.list(x))
+    expect_true(length(x) == 6)
+    expect_true(all(names(x) == c("data", "table_id", "time_dimension",
+                              "interval_id", "dimension_ids", "dimension_names")))
+    expect_true(all(names(x$data) == c("LETO", "TRANSAKCIJA", "value", "SEKTOR",
+                                   "raw_time", "time", "flag", "interval_id")))
+
   })
 })

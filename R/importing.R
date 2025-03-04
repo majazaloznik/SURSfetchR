@@ -72,3 +72,23 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
   invisible(insert_results)
 }
 
+#' Insert data points from SURS
+#'
+#' Function to prepare and insert SURS data points.
+#'
+#' @param code_no SURS code name of the table
+#' @param con Database connection
+#' @param schema Schema name
+#'
+#' @return Insertion results (invisibly)
+#' @export
+SURS_insert_data_points <- function(code_no, con, schema = "platform") {
+  # Prepare data in SURS-specific way
+  prep_data <- prepare_surs_data_for_insert(code_no, con, schema)
+
+  # Insert the prepared data
+  result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
+
+  # Return results invisibly
+  invisible(result)
+}

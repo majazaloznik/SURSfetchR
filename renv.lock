@@ -42,7 +42,7 @@
     },
     "RPostgres": {
       "Package": "RPostgres",
-      "Version": "1.4.7",
+      "Version": "1.4.8",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -57,7 +57,7 @@
         "plogr",
         "withr"
       ],
-      "Hash": "beb7e18bf3f9e096f716a52a77ec793c"
+      "Hash": "c74e7e71feadc6b7c5de999483f330cd"
     },
     "Rcpp": {
       "Package": "Rcpp",
@@ -79,7 +79,7 @@
       "RemoteUsername": "majazaloznik",
       "RemoteRepo": "UMARaccessR",
       "RemoteRef": "main",
-      "RemoteSha": "be8d914ded3ba6ec19947cfd96326212f4793d0f",
+      "RemoteSha": "e96c94a3db483d99c31609b5960e21462874201e",
       "Requirements": [
         "DBI",
         "UMARimportR",
@@ -87,9 +87,10 @@
         "lubridate",
         "magrittr",
         "openxlsx",
+        "purrr",
         "rlang"
       ],
-      "Hash": "8f63e856426b40cdd9f85cffc408288d"
+      "Hash": "21059bf9749efc3a357f20f29791e4ac"
     },
     "UMARimportR": {
       "Package": "UMARimportR",
@@ -100,14 +101,14 @@
       "RemoteUsername": "majazaloznik",
       "RemoteRepo": "UMARimportR",
       "RemoteRef": "main",
-      "RemoteSha": "e14b5bc82799b0a1d2e9724038c48f7e0f20e005",
+      "RemoteSha": "0c095710b642baba3a8d42602b61d7d266cc00dc",
       "Requirements": [
         "DBI",
         "RPostgres",
         "dplyr",
         "purrr"
       ],
-      "Hash": "f689edc498c4cb8a821f321e5f1e4664"
+      "Hash": "644aa0128c8e2ab1ee30fa2aae0efbb3"
     },
     "askpass": {
       "Package": "askpass",
