@@ -136,7 +136,7 @@ prepare_surs_data_for_insert <- function(code_no, con, schema = "platform") {
     parts <- strsplit(x, " ")[[1]]
     if (length(parts) > 1) {
       flag_text <- paste(parts[-1], collapse = " ")
-      if (grepl("začasni podatki|zacasni podatki", flag_text, ignore.case = TRUE)) {
+      if (grepl("za\u010dasni podatki|zacasni podatki", flag_text, ignore.case = TRUE)) {
         return("T")
       }
       return(flag_text)
