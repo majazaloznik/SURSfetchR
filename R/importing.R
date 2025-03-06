@@ -27,7 +27,6 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
   insert_results$table <- UMARimportR::insert_new_table_table(con, table_table, schema)
   message("Table insert: ", insert_results$table$count, " rows")
   # preapre and insert category table
-  full <- get_full_category_hierarchy()
   category_table <- prepare_category_table(code_no, full)
   insert_results$category <- UMARimportR::insert_new_category(con, category_table, schema)
   message("Category insert: ", insert_results$category$count, " rows")
@@ -74,7 +73,13 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
 
 #' Insert data points from SURS
 #'
-#' Function to prepare and insert SURS data points.
+#' Function to prepare and insert SURS data points. The function first prepares
+#' the required vintages and inserts them, then prepares the data points
+#' table and isnerts it. The function returns the results invisibly.
+#'
+#' This is a SURS specific function, which should be followed by the generic
+#' UMARimportR function to write the vintage hashes and clean up redundant
+#' vintages.
 #'
 #' @param code_no SURS code name of the table
 #' @param con Database connection
@@ -82,12 +87,18 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
 #'
 #' @return Insertion results (invisibly)
 #' @export
-SURS_insert_data_points <- function(code_no, con, schema = "platform") {
+SURS_import_data_points <- function(code_no, con, schema = "platform") {
+  message("Importing data points from: ", code_no, " into schema ", schema)
+  # collect outputs from the funcitons into one result list
+  result <- list()
+  # prepare SURS vintage table
+  vintages <- prepare_vintage_table(code_no, con, schema)
+  # import vintages
+  result$vintages <- UMARimportR::insert_new_vintage(con, vintages, schema)
   # Prepare data in SURS-specific way
   prep_data <- prepare_surs_data_for_insert(code_no, con, schema)
-
   # Insert the prepared data
-  result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
+  result$data <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
 
   # Return results invisibly
   invisible(result)

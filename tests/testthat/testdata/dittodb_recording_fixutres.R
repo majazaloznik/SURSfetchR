@@ -109,7 +109,14 @@ source("tests/testthat/helper-connection.R")
 
 start_db_capturing()
 con <- make_test_connection()
-df <- prepare_vintage_table("2711808S", con, schema = "test_platform")
+df <- prepare_vintage_table("1817902S", con, schema = "test_platform")
 UMARimportR::insert_new_vintage(con, df, "test_platform")
-SURS_insert_data_points("2711808S", con, "test_platform")
+prep_data <- prepare_surs_data_for_insert("0300260S", con, schema = "test_platform")
+result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema = "test_platform")
 stop_db_capturing()
+
+start_db_capturing()
+con <- make_test_connection()
+x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
+stop_db_capturing()
+

@@ -8,3 +8,12 @@ test_that("SURS_import_structure works correctly with mocked dimension_selector"
   })
 })
 
+test_that("SURS_import_data_points works correctly ", {
+  with_mock_db({
+    con <- make_test_connection()
+    x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
+    expect_true("data" %in% names(x))
+    expect_true("vintages" %in% names(x))
+
+  })
+})

@@ -69,7 +69,7 @@ add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
 #' Helper for recoding dimension levels
 #'
 #' Recodes dimension level labels into dimension level codes. Both
-#' labels and codes are extracted inside the  \link[SURSfetchR]{prepare_data_table}
+#' labels and codes are extracted inside the  \link[SURSfetchR]{prepare_surs_data_for_insert}
 #' function, which is where this helper is also called.
 #'
 #' @param i numeric index for mapping over the dimensions
