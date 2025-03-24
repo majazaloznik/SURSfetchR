@@ -101,22 +101,22 @@ source("tests/testthat/helper-connection.R")
 # x <- prepare_data_table("1700104S", con, schema = "test_platform")
 # prepare_data_table("H240S", con, "test_platform")
 # stop_db_capturing()
-
+#
 # start_db_capturing()
 # con <- make_test_connection()
 # x <- prepare_surs_data_for_insert("H240S", con, "test_platform")
 # stop_db_capturing()
-
-start_db_capturing()
-con <- make_test_connection()
-df <- prepare_vintage_table("1817902S", con, schema = "test_platform")
-UMARimportR::insert_new_vintage(con, df, "test_platform")
-prep_data <- prepare_surs_data_for_insert("0300260S", con, schema = "test_platform")
-result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema = "test_platform")
-stop_db_capturing()
-
-start_db_capturing()
-con <- make_test_connection()
-x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
-stop_db_capturing()
+#
+# start_db_capturing()
+# con <- make_test_connection()
+# df <- prepare_vintage_table("1817902S", con, schema = "test_platform")
+# UMARimportR::insert_new_vintage(con, df, "test_platform")
+# prep_data <- prepare_surs_data_for_insert("0300260S", con, schema = "test_platform")
+# result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema = "test_platform")
+# stop_db_capturing()
+#
+# start_db_capturing()
+# con <- make_test_connection()
+# x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
+# stop_db_capturing()
 
