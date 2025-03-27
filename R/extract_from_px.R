@@ -149,14 +149,22 @@ get_valuenotes_from_px <- function(code_no, tbl_id, con) {
   as.data.frame(get_px_metadata(code_no)$valuenotes[[1]]) %>%
     tidyr::gather() -> x
   if(nrow(x)>0){
-  purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
-                     level_text = get_valuenotes_level(.))) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
-           level_value = get_level_value(tab_dim_id, level_text, con)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out} else {
-      out <- NULL}
+    tryCatch({
+      purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
+                       level_text = get_valuenotes_level(.))) %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
+                     level_value = get_level_value(tab_dim_id, level_text, con)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con)) -> out
+    }, error = function(e) {
+      message("Failed to process valuenotes: ", e$message)
+      out <- NULL
+    })
+  } else {
+    out <- NULL
+  }
+  return(out)
 }
 
 
