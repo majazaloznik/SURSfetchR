@@ -243,7 +243,7 @@ add_new_table <- function(code, con, keep_vintage = FALSE) {
   full <- get_full_structure(tree)
   out <- list()
   # insert table structures for a single matrix
-  out[[1]] <- insert_new_table_structures(code, keep_vintage, con, full)
+  out[[1]] <- insert_new_table_structures(code, con, full, keep_vintage = keep_vintage)
   # insert data  for a single matrix
   out[[2]] <- insert_new_data(code, con)
   out
