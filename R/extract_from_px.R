@@ -173,7 +173,7 @@ get_valuenotes_from_px <- function(code_no, tbl_id, con) {
 #' @rdname valuenotes
 #' @keywords internal
 get_valuenotes_dimension <- function(x){
-  x <- regmatches(x, regexpr("[A-Z.]+(?=\\.)", x, perl = TRUE))
+  x <- regmatches(x, regexpr("[A-Z\u010c\u0160\u017d.]+(?=\\.)", x, perl = TRUE))
   gsub( "\\.", " ", x)
 }
 

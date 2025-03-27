@@ -38,7 +38,7 @@ Imports:
     bit64 (>= 4.0.5),
     here (>= 1.0.1),
     envDocument (>= 2.4.1)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 Remotes: 

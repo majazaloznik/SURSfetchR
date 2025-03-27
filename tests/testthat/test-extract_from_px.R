@@ -55,6 +55,8 @@ test_that("valuenotes regex works", {
   expect_equal(out, "BLA BLA BLA")
   out <- get_valuenotes_dimension("Barabe")
   expect_true(length(out) == 0)
+  out <- get_valuenotes_dimension("STATISTI\U010CNA.REGIJA.Savinjska")
+  expect_equal(out, "STATISTI\U010CNA REGIJA")
   out <- get_valuenotes_level(names(x))
   expect_true(grepl(".zmogljivosti", out))
   out <- get_valuenotes_unit(x, con)
