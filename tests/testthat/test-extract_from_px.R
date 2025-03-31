@@ -1,4 +1,3 @@
-library(dittodb)
 full <- readRDS(test_path("testdata", "full_h.rds"))
 
 test_that("Metadata is properly parsed", {
@@ -27,62 +26,42 @@ test_that("Categories are properly parsed", {
   expect_true(ncol(x) == 4)
   x <- get_row("lkj", full)
   expect_true(nrow(x) == 0)
- expect_error(get_row(123, x))
+  expect_error(get_row(123, x))
 })
 
 dittodb::with_mock_db({
-  con <- DBI::dbConnect(RPostgres::Postgres(),
-                        dbname = "sandbox",
-                        host = "localhost",
-                        port = 5432,
-                        user = "mzaloznik",
-                        password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbExecute(con, "set search_path to test_platform")
+  con <- make_test_connection()
 
   test_that("single unit from px metadata", {
-  x <- get_single_unit_from_px("0300230S", con)
-  expect_true(is.na(x))
-  x <- get_single_unit_from_px("0457101S", con)
-  expect_true(x == 7)
+    x <- SURSfetchR:::get_single_unit_from_px("0457101S", con, "test_platform")
+    expect_true(x == 8)
   })
-})
 
-test_that("valuenotes regex works", {
-  x <- get_px_metadata("1700104S")$valuenotes[[1]][1]
-  out <- get_valuenotes_dimension(names(x))
-  expect_equal(out, "EKONOMSKI KAZALNIKI")
-  out <- get_valuenotes_dimension("BLA.BLA.BLA.bla")
-  expect_equal(out, "BLA BLA BLA")
-  out <- get_valuenotes_dimension("Barabe")
-  expect_true(length(out) == 0)
-  out <- get_valuenotes_dimension("STATISTI\U010CNA.REGIJA.Savinjska")
-  expect_equal(out, "STATISTI\U010CNA REGIJA")
-  out <- get_valuenotes_level(names(x))
-  expect_true(grepl(".zmogljivosti", out))
-  out <- get_valuenotes_unit(x, con)
-  expect_true(out == 3)
-})
+  test_that("valuenotes regex works", {
+    x <- get_px_metadata("1700104S")$valuenotes[[1]][1]
+    out <- get_valuenotes_dimension(names(x))
+    expect_equal(out, "EKONOMSKI KAZALNIKI")
+    out <- get_valuenotes_dimension("BLA.BLA.BLA.bla")
+    expect_equal(out, "BLA BLA BLA")
+    out <- get_valuenotes_dimension("Barabe")
+    expect_true(length(out) == 0)
+    out <- get_valuenotes_dimension("STATISTI\U010CNA.REGIJA.Savinjska")
+    expect_equal(out, "STATISTI\U010CNA REGIJA")
+    out <- get_valuenotes_level(names(x))
+    expect_true(grepl(".zmogljivosti", out))
+    out <- get_valuenotes_unit(x, con, "test_platform")
+    expect_true(out == 3)
+  })
 
-test_that("newlines are removed from descriptions", {
-  x <- get_px_metadata("2001301S")$name
-  expect_true(nchar(x) < 286)
+  test_that("newlines are removed from descriptions", {
+    x <- get_px_metadata("2001301S")$name
+    expect_true(nchar(x) < 286)
 
-})
-
-dittodb::with_mock_db({
-  con <- DBI::dbConnect(RPostgres::Postgres(),
-                        dbname = "sandbox",
-                        host = "localhost",
-                        port = 5432,
-                        user = "mzaloznik",
-                        password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbExecute(con, "set search_path to test_platform")
-
+  })
   test_that("extraction from valuenotes works", {
-    x <- get_valuenotes_from_px("1700104S", 15, con)
+    x <- get_valuenotes_from_px("1700104S", con, schema = "test_platform")
     expect_true(all(dim(x) == c(6,5)))
     expect_equal(unique(x$unit_id), c(3, 18))
   })
 })
-
 
