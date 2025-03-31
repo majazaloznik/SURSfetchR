@@ -267,3 +267,16 @@ get_tree <- function(df) {
   tree <- data.tree::as.Node(df)
   tree
 }
+
+#' Get full category hierarchy from the API
+#'
+#' Wrapper function
+#'
+#' @returns dataframe with flattened tree hierarchy
+#' @export
+#'
+get_full_category_hierarchy <- function(){
+  resp <- get_API_response()
+  parsed <- parse_structAPI_response(resp)
+  get_full_structure(parsed)
+}

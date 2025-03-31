@@ -5,9 +5,9 @@
 \alias{expand_to_series_titles}
 \title{Expanding from levels to series codes and titles}
 \usage{
-expand_to_level_codes(code_no)
+expand_to_level_codes(tbl_id, con, schema = "platform")
 
-expand_to_series_titles(code_no)
+expand_to_series_titles(tbl_id, con, schema = "platform")
 }
 \arguments{
 \item{code_no}{code e.g. 0300230S}

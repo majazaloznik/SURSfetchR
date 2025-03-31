@@ -29,10 +29,13 @@ request <- httr::GET(url= url,
 parsed_request <- jsonlite::fromJSON(httr::content(request, as = "text"))
 change_types <- parsed_request[[2]]
 
-
+# also add the full category hierarchy from SURS. updated 6.3.2025.
+# should be updated occasionally, or actually only when you find a new
+# table has a new categorization that didn't exist before.
+full <- get_full_category_hierarchy()
 
 ################################################################################
 # rerun this after you make any changes here!!!
 ################################################################################
-usethis::use_data(change_types,
+usethis::use_data(change_types, full,
                   internal = TRUE, overwrite = TRUE)

@@ -9,23 +9,23 @@
 #' unit_id for the level codes and sinle column with series titles for the other one.
 #' @rdname expanding
 #' @keywords internal
-expand_to_level_codes <- function (code_no) {
-  get_table_levels(code_no) %>%
-    dplyr::filter(!time) %>%
-    dplyr::pull(levels) %>%
-    purrr::map("values") %>%
-    expand.grid(stringsAsFactors = FALSE)
-
+expand_to_level_codes <- function (tbl_id, con, schema = "platform") {
+  levels <- UMARaccessR::sql_get_dimension_levels_from_table_id(tbl_id, con, schema )
+  do.call(expand.grid,
+          c(setNames(split(levels$level_value, levels$tab_dim_id),
+                     paste0("Var", seq_along(unique(levels$tab_dim_id)))),
+            stringsAsFactors = FALSE))
 }
+
 #' @rdname expanding
 #' @keywords internal
-expand_to_series_titles <- function(code_no){
-  get_table_levels(code_no) %>%
-    dplyr::filter(!time) %>%
-    dplyr::pull(levels) %>%
-    purrr::map("valueTexts") %>%
-    expand.grid() %>%
-    tidyr::unite("series_title", dplyr::everything(), sep = " -- ")
+expand_to_series_titles <- function (tbl_id, con, schema = "platform") {
+  levels <- UMARaccessR::sql_get_dimension_levels_from_table_id(tbl_id, con, schema )
+  do.call(expand.grid,
+          c(setNames(split(levels$level_text, levels$tab_dim_id),
+                     paste0("Var", seq_along(unique(levels$tab_dim_id)))),
+            stringsAsFactors = FALSE)) |>
+    tidyr::unite("name_long", dplyr::everything(), sep = " -- ")
 }
 
 #' Joining the unit tables from either meritve or valuenotes.
@@ -37,7 +37,7 @@ expand_to_series_titles <- function(code_no){
 #' @param expanded_level_codes dataframe output of \link[SURSfetchR]{expand_to_level_codes}
 #' @param meritve_dim_no numeric output of \link[SURSfetchR]{get_meritve_no}
 #' @param units_by_meritve_levels dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}
-#' @param valuenotes_dim_no numeric output of \link[SURSfetchR]{get_valuenotes_no}
+#' @param valuenotes_dim_no numeric output of \link[UMARaccessR]{sql_get_dimension_position_from_table}
 #' @param units_by_levels dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}
 #' @return datafram from expanded_level_codes with added `unit_id` column
 #'
@@ -66,26 +66,10 @@ add_valuenotes_level_units <- function(expanded_level_codes, valuenotes_dim_no,
 }
 
 
-
-#' Wrapper for database identifier construction
-#'
-#' Wraps `Id` to a default schema and without requiring named args.
-#'
-#' @param table character name of table
-#' @param schema character name of schema, default currently `platform`
-#'
-#' @return Id object
-#' @export
-Id2 <- function(table, schema = "platform") {
-  Id(schema = schema, table = table)
-}
-
-
-
 #' Helper for recoding dimension levels
 #'
 #' Recodes dimension level labels into dimension level codes. Both
-#' labels and codes are extracted inside the  \link[SURSfetchR]{prepare_data_table}
+#' labels and codes are extracted inside the  \link[SURSfetchR]{prepare_surs_data_for_insert}
 #' function, which is where this helper is also called.
 #'
 #' @param i numeric index for mapping over the dimensions

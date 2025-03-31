@@ -14,7 +14,7 @@ character code of interval id
 }
 \description{
 This is not a db reading function, but it kinda fits with them, simply
-because i'm using a lookup vector inside the funciton instead of creating
+because i'm using a lookup vector inside the function instead of creating
 another table in the database to get the interval id.
 }
 \keyword{internal}

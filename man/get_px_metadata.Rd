@@ -14,8 +14,7 @@ without the .px extension.}
 A data.frame with eight columns and single row
 }
 \description{
-In addition to the  \link[SURSfetchR]{get_table_levels} function, which gets the table's
-dimensions and levels, this one gets some other metadata from the .px file, which are
+This one gets some metadata from the .px file, which are
 not available to the pxweb library but use the pxR library. These are the creation date,
 units and notes, which are parsed as json and some other minor things.
 }

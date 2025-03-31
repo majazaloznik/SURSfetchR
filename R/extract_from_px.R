@@ -1,7 +1,6 @@
 #' Get the metadata for an individual table
 #'
-#' In addition to the  \link[SURSfetchR]{get_table_levels} function, which gets the table's
-#' dimensions and levels, this one gets some other metadata from the .px file, which are
+#' This one gets some metadata from the .px file, which are
 #' not available to the pxweb library but use the pxR library. These are the creation date,
 #' units and notes, which are parsed as json and some other minor things.
 #'
@@ -54,6 +53,36 @@ get_px_data <- function(id) {
  list(l$DATA$value, l$VALUES, l$CODES)
 }
 
+#' GET the dimensions and levels for an individual table from the SURS API
+#'
+#' Takes the matrix code of a SURS table (with or without the .px extension)
+#' and uses GET to return the metadata as a tibble. NB: this is a limited set
+#' of metadata, with only dim_names and levels and the elim and time varz.
+#' I think I used it because it had the levels in a nice format. Use XXX instead
+#' to get the richer metadata out.
+#'
+#' @param id character vector of length 1 with code of matrix. Can be with or
+#' without the .px extension.
+#'
+#' @return A tibble with four columns and the same number of rows as there
+#' are dimensions in the table
+#'
+#' @export
+get_table_levels_from_px <- function(id) {
+  checkmate::qassert(id, "S[5,11]")
+  id <- sub(".PX$", "", id)
+  id <- sub(".px$", "", id)
+  url <- paste0("https://pxweb.stat.si/SiStatData/api/v1/sl/Data/", id, ".px")
+  res <-httr::GET(url)
+  mtd <- pxweb::pxweb_parse_response(res)
+  mtdt_tbl <- tibble::tibble(
+    dimension_name = sapply(mtd$variables, function(x) x$text),
+    elim = sapply(mtd$variables, function(x) x$elimination),
+    time = sapply(mtd$variables, function(x) x$time),
+    levels = lapply(mtd$variables, function(x) tibble::as_tibble(x[3:4]))) %>%
+    dplyr::mutate(id = sub(".px$", "", id))
+  return(mtdt_tbl)
+}
 
 #' Helper function to get parent category from full hierarchy
 #'
@@ -133,30 +162,33 @@ get_row <- function(id_no, full, output = NULL){
 #' in there
 #' @param code_no character string of px code
 #' @param tbl_id numeric value of table's id in the `table` table
+#' @param schema defaults to platform
 #' @rdname get_px_stuff
 #' @keywords internal
-get_single_unit_from_px <- function(code_no, con){
+get_single_unit_from_px <- function(code_no, con, schema = "platform"){
   units_from_px <- unlist(strsplit(get_px_metadata(code_no)$units, ", "))
   if(length(units_from_px)==1) {
-    unit_id <- get_unit_id(units_from_px, con)} else {
+    unit_id <- UMARaccessR::sql_get_unit_id_from_unit_name(units_from_px, con, schema)} else {
       unit_id <- NA}
   unit_id
 }
 
 #' @rdname get_px_stuff
 #' @keywords internal
-get_valuenotes_from_px <- function(code_no, tbl_id, con) {
+get_valuenotes_from_px <- function(code_no, con, schema = "platform") {
+  DBI::dbExecute(con, paste("set search_path to", schema))
+  tbl_id <- UMARaccessR::sql_get_table_id_from_table_code( con,code_no, schema)
   as.data.frame(get_px_metadata(code_no)$valuenotes[[1]]) %>%
     tidyr::gather() -> x
   if(nrow(x)>0){
     tryCatch({
-      out <- purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
-                       level_text = get_valuenotes_level(.))) %>%
+      purrr::map_dfr(x$key, ~ c(dim_name = get_valuenotes_dimension(.),
+                                level_text = get_valuenotes_level(.))) %>%
         dplyr::rowwise() %>%
-        dplyr::mutate(tab_dim_id = get_tab_dim_id(tbl_id, dim_name, con),
-                     level_value = get_level_value(tab_dim_id, level_text, con)) %>%
+        dplyr::mutate(tab_dim_id = UMARaccessR::sql_get_tab_dim_id_from_table_id_and_dimension(tbl_id, dim_name, con, schema),
+                      level_value = UMARaccessR::sql_get_level_value_from_text(tab_dim_id, level_text, con, schema)) %>%
         dplyr::ungroup() %>%
-        dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con))
+        dplyr::mutate(unit_id = purrr::map_dbl(x$value, get_valuenotes_unit, con, schema)) -> out
       return(out)
     }, error = function(e) {
       message("Failed to process valuenotes: ", e$message)
@@ -194,9 +226,9 @@ get_valuenotes_level <- function(x){
 
 #' @rdname valuenotes
 #' @keywords internal
-get_valuenotes_unit <- function(x, con){
-  y <- regmatches(x, regexpr("(?<=Enota: ).+", x, perl = TRUE))
+get_valuenotes_unit <- function(x, con, schema = "platform"){
+  y <- regmatches(x, regexpr("(?<=Enota: ).+?(?=\\.|#)", x, perl = TRUE))
   y <- gsub( "\\.", "", y)
   unit_name <- gsub("\" \"", "", y)
-  as.numeric(get_unit_id(unit_name, con))
+  as.numeric(UMARaccessR::sql_get_unit_id_from_unit_name(unit_name, con, schema))
 }

@@ -24,7 +24,7 @@ add_valuenotes_level_units(
 
 \item{units_by_meritve_levels}{dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}}
 
-\item{valuenotes_dim_no}{numeric output of \link[SURSfetchR]{get_valuenotes_no}}
+\item{valuenotes_dim_no}{numeric output of \link[UMARaccessR]{sql_get_dimension_position_from_table}}
 
 \item{units_by_levels}{dataframe output of \link[SURSfetchR]{get_unit_levels_from_meritve}}
 }

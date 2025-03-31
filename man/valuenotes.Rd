@@ -10,7 +10,7 @@ get_valuenotes_dimension(x)
 
 get_valuenotes_level(x)
 
-get_valuenotes_unit(x, con)
+get_valuenotes_unit(x, con, schema = "platform")
 }
 \arguments{
 \item{x}{a character string, either the element name (for dimension and level)
