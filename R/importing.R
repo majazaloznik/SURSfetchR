@@ -89,17 +89,31 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
 #' @export
 SURS_import_data_points <- function(code_no, con, schema = "platform") {
   message("Importing data points from: ", code_no, " into schema ", schema)
-  # collect outputs from the funcitons into one result list
+  # collect outputs from the functions into one result list
   result <- list()
-  # prepare SURS vintage table
-  vintages <- prepare_vintage_table(code_no, con, schema)
-  # import vintages
-  result$vintages <- UMARimportR::insert_new_vintage(con, vintages, schema)
-  # Prepare data in SURS-specific way
-  prep_data <- prepare_surs_data_for_insert(code_no, con, schema)
-  # Insert the prepared data
-  result$data <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
-
-  # Return results invisibly
+  # Try to prepare SURS vintage table but catch any errors
+  vintage_result <- tryCatch(
+    expr = {list(
+      vintages = prepare_vintage_table(code_no, con, schema),
+      error = NULL)},
+    error = function(e) {
+      error_msg <- conditionMessage(e)
+      message("Note: ", error_msg)
+      return(list(
+        vintages = NULL,
+        error = error_msg))})
+  # Store error message if any
+  result$vintage_error <- vintage_result$error
+  # Only proceed with import if vintages were prepared successfully
+  if (!is.null(vintage_result$vintages)) {
+    # import vintages
+    result$vintages <- UMARimportR::insert_new_vintage(con, vintage_result$vintages, schema)
+    # Prepare data in SURS-specific way
+    prep_data <- prepare_surs_data_for_insert(code_no, con, schema)
+    # Insert the prepared data
+    result$data <- UMARimportR::insert_prepared_data_points(prep_data, con, schema)
+  } else {
+    message("Skipping import for ", code_no, " due to vintage preparation issue: ", vintage_result$error)
+  }
   invisible(result)
 }

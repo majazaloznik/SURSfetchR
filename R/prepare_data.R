@@ -17,9 +17,9 @@ prepare_vintage_table <- function(code_no, con, schema){
   tbl_id <- UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
   published <- get_px_metadata(code_no)$updated
   last_published <- UMARaccessR::sql_get_last_publication_date_from_table_id(tbl_id, con, schema)
-  if(identical(published, last_published)) {
+  if(!is.null(last_published) && published == last_published) {
     stop(paste0("These vintages for table ", code_no,
-                "are not new, they will not be inserted again."))
+                " are not new, they will not be inserted again."))
   } else {
     series_ids <- UMARaccessR::sql_get_series_ids_from_table_id(tbl_id, con, schema)
     data.frame(series_ids, published) |>
