@@ -191,7 +191,6 @@ prepare_series_table <- function(code_no, con, schema = "platform"){
   tbl_id <-  UMARaccessR::sql_get_table_id_from_table_code(con, code_no, schema)
   time_dimension <- UMARaccessR::sql_get_time_dimension_from_table_code(code_no, con, schema)
   interval_id <- get_interval_id(time_dimension)
-  if(identical(interval_id, logical(0))) interval_id <- "M" # kludge for archived sistat tables..
   unit_id <- get_single_unit_from_px(code_no, con, schema)
 
   expand_to_level_codes(tbl_id, con, schema) -> expanded_level_codes
