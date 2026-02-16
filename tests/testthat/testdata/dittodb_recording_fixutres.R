@@ -120,7 +120,7 @@ con <- make_test_connection()
 x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
 stop_db_capturing()
 
-UMARaccessR::sql_get_table_id_from_table_code(con, "0714621S", schema = "test_platform")
-idz  <- UMARaccessR::sql_get_latest_vintages_for_table_id( 34, con, schema = "test_platform")$vintage_id
+tblid <- UMARaccessR::sql_get_table_id_from_table_code(con, "0714621S", schema = "test_platform")
+idz  <- UMARaccessR::sql_get_latest_vintages_for_table_id( tblid, con, schema = "test_platform")$vintage_id
 UMARimportR::delete_vintage(con, idz,  schema = "test_platform")
 

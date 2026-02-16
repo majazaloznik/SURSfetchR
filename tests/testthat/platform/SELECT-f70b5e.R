@@ -5,5 +5,5 @@ structure(list(ČETRTLETJE = c("2008Q1", "2008Q2", "2008Q3",
 "2008Q3", "2008Q4", "2009Q1"), time = c("2008Q1", "2008Q2", "2008Q3", 
 "2008Q4", "2009Q1"), flag = c("", "", "", "", ""), interval_id = c("Q", 
 "Q", "Q", "Q", "Q"), series_id = c(33964L, 33964L, 33964L, 33964L, 
-33964L), vintage_id = c(160178L, 160178L, 160178L, 160178L, 160178L
+33964L), vintage_id = c(160406L, 160406L, 160406L, 160406L, 160406L
 )), class = "data.frame", row.names = c(NA, -5L))
