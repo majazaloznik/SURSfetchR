@@ -91,10 +91,10 @@ source("tests/testthat/helper-connection.R")
 # SURS_import_structure("2711808S", con, schema = "test_platform")
 # stop_db_capturing()
 #
-# start_db_capturing()
-# con <- make_test_connection()
-# x <- prepare_vintage_table("2711808S", con, schema = "test_platform")
-# stop_db_capturing()
+start_db_capturing()
+con <- make_test_connection()
+x <- prepare_vintage_table("2711808S", con, schema = "test_platform")
+stop_db_capturing()
 #
 # start_db_capturing()
 # con <- make_test_connection()
@@ -115,8 +115,12 @@ source("tests/testthat/helper-connection.R")
 # result <- UMARimportR::insert_prepared_data_points(prep_data, con, schema = "test_platform")
 # stop_db_capturing()
 #
-# start_db_capturing()
-# con <- make_test_connection()
-# x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
-# stop_db_capturing()
+start_db_capturing()
+con <- make_test_connection()
+x <- SURS_import_data_points("0714621S", con, schema = "test_platform")
+stop_db_capturing()
+
+UMARaccessR::sql_get_table_id_from_table_code(con, "0714621S", schema = "test_platform")
+idz  <- UMARaccessR::sql_get_latest_vintages_for_table_id( 34, con, schema = "test_platform")$vintage_id
+UMARimportR::delete_vintage(con, idz,  schema = "test_platform")
 

@@ -40,7 +40,7 @@ Imports:
     envDocument (>= 2.4.1),
     UMARaccessR (>= 1.0.0),
     UMARimportR
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Depends: 
     R (>= 3.5)
 Remotes: 
