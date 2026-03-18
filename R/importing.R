@@ -27,7 +27,10 @@ SURS_import_structure <- function(code_no, con, schema = "platform", all_levels 
   insert_results$table <- UMARimportR::insert_new_table_table(con, table_table, schema)
   message("Table insert: ", insert_results$table$count, " rows")
   # preapre and insert category table
-  category_table <- prepare_category_table(code_no, full)
+  category_table <- tryCatch(
+    prepare_category_table(code_no, full),
+    error = function(e) stop("You probably have to update the full object in SURSfetchR by running raw_data/helper_data.R")
+  )
   insert_results$category <- UMARimportR::insert_new_category(con, category_table, schema)
   message("Category insert: ", insert_results$category$count, " rows")
   # prepare and insert category relationship table
